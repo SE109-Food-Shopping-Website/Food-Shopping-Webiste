@@ -31,7 +31,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                 {/* Between */}
                 <div className="w-[600px] relative rounded-[10px] bg-white border-gray-400 border-solid border-[1px] box-border h-10 overflow-hidden shrink-0 flex flex-row items-center justify-start p-2.5  text-left text-[14px] text-black font-inter">
                     <DropdownMenu>
-                        <DropdownMenuTrigger className="w-[200px] flex justify-between items-center">
+                        <DropdownMenuTrigger className="w-[170px] flex justify-between items-center">
                             <span>Danh mục sản phẩm</span>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -154,7 +154,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                 </div>
             </div>
             {/* Menu */}
-            <div className="w-full relative bg-primary h-[60px] flex flex-row items-center justify-between py-0 px-[100px] box-border gap-0 text-left text-[16px] text-white font-inter">
+            <div className="w-full relative bg-primary h-[50px] flex flex-row items-center justify-between py-0 px-[100px] box-border gap-0 text-left text-[16px] text-white font-inter">
                 <b className="relative">TRANG CHỦ</b>
                 <b className="relative">TẤT CẢ SẢN PHẨM</b>
                 <b className="relative">KHUYẾN MÃI</b>

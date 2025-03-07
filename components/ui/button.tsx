@@ -5,21 +5,23 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm text-base font-['Inter'] font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "h-[50px] px-5 py-2.5 bg-[#5CB338] text-white rounded-[5px] justify-start items-center gap-2.5 shadow hover:bg-[#4DA02F]", // Hover màu tối hơn
+          "bg-primary text-primary-foreground shadow hover:bg-primary/90",
         destructive:
-          "h-[50px] px-5 py-2.5 bg-[#FB4141] text-white rounded-[5px] justify-start items-center gap-2.5 hover:bg-[#E13030]",
+          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
-           "h-[50px] px-5 py-2.5 bg-white text-[#5CB338] border border-[#5CB338] rounded-[5px] justify-start items-center gap-2.5 hover:bg-[#5CB338]/10",
+          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+        secondary:
+          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-[50px] px-5 py-2.5",
+        default: "h-9 px-4 py-2",
         sm: "h-8 rounded-md px-3 text-xs",
         lg: "h-10 rounded-md px-8",
         icon: "h-9 w-9",

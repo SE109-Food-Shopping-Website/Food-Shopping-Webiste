@@ -1,5 +1,5 @@
 import React from "react";
 
-export default function CategoryPage() {
+export default function pageDashboard() {
     return <div>page</div>;
 }
