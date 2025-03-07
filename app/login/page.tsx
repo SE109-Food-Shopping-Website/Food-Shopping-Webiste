@@ -1,9 +1,27 @@
+"use client";
+
 import { Form } from "@/components/ui/form";
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 
 export default function pageLogin() {
+  interface User {
+    id: number;
+    name: string;
+    email: string;
+  }
+
+  const [users, setUsers] = useState<User[]>([]);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleAddUser = (event: React.FormEvent) => {
+    event.preventDefault();
+    // Add your user handling logic here
+  };
+
   return (
     <div className="w-full h-full bg-white inline-flex flex-col justify-start items-start overflow-hidden">
       {/* Heading */}
@@ -35,9 +53,24 @@ export default function pageLogin() {
               <div className="relative justify-start text-[#fb4141] text-[32px] font-bold font-['Inter']">
                 ĐĂNG NHẬP
               </div>
-              <Input type="email" placeholder="Email" />
-              <Input type="password" placeholder="Password" />
-              <Button className="w-[500px] h-[60px] p-2.5 bg-[#5cb338] rounded-[5px] inline-flex justify-center items-center gap-2.5 overflow-hidden">
+              <Input
+                type="email"
+                placeholder="Email"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+              <Input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <Button
+                type="submit"
+                className="w-[500px] h-[60px] p-2.5 bg-[#5cb338] rounded-[5px] inline-flex justify-center items-center gap-2.5 overflow-hidden"
+              >
                 <div className="relative justify-start text-white text-[20px] font-bold font-['Inter']">
                   ĐĂNG NHẬP
                 </div>

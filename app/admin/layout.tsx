@@ -24,7 +24,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="h-full w-full bg-white flex-col justify-start items-start inline-flex overflow-hidden">
       {/* Heading */}
-      <div className="w-full h-15 px-[30px] py-2.5 bg-white border-b border-black/20 justify-between items-center inline-flex overflow-hidden">
+      <div className="w-full h-14 px-[30px] py-2.5 bg-white border-b border-black/20 justify-between items-center inline-flex overflow-hidden">
         {/* Left */}
         <div className="h-[60px] justify-start items-center gap-5 inline-flex">
           <img className="w-[170px] h-[60px]" src="/logo_left.png" alt="logo" />
@@ -77,7 +77,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </div>
             {/* Thống kê */}
             <AccordionItem value="thongke" className="w-full">
-              <div className="w-full h-[30px] justify-between items-center inline-flex">
+              {/* <div className="w-full h-[30px] justify-between items-center inline-flex">
                 <AccordionTrigger>
                   <div data-svg-wrapper className="relative">
                     <svg
@@ -99,7 +99,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   </div>
                   Thống kê
                 </AccordionTrigger>
-              </div>
+              </div> */}
               <AccordionContent className="w-full">
                 <Link
                   href="/admin/statics/revenue"
