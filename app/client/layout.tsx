@@ -29,7 +29,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                     <img className="w-[170px] h-[60px]" src="/logo_left.png" alt="Logo" />
                 </div>
                 {/* Between */}
-                <div className="w-[600px] relative rounded-[10px] bg-white border-gray-400 border-solid border-[1px] box-border h-10 overflow-hidden shrink-0 flex flex-row items-center justify-start p-2.5  text-left text-[14px] text-black font-inter">
+                <div className="w-[600px] relative rounded-[10px] bg-white border-gray-400 border-solid border-[1px] box-border h-10 overflow-hidden shrink-0 flex flex-row items-center justify-start p-2.5 text-left text-[14px] text-black font-inter">
                     <DropdownMenu>
                         <DropdownMenuTrigger className="w-[170px] flex justify-between items-center">
                             <span>Danh mục sản phẩm</span>
