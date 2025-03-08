@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
+import { Pencil } from "lucide-react";
 
 export interface Provider {
   id: string;
@@ -89,7 +90,7 @@ export const columns: ColumnDef<Provider>[] = [
     cell: ({ row }) => (
       <div>
         <Link href={`/admin/manage/provider/update/${row.getValue("id")}`}>
-          <button className="text-blue-500">Edit</button>
+          <Pencil color="#5cb338" />
         </Link>
       </div>
     ),

@@ -11,6 +11,8 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  filterFns,
+  Row,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -21,18 +23,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { CirclePlus } from "lucide-react";
+import { CirclePlus, PlusCircle, Search } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { DataTablePagination } from "./data-pagination";
+import { TableFilter } from "./table-filter";
+import Link from "next/link";
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData extends object, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   isLoading: boolean;
   error: string | undefined;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends object, TValue>({
   columns,
   data,
   isLoading,
@@ -45,23 +49,52 @@ export function DataTable<TData, TValue>({
   const router = useRouter();
   const path = usePathname();
 
+  const [globalFilter, setGlobalFilter] = React.useState("");
+  const globalFilterFn = <TData extends object>(
+    row: Row<TData>,
+    columnId: string,
+    filterValue: string
+  ) => {
+    return Object.values(row.original).some((value) =>
+      String(value).toLowerCase().includes(filterValue.toLowerCase())
+    );
+  };
+
   const table = useReactTable({
     data,
     columns,
-    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    filterFns: { global: globalFilterFn }, // Dùng bộ lọc toàn cục
+    onGlobalFilterChange: setGlobalFilter, // Cập nhật giá trị tìm kiếm
     state: {
       sorting,
       columnFilters,
+      globalFilter, // Thêm state này vào bảng
     },
   });
 
   return (
     <div>
+      <div className="w-full bg-white p-[10px] flex items-center justify-between border border-white rounded-[10px] mb-[20px] mt-[10px] h-[60px]">
+        <div className="flex justify-end items-center h-full">
+          <div className="relative h-full flex items-center">
+            <TableFilter table={table} />
+            <Search className="absolute right-2 top-1/3 transform -translate-y-2.5 text-gray-500" />
+          </div>
+        </div>
+
+        <div className="flex justify-start">
+          <div className="relative">
+            <PlusCircle className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white" />
+            <Button className="pl-12">
+              <Link href="/admin/manage/provider/add">Thêm nhà cung cấp</Link>
+            </Button>{" "}
+          </div>
+        </div>
+      </div>
       <div className="rounded-md">
         {isLoading ? (
           <div className="flex items-center justify-center">Loading...</div>
