@@ -1,0 +1,51 @@
+import type {Provider} from "@/app/admin/manage/provider/components/columns";
+export const providerData: Provider[] = [
+    {
+        id: "1",
+        name: "Công ty TNHH ABC",
+        email: "abc@gmail.com",
+        address: "123 Đường ABC, Quận 1, TP.HCM",
+        status: "active",
+        action: "",
+    },
+    {
+        id: "2",
+        name: "Công ty TNHH ABC",
+        email: "abc@gmail.com",
+        address: "123 Đường ABC, Quận 1, TP.HCM",
+        status: "active",
+        action: "",
+    },
+    {
+        id: "3",
+        name: "Công ty TNHH ABC",
+        email: "abc@gmail.com",
+        address: "123 Đường ABC, Quận 1, TP.HCM",
+        status: "active",
+        action: "",
+    },
+    {
+        id: "4",
+        name: "Công ty TNHH ABC",
+        email: "abc@gmail.com",
+        address: "123 Đường ABC, Quận 1, TP.HCM",
+        status: "active",
+        action: "",
+    },
+    {
+        id: "5",
+        name: "Công ty TNHH ABC",
+        email: "abc@gmail.com",
+        address: "123 Đường ABC, Quận 1, TP.HCM",
+        status: "active",
+        action: "",
+    },
+    {
+        id: "6",
+        name: "Công ty TNHH ABC",
+        email: "abc@gmail.com",
+        address: "123 Đường ABC, Quận 1, TP.HCM",
+        status: "active",
+        action: "",
+    },
+];

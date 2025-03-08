@@ -69,7 +69,7 @@ export default function pageLogin() {
               />
               <Button
                 type="submit"
-                className="w-[500px] h-[60px] p-2.5 bg-[#5cb338] rounded-[5px] inline-flex justify-center items-center gap-2.5 overflow-hidden"
+                className="w-[500px] h-[50px] p-2.5 bg-[#5cb338] rounded-[5px] inline-flex justify-center items-center gap-2.5 overflow-hidden"
               >
                 <div className="relative justify-start text-white text-[20px] font-bold font-['Inter']">
                   ĐĂNG NHẬP
