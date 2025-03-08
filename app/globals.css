@@ -27,8 +27,8 @@ body {
     --light: 210, 20%, 98%; /* Trắng (#F9FAFB) */
 
     /* Màu viền và input */
-    --border: 51 81% 65%; /* Vàng nhạt (#ECE852) */
-    --input: 51 81% 65%; /* Vàng nhạt (#ECE852) */
+    --border: 102 52% 46%;
+    --input: 102 52% 46%;
     --ring: 126 56% 45%; /* Xanh lá (#5CB338) */
 
     --radius: 0.5rem;
