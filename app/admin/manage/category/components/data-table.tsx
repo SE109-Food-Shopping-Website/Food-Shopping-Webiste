@@ -90,7 +90,7 @@ export function DataTable<TData extends object, TValue>({
           <div className="relative">
             <PlusCircle className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white" />
             <Button className="pl-12">
-              <Link href="/admin/manage/provider/add">Thêm nhà cung cấp</Link>
+              <Link href="/admin/manage/category/add">Thêm loại sản phẩm</Link>
             </Button>{" "}
           </div>
         </div>

@@ -19,11 +19,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 const formSchema = z.object({
   name: z.string(),
-  email: z.string().email(),
-  address: z.string(),
+  percent: z.string(),
 });
 
-export default function addProvider() {
+export default function addCategory() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
@@ -35,10 +34,10 @@ export default function addProvider() {
   return (
     <div>
       <div className="relative justify-start text-black text-base font-normal font-['Inter']">
-        Trung tâm / Quản lý / Nhà cung cấp
+        Trung tâm / Quản lý / Loại sản phẩm
       </div>
       <div className="relative justify-start text-[#5cb338] text-base font-bold font-['Inter'] mt-[10px]">
-        Thông tin nhà cung cấp
+        Thông tin loại sản phẩm
       </div>
       <Form {...form}>
         <form
@@ -54,10 +53,10 @@ export default function addProvider() {
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormLabel className="font-normal">
-                      Tên nhà cung cấp
+                      Tên loại sản phẩm
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Công ty ABC" {...field} />
+                      <Input placeholder="Rau" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -67,34 +66,14 @@ export default function addProvider() {
             <div className="w-[500px] inline-flex flex-col justify-start items-start gap-5">
               <FormField
                 control={form.control}
-                name="address"
+                name="percent"
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormLabel className="font-normal">
-                      Địa chỉ nhà cung cấp
+                      Giá bán chênh lệch
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="123 Thủ Đức" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-          {/* Email */}
-          <div className="self-stretch inline-flex flex-col justify-center items-start gap-10 mt-[15px]">
-            <div className="w-[500px] flex flex-col justify-start items-start gap-5">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormLabel className="font-normal">
-                      Email nhà cung cấp
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="abc@gmail.com" {...field} />
+                      <Input placeholder="10" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -108,7 +87,7 @@ export default function addProvider() {
               <div className="relative">
                 <LogOut className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white" />
                 <Button variant={"secondary"} className="pl-12" type="button">
-                  <Link href="/admin/manage/provider" className="text-white">
+                  <Link href="/admin/manage/category" className="text-white">
                     Thoát
                   </Link>
                 </Button>{" "}
@@ -116,7 +95,7 @@ export default function addProvider() {
               <div className="relative">
                 <Save className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white" />
                 <Button className="pl-12" type="submit">
-                  <Link href="/admin/manage/provider/add">Lưu</Link>
+                  <Link href="/admin/manage/category">Lưu</Link>
                 </Button>{" "}
               </div>
             </div>

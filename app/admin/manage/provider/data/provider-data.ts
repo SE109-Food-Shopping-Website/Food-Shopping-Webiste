@@ -2,7 +2,7 @@ import type {Provider} from "@/app/admin/manage/provider/components/columns";
 export const providerData: Provider[] = [
     {
         id: "1",
-        name: "Công ty TNHH ABC",
+        name: "ABC",
         email: "abc@gmail.com",
         address: "123 Đường ABC, Quận 1, TP.HCM",
         status: "active",
@@ -10,15 +10,15 @@ export const providerData: Provider[] = [
     },
     {
         id: "2",
-        name: "Công ty TNHH ABC",
-        email: "abc@gmail.com",
-        address: "123 Đường ABC, Quận 1, TP.HCM",
+        name: "CDE",
+        email: "cde@gmail.com",
+        address: "5 Đường ABC, Quận 5, TP.HCM",
         status: "active",
         action: "",
     },
     {
         id: "3",
-        name: "Công ty TNHH ABC",
+        name: "Phúc Long",
         email: "abc@gmail.com",
         address: "123 Đường ABC, Quận 1, TP.HCM",
         status: "active",
@@ -26,7 +26,7 @@ export const providerData: Provider[] = [
     },
     {
         id: "4",
-        name: "Công ty TNHH ABC",
+        name: "Coca Cola",
         email: "abc@gmail.com",
         address: "123 Đường ABC, Quận 1, TP.HCM",
         status: "active",
