@@ -21,7 +21,7 @@ interface ClientLayoutProps {
 
 export default function ClientLayout({ children }: ClientLayoutProps) {
     return (  
-        <div className="h-full w-full bg-white flex-col jutify-start items-start inline-flex overflow-hidden">
+        <div className="w-full h-full min-h-screen flex flex-col jutify-start items-start inline-flex">
             {/* Heading */}
             <div className="w-full h-15 px-[30px] py-2.5 bg-white border-b border-black/20 justify-between items-center inline-flex overflow-hidden">
                 {/* Left */}
@@ -162,7 +162,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                 <b className="relative">ĐIỂM TÍCH LŨY</b>
             </div>
             {/* Main Content */}
-            <main className="w-full flex-1 p-6 white h-full overflow-y-auto">
+            <main className="w-full flex-1 overflow-y-auto">
                 {children}
             </main>
         </div>
