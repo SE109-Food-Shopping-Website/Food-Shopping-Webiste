@@ -1,4 +1,4 @@
-export interface Unprepared {
+export interface Return {
     id: number;
     name: string;
     category: string;
@@ -6,5 +6,6 @@ export interface Unprepared {
     quantity: number;
     oldPrice: number;
     price: number;
+    isRefund: boolean;
 }
   

@@ -1,4 +1,4 @@
-export interface Unprepared {
+export interface Completed {
     id: number;
     name: string;
     category: string;

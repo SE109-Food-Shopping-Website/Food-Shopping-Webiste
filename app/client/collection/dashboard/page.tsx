@@ -23,7 +23,7 @@ export default function pageDashboard() {
                                     <img
                                     className="grow shrink basis-0 self-stretch"
                                     src="/ava.png"
-                                    alt="image"
+                                    alt="product logo"
                                     />
                                 </div>
                                 <div className="relative font-semibold">{item}</div>

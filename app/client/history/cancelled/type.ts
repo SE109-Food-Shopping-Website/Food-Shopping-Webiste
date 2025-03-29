@@ -1,4 +1,4 @@
-export interface Unprepared {
+export interface Cancelled {
     id: number;
     name: string;
     category: string;
@@ -7,4 +7,3 @@ export interface Unprepared {
     oldPrice: number;
     price: number;
 }
-  
