@@ -5,185 +5,185 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+    provider  = "postgresql"
+    url       = env("DATABASE_URL")
+    directUrl = env("DIRECT_URL")
 }
 
 enum USER_gender_enum {
-  Male
-  Female
-  Other
+    Male
+    Female
+    Other
 }
 
 enum ORDER_status_enum {
-  PENDING
-  PROCESSING
-  SHIPPING
-  COMPLETED
-  CANCELLED
+    PENDING
+    PROCESSING
+    SHIPPING
+    COMPLETED
+    CANCELLED
 }
 
 model REFERENCE {
-  name  String @id
-  value String
+    name  String @id
+    value String
 }
 
 model ROLE {
-  id   Int    @id @default(autoincrement())
-  name String @db.VarChar(100)
+    id   Int    @id @default(autoincrement())
+    name String @db.VarChar(100)
 
-  users USER[]
+    users USER[]
 }
 
 model USER {
-  id        Int              @id @default(autoincrement())
-  email     String           @unique
-  password  String
-  name      String
-  phone     String           @unique
-  birthday  DateTime?
-  gender    USER_gender_enum?
-  address   String?
-  isActive  Boolean          @default(true)
-  role_id   Int?
-  role      ROLE?            @relation(fields: [role_id], references: [id])
+    id       Int               @id @default(autoincrement())
+    email    String            @unique
+    password String
+    name     String
+    phone    String            @unique
+    birthday DateTime?
+    gender   USER_gender_enum?
+    address  String?
+    isActive Boolean           @default(true)
+    role_id  Int?
+    role     ROLE?             @relation(fields: [role_id], references: [id])
 
-  carts    CART[]
-  orders   ORDER[]
-  feedback FEEDBACK[]
+    carts    CART[]
+    orders   ORDER[]
+    feedback FEEDBACK[]
 }
 
 model PRODUCT_TYPE {
-  id             Int     @id @default(autoincrement())
-  name           String
-  priceMarginPct Float   @default(0)
+    id             Int    @id @default(autoincrement())
+    name           String
+    priceMarginPct Float  @default(0)
 
-  products PRODUCT[]
+    products PRODUCT[]
 }
 
 model PROVIDER {
-  id      Int     @id @default(autoincrement())
-  name    String
-  address String?
-  email   String? @unique
+    id      Int     @id @default(autoincrement())
+    name    String
+    address String?
+    email   String? @unique
 
-  products PRODUCT[]
-  imports  IMPORT[]
+    products PRODUCT[]
+    imports  IMPORT[]
 }
 
 model PRODUCT {
-  id            Int     @id @default(autoincrement())
-  name          String
-  price         Float
-  images        String?
-  description   String?
-  unit          String
-  quantity      Int     @default(0)
-  sold          Int     @default(0)
-  provider_id   Int?
-  productType_id Int?
+    id             Int     @id @default(autoincrement())
+    name           String
+    price          Float
+    images         String?
+    description    String?
+    unit           String
+    quantity       Int     @default(0)
+    sold           Int     @default(0)
+    provider_id    Int?
+    productType_id Int?
 
-  provider    PROVIDER?    @relation(fields: [provider_id], references: [id])
-  productType PRODUCT_TYPE? @relation(fields: [productType_id], references: [id])
+    provider    PROVIDER?     @relation(fields: [provider_id], references: [id])
+    productType PRODUCT_TYPE? @relation(fields: [productType_id], references: [id])
 
-  importDetails IMPORT_DETAILS[]
-  cartDetails   CART_DETAILS[]
-  orderDetails  ORDER_DETAILS[]
-  feedbacks     FEEDBACK[]
+    importDetails IMPORT_DETAILS[]
+    cartDetails   CART_DETAILS[]
+    orderDetails  ORDER_DETAILS[]
+    feedbacks     FEEDBACK[]
 }
 
 model IMPORT {
-  id         Int      @id @default(autoincrement())
-  totalPrice Float
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now())
-  provider_id Int?
+    id          Int      @id @default(autoincrement())
+    totalPrice  Float
+    created_at  DateTime @default(now())
+    updated_at  DateTime @default(now())
+    provider_id Int?
 
-  provider       PROVIDER?      @relation(fields: [provider_id], references: [id])
-  importDetails  IMPORT_DETAILS[]
+    provider      PROVIDER?        @relation(fields: [provider_id], references: [id])
+    importDetails IMPORT_DETAILS[]
 }
 
 model IMPORT_DETAILS {
-  id        Int     @id @default(autoincrement())
-  import_id Int
-  product_id Int
-  price     Float
-  quantity  Int
+    id         Int   @id @default(autoincrement())
+    import_id  Int
+    product_id Int
+    price      Float
+    quantity   Int
 
-  import  IMPORT  @relation(fields: [import_id], references: [id])
-  product PRODUCT @relation(fields: [product_id], references: [id])
+    import  IMPORT  @relation(fields: [import_id], references: [id])
+    product PRODUCT @relation(fields: [product_id], references: [id])
 }
 
 model CART {
-  id      Int  @id @default(autoincrement())
-  user_id Int?
+    id      Int  @id @default(autoincrement())
+    user_id Int?
 
-  user         USER?        @relation(fields: [user_id], references: [id])
-  cartDetails  CART_DETAILS[]
+    user        USER?          @relation(fields: [user_id], references: [id])
+    cartDetails CART_DETAILS[]
 }
 
 model CART_DETAILS {
-  id         Int  @id @default(autoincrement())
-  cart_id    Int
-  product_id Int
-  quantity   Int
+    id         Int @id @default(autoincrement())
+    cart_id    Int
+    product_id Int
+    quantity   Int
 
-  cart    CART    @relation(fields: [cart_id], references: [id])
-  product PRODUCT @relation(fields: [product_id], references: [id])
+    cart    CART    @relation(fields: [cart_id], references: [id])
+    product PRODUCT @relation(fields: [product_id], references: [id])
 }
 
 model PAYMENT_METHOD {
-  id          Int     @id @default(autoincrement())
-  name        String
-  isAvailable Boolean @default(true)
+    id          Int     @id @default(autoincrement())
+    name        String
+    isAvailable Boolean @default(true)
 
-  orders ORDER[]
+    orders ORDER[]
 }
 
 model ORDER {
-  id             Int               @id @default(autoincrement())
-  status         ORDER_status_enum @default(PENDING)
-  note           String?
-  originalPrice  Float
-  discountAmount Float @default(0)
-  totalPrice     Float
-  shippingFee    Float @default(0)
-  created_at     DateTime @default(now())
-  paid_at        DateTime?
-  user_id        Int?
-  payment_id     Int?
+    id             Int               @id @default(autoincrement())
+    status         ORDER_status_enum @default(PENDING)
+    note           String?
+    originalPrice  Float
+    discountAmount Float             @default(0)
+    totalPrice     Float
+    shippingFee    Float             @default(0)
+    created_at     DateTime          @default(now())
+    paid_at        DateTime?
+    user_id        Int?
+    payment_id     Int?
 
-  user         USER?          @relation(fields: [user_id], references: [id])
-  payment      PAYMENT_METHOD? @relation(fields: [payment_id], references: [id])
-  orderDetails ORDER_DETAILS[]
+    user         USER?           @relation(fields: [user_id], references: [id])
+    payment      PAYMENT_METHOD? @relation(fields: [payment_id], references: [id])
+    orderDetails ORDER_DETAILS[]
 }
 
 model ORDER_DETAILS {
-  id           Int     @id @default(autoincrement())
-  order_id     Int
-  product_id   Int
-  quantity     Int
-  originalPrice Float
-  salePrice     Float
+    id            Int   @id @default(autoincrement())
+    order_id      Int
+    product_id    Int
+    quantity      Int
+    originalPrice Float
+    salePrice     Float
 
-  order   ORDER   @relation(fields: [order_id], references: [id])
-  product PRODUCT @relation(fields: [product_id], references: [id])
+    order   ORDER   @relation(fields: [order_id], references: [id])
+    product PRODUCT @relation(fields: [product_id], references: [id])
 }
 
 model FEEDBACK {
-  id         Int      @id @default(autoincrement())
-  comment    String?
-  images     String?
-  rating     Int?
-  created_at DateTime @default(now())
-  product_id Int
-  user_id    Int
+    id         Int      @id @default(autoincrement())
+    comment    String?
+    images     String?
+    rating     Int?
+    created_at DateTime @default(now())
+    product_id Int
+    user_id    Int
 
-  product PRODUCT @relation(fields: [product_id], references: [id])
-  user    USER    @relation(fields: [user_id], references: [id])
+    product PRODUCT @relation(fields: [product_id], references: [id])
+    user    USER    @relation(fields: [user_id], references: [id])
 }
