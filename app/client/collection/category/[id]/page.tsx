@@ -1,14 +1,8 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import React, {useState, useEffect} from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-
-interface ProductType {
-  id: number;
-  name: string;
-}
 
 interface Product {
   id: number;
@@ -18,13 +12,13 @@ interface Product {
   productTypeId?: number;
 }
 
-const mockCategories: ProductType[] = [
+const categories = [
   { id: 1, name: "Rau củ quả" },
   { id: 2, name: "Sữa" },
   { id: 3, name: "Trứng" },
 ];
 
-const mockProducts: Product[] = [
+const products: Product[] = [
   { id: 1, name: "Rau chân vịt", price: 40000, images: "/spinach_3.jpg", productTypeId: 1 },
   { id: 2, name: "Súp lơ", price: 35000, images: "/cauli.png", productTypeId: 1 },
   { id: 3, name: "Sữa milo", price: 150000, images: "/milo_3.jpg", productTypeId: 2 },
@@ -34,56 +28,15 @@ const mockProducts: Product[] = [
 ];
 
 export default function CategoryPage() {
-  const [categories, setCategories] = useState<ProductType[]>(mockCategories);
-  const [products, setProducts] = useState<Product[]>(mockProducts);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const params = useParams();
+  const categoryId = Number(params.id); 
 
-  // useEffect(() => {
-  //     const fetchCategories = async () => {
-  //       try {
-  //         const res = await fetch("/api/product-types");
-  //         if (!res.ok) {
-  //           throw new Error(`HTTP error! Status: ${res.status}`);
-  //         }
-  //         const text = await res.text(); 
-  //         if (!text) {
-  //           throw new Error("Empty response from server");
-  //         }
-  //         const data = JSON.parse(text); 
-  //         if (Array.isArray(data)) {
-  //           setCategories(data);
-  //         } else {
-  //           throw new Error("Invalid JSON format");
-  //         }
-  //       } catch (error) {
-  //         console.error("Lỗi khi lấy danh mục sản phẩm:", error);
-  //       }
-  //     };
-    
-  //     const fetchProducts = async () => {
-  //       try {
-  //         const res = await fetch("/api/products");
-  //         if (!res.ok) {
-  //           throw new Error(`HTTP error! Status: ${res.status}`);
-  //         }
-  //         const text = await res.text();
-  //         if (!text) {
-  //           throw new Error("Empty response from server");
-  //         }
-  //         const data = JSON.parse(text);
-  //         if (Array.isArray(data)) {
-  //           setProducts(data);
-  //         } else {
-  //           throw new Error("Invalid JSON format");
-  //         }
-  //       } catch (error) {
-  //         console.error("Lỗi khi lấy sản phẩm:", error);
-  //       }
-  //     };
-    
-  //     fetchCategories();
-  //     fetchProducts();
-  // }, []);
+  // Tìm tên danh mục
+  const category = categories.find((c) => c.id === categoryId);
+  const categoryName = category ? category.name : "Danh mục không tồn tại";
+
+  // Lọc sản phẩm theo danh mục
+  const filteredProducts = products.filter((p) => p.productTypeId === categoryId);
 
   return (
     <div className="w-full min-h-screen flex flex-col bg-white">
@@ -123,22 +76,17 @@ export default function CategoryPage() {
         </div>
         {/* Right */}
         <div className="self-stretch flex-1 flex flex-col items-start justify-start text-black">
-          <h1 className="text-2xl font-bold p-2">Tất cả sản phẩm</h1>
-          <div className="flex flex-wrap gap-10">
-            {products.map((product) => (
+          <h1 className="text-2xl font-bold p-2">{categoryName}</h1>
+          {/* Danh sách sản phẩm */}
+          <div className="flex flex-wrap gap-10 p-2">
+            {filteredProducts.map((product) => (
               <div key={product.id} className="w-[200px] flex flex-col gap-2.5">
                 <div className="w-full h-[200px] border-primary border-[3px] flex items-center justify-center rounded-md">
-                  <img
-                    className="w-auto h-auto"
-                    src={product.images || "/ava.png"}
-                    alt={product.name}
-                  />
+                  <img className="w-auto h-auto" src={product.images || "/ava.png"} alt={product.name} />
                 </div>
                 <div className="w-full flex flex-col px-2.5 gap-2.5">
                   <span className="font-semibold">{product.name}</span>
-                  <b className="text-base text-primary">
-                    {product.price.toLocaleString()}đ
-                  </b>
+                  <b className="text-base text-primary">{product.price.toLocaleString()}đ</b>
                 </div>
               </div>
             ))}

@@ -1,94 +1,148 @@
-import React from "react";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
-import {Phone, MapPin, Mail} from "lucide-react";
+"use client";
 
-export default function pageDashboard() {
-    return (
-        <div className="w-full min-h-screen flex flex-col bg-white">
-            {/* Body */}
-            <div className="flex-1 flex flex-row items-start justify-start py-[30px] px-[100px] gap-[60px] text-left text-white font-inter">
-                {/* Left */}
-                <div className="w-auto rounded-[5px] bg-primary h-auto flex flex-col items-start justify-start p-5 box-border gap-5">
-                    <div className="self-stretch relative font-bold text-[18px]">Danh mục sản phẩm</div>
-                    <ScrollArea className="w-full">
-                        <div className="self-stretch flex flex-col items-start justify-start py-0 px-2.5 gap-5 text-base">
-                            {Array(4)
-                            .fill("Rau củ quả")
-                            .map((item, index) => (
-                                <div
-                                key={index}
-                                className="self-stretch flex flex-row items-start justify-start gap-2.5"
-                                >
-                                <div className="w-5 flex flex-row items-center justify-start">
-                                    <img
-                                    className="grow shrink basis-0 self-stretch"
-                                    src="/ava.png"
-                                    alt="product logo"
-                                    />
-                                </div>
-                                <div className="relative font-semibold">{item}</div>
-                                </div>
-                            ))}
-                        </div>
-                    </ScrollArea>
-                </div>
-                {/* Right */}
-                <div className="self-stretch flex-1 flex flex-col items-start justify-start gap-[30px] text-black">
-                    <b className="relative text-[20px]">Rau củ quả</b>
-                    <div className="flex flex-wrap gap-10">
-                        {Array(18).fill(null).map((_, index) => (
-                            <div key={index} className="w-[200px] flex flex-col gap-2.5">
-                                <div className="w-full h-[200px] border-primary border-[3px] flex items-center justify-center rounded-md">
-                                    <img className="w-auto h-auto" src="/ava.png" alt="Product Imagge" />
-                                </div>
-                                <div className="w-full flex flex-col px-2.5 gap-2.5">
-                                    <span className="font-semibold">Cà rốt</span>
-                                    <b className="text-base text-primary">40.000đ</b>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>  
-           {/* Footer */}
-           <div className="w-full bg-primary px-[30px] text-white flex-shrink-0">
-                <div className="self-stretch flex flex-row items-center justify-start p-3xs gap-2.5">
-                    <img className="w-[170px] h-[170px]" src="/logo_slogan.png" alt="Logo" />
-                    <div className="self-stretch flex-1 flex flex-col items-start justify-center gap-5">
-                    <div className="self-stretch relative font-medium">Mua sắm tiện lợi, tiết kiệm và xanh hơn với GoGreen - Nơi bạn tìm thấy sản phẩm chất lượng với giá tốt nhất!
-                </div>
-                <div className="self-stretch flex flex-row items-start justify-between gap-0 text-lg">
-                    <div className="flex flex-row items-start justify-start p-3xs gap-2.5">
-                        <div className="flex flex-col items-start justify-center gap-2.5">
-                        <div className="relative text-[14px] pl-6">
-                            <MapPin size={16} className="absolute left-0 top-1/2 transform -translate-y-1/2 text-white" />
-                            Địa chỉ
-                        </div>
-                        <b className="relative text-[16px]">123, Thủ Đức, TPHCM</b>
-                        </div>
-                    </div>
-                    <div className="flex flex-row items-start justify-start p-3xs gap-2.5">
-                        <div className="flex flex-col items-start justify-center gap-2.5">
-                        <div className="relative text-[14px] pl-6">
-                            <Phone size={16} className="absolute left-0 top-1/2 transform -translate-y-1/2 text-white" />
-                            Hotline
-                        </div>
-                        <b className="relative text-[16px]">19001234</b>
-                        </div>
-                    </div>
-                    <div className="flex flex-row items-start justify-start p-3xs gap-2.5">
-                        <div className="flex flex-col items-start justify-center gap-2.5">
-                        <div className="relative text-[14px] pl-6">
-                            <Mail size={16} className="absolute left-0 top-1/2 transform -translate-y-1/2 text-white" />
-                            Email
-                        </div>
-                        <b className="relative text-[16px]">a@gmail.com</b>
-                        </div>
-                    </div>
-                    </div>
-                    </div>
-                </div>
+import React, { useState, useEffect } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useRouter } from "next/navigation";
+
+interface ProductType {
+  id: number;
+  name: string;
+}
+
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  images?: string;
+  productTypeId?: number;
+}
+
+const mockCategories: ProductType[] = [
+    { id: 1, name: "Rau củ quả"},
+    { id: 2, name: "Sữa" },
+    { id: 3, name: "Trứng" },
+];
+  
+const mockProducts: Product[] = [
+    { id: 1, name: "Rau chân vịt", price: 4000, images: "/spinach_3.jpg", productTypeId: 1 },
+    { id: 2, name: "Súp lơ", price: 3500, images: "/cauli.png", productTypeId: 1 },
+    { id: 3, name: "Sữa milo", price: 45000, images: "/milo_3.jpg", productTypeId: 2 },
+    { id: 4, name: "Sữa TH True Milk", price: 50000, images: "/truemilk.jpg", productTypeId: 2 },
+    { id: 5, name: "Trứng gà", price: 25000, images: "/egg.jpg", productTypeId: 3 },
+    { id: 6, name: "Trứng vịt", price: 20000, images: "/duck.jpg", productTypeId: 3 },
+];
+
+const categoryIcons: Record<number, string> = {
+  1: "/spinach_3.jpg",
+  2: "/truemilk.jpg",
+  3: "/duck.jpg",
+};
+
+export default function PageDashboard() {
+  const [categories, setCategories] = useState<ProductType[]>(mockCategories);
+  const [products, setProducts] = useState<Product[]>(mockProducts);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const router = useRouter();
+  const handleCategoryClick = (categoryId: number) => {
+    router.push(`/client/collection/category/${categoryId}`);
+  };
+
+  // useEffect(() => {
+  //   const fetchCategories = async () => {
+  //     try {
+  //       const res = await fetch("/api/product-types");
+  //       if (!res.ok) {
+  //         throw new Error(`HTTP error! Status: ${res.status}`);
+  //       }
+  //       const text = await res.text(); 
+  //       if (!text) {
+  //         throw new Error("Empty response from server");
+  //       }
+  //       const data = JSON.parse(text); 
+  //       if (Array.isArray(data)) {
+  //         setCategories(data);
+  //       } else {
+  //         throw new Error("Invalid JSON format");
+  //       }
+  //     } catch (error) {
+  //       console.error("Lỗi khi lấy danh mục sản phẩm:", error);
+  //     }
+  //   };
+  
+  //   const fetchProducts = async () => {
+  //     try {
+  //       const res = await fetch("/api/products");
+  //       if (!res.ok) {
+  //         throw new Error(`HTTP error! Status: ${res.status}`);
+  //       }
+  //       const text = await res.text();
+  //       if (!text) {
+  //         throw new Error("Empty response from server");
+  //       }
+  //       const data = JSON.parse(text);
+  //       if (Array.isArray(data)) {
+  //         setProducts(data);
+  //       } else {
+  //         throw new Error("Invalid JSON format");
+  //       }
+  //     } catch (error) {
+  //       console.error("Lỗi khi lấy sản phẩm:", error);
+  //     }
+  //   };
+  
+  //   fetchCategories();
+  //   fetchProducts();
+  // }, []);  
+
+  return (
+    <div className="w-full min-h-screen flex flex-col bg-white">
+      {/* Body */}
+      <div className="flex-1 flex flex-row items-start justify-start py-[30px] px-[100px] gap-[60px] text-left text-white font-inter">
+        {/* Left */}
+        <div className="w-auto rounded-[5px] bg-primary h-auto flex flex-col items-start justify-start p-5 box-border gap-5">
+          <div className="self-stretch relative font-bold text-[18px]">
+            Danh mục sản phẩm
+          </div>
+          <ScrollArea className="w-full h-auto overflow-y-auto">
+            <div className="self-stretch flex flex-col items-start justify-start py-0 px-2.5 gap-5 font-semibold text-base">
+            {categories.map((category) => (
+              <div
+                key={category.id}
+                onClick={() => handleCategoryClick(category.id)}
+                className={`cursor-pointer flex items-center gap-2 p-2 ${
+                  selectedCategory === category.id ? "bg-white text-primary" : "text-white"
+                }`}
+              >
+                <img src={categoryIcons[category.id] || "/ava.png"} alt={category.name} className="w-6 h-6" />
+                {category.name}
+              </div>
+            ))}
             </div>
+          </ScrollArea>
         </div>
-    );
+        {/* Right */}
+        <div className="self-stretch flex-1 flex flex-col items-start justify-start gap-[30px] text-black">
+          <div className="flex flex-wrap gap-10">
+            {products.map((product) => (
+              <div key={product.id} className="w-[200px] flex flex-col gap-2.5">
+                <div className="w-full h-[200px] border-primary border-[3px] flex items-center justify-center rounded-md">
+                  <img
+                    className="w-auto h-auto"
+                    src={product.images || "/ava.png"}
+                    alt={product.name}
+                  />
+                </div>
+                <div className="w-full flex flex-col px-2.5 gap-2.5">
+                  <span className="font-semibold">{product.name}</span>
+                  <b className="text-base text-primary">
+                    {product.price.toLocaleString()}đ
+                  </b>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

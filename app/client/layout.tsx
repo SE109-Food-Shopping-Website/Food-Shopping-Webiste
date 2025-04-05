@@ -1,4 +1,5 @@
 "use client";
+
 import { ReactNode } from "react";
 import {
     DropdownMenu,
@@ -7,7 +8,8 @@ import {
     DropdownMenuContent,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import {User, ShoppingCart, Search, ChevronDown, Tally1} from "lucide-react";  
+import {User, ShoppingCart, Search, ChevronDown} from "lucide-react";  
+import {useState} from "react";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import { CartProvider } from "./context/CartContext";
@@ -18,6 +20,13 @@ interface ClientLayoutProps {
 
 export default function ClientLayout({ children }: ClientLayoutProps) {
     const pathname = usePathname();
+    const [selectedCategory, setSelectedCategory] = useState("Danh mục sản phẩm");
+    const [query, setQuery] = useState("");
+    const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        console.log("Tìm kiếm:", query);
+    };
+
     return (  
         <div className="w-full h-full min-h-screen flex flex-col jutify-start items-start inline-flex gap-[0px]">
             {/* Heading */}
@@ -27,29 +36,33 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                     <img className="w-[170px] h-[60px]" src="/logo_left.png" alt="Logo" />
                 </div>
                 {/* Between */}
-                <div className="w-[600px] relative rounded-[10px] bg-white border-gray-400 border-solid border-[1px] box-border h-10 overflow-hidden shrink-0 flex flex-row items-center justify-start p-2.5 text-left text-[14px] text-black font-inter">
+                <div className="w-[600px] relative rounded-[10px] bg-white border border-gray-300 h-10 flex flex-row items-center p-2 text-[14px] text-black font-inter">
+                    {/* Dropdown */}
                     <DropdownMenu>
-                        <DropdownMenuTrigger className="w-[170px] flex justify-between items-center">
-                            <span>Danh mục sản phẩm</span>
-                            <ChevronDown className="text-black"/>
+                        <DropdownMenuTrigger className="w-[170px] flex justify-between items-center px-2 text-gray-700">
+                            <span className="font-medium">{selectedCategory}</span>
+                            <ChevronDown className="w-4 h-4 text-gray-500" />
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-full" align="start">
-                            <DropdownMenuItem>Rau</DropdownMenuItem>
-                            <DropdownMenuItem>Sữa</DropdownMenuItem>
-                            <DropdownMenuItem>Trứng</DropdownMenuItem>
+                        <DropdownMenuContent className="w-[150px]" align="start">
+                            {["Rau", "Sữa", "Trứng"].map((item) => (
+                                <DropdownMenuItem key={item} onClick={() => setSelectedCategory(item)}>
+                                {item}
+                                </DropdownMenuItem>
+                            ))}
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    <Tally1 className="text-black" />
-                    <div className="flex-1 h-[30px] flex flex-row items-center">
+                    <span className="w-[1px] h-5 bg-gray-300 mx-2"></span>
+                    <form onSubmit={handleSearch} className="flex flex-1 items-center ">
                         <input 
-                            type="text" 
+                            value={query} 
+                            onChange={(e) => setQuery(e.target.value)} 
                             placeholder="Tìm kiếm" 
-                            className="w-full h-full px-2 text-[16px] text-black border-none outline-none"
+                            className="w-full h-full px-2 text-[16px] text-gray-700 border-none outline-none placeholder-gray-400" 
                         />
-                        <Button className="w-[60px] relative rounded-[5px] bg-primary h-[30px] flex flex-row items-center justify-center">
-                           <Search className="text-white" />     
+                        <Button type="submit" className="w-[50px] rounded-[5px] h-[30px] flex items-center justify-center">
+                            <Search className="text-white w-5 h-5" />
                         </Button>
-                    </div>
+                    </form>
                 </div>
                 {/* Right */}
                 <div className="h-[50px] justify-end items-center inline-flex gap-5">
