@@ -3,8 +3,8 @@ import { Input } from "@/components/ui/input";
 import { CirclePlus, PlusCircle } from "lucide-react";
 import React from "react";
 import Image from "next/image";
-import { productData } from "./data/product-data";
 import Link from "next/link";
+import ProductList from "./components/ProductList";
 
 export default function pageProduct() {
   return (
@@ -21,18 +21,7 @@ export default function pageProduct() {
       </div>
       {/* Danh sách sản phẩm */}
       <div className="grid grid-cols-3 gap-4 mt-4">
-        {productData.map((product) => (
-          <div key={product.id} className="flex flex-col items-center">
-            <Image
-              src={product.img_links[0]}
-              alt={product.name}
-              width={150}
-              height={150}
-              className="rounded-lg"
-            />
-            <p className="mt-2 text-center">{product.name}</p>
-          </div>
-        ))}
+        <ProductList />
       </div>
     </div>
   );

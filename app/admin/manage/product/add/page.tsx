@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -24,6 +24,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const formSchema = z.object({
   name: z.string(),
@@ -31,16 +33,114 @@ const formSchema = z.object({
   provider: z.string(),
   unit: z.string(),
   description: z.string(),
-  img_links: z.string().array(),
 });
 
 export default function addProduct() {
+  const router = useRouter();
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>(
+    []
+  );
+  const [providers, setProviders] = useState<{ id: number; name: string }[]>(
+    []
+  );
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    let newImages: File[] = [...selectedImages];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+
+      // Kiểm tra dung lượng file (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`File ${file.name} vượt quá 5MB!`);
+        continue;
+      }
+
+      // Giới hạn tối đa 5 ảnh
+      if (newImages.length >= 5) {
+        alert("Chỉ được chọn tối đa 5 ảnh.");
+        break;
+      }
+
+      newImages.push(file);
+    }
+
+    setSelectedImages(newImages);
+  };
+
+  const removeImage = (index: number) => {
+    setSelectedImages((prevImages) => prevImages.filter((_, i) => i !== index));
+  };
+
+  // Fetch categories
+  useEffect(() => {
+    fetch("/api/product-types")
+      .then((res) => res.json())
+      .then((data) => setCategories(data))
+      .catch(() => setCategories([]));
+  }, []);
+
+  // Fetch providers
+  useEffect(() => {
+    fetch("/api/provider")
+      .then((res) => res.json())
+      .then((data) => setProviders(data))
+      .catch(() => setProviders([]));
+  }, []);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      category: "",
+      provider: "",
+      unit: "",
+      description: "",
+    },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const formData = new FormData();
+    formData.append("name", values.name);
+    formData.append("category", values.category);
+    formData.append("provider", values.provider);
+    formData.append("unit", values.unit);
+    formData.append("description", values.description);
+
+    // Thêm ảnh vào FormData
+    selectedImages.forEach((image) => {
+      formData.append("images", image);
+    });
+
+    try {
+      const res = await fetch("/api/products", {
+        method: "POST",
+        body: formData, // 🚀 Dùng FormData thay vì JSON
+      });
+
+      if (!res.ok) {
+        throw new Error("Lỗi từ server: " + res.statusText);
+      }
+
+      const data = await res.json();
+      if (data.error) {
+        alert("Lỗi: " + data.error);
+      } else {
+        alert("Thêm thành công!");
+        form.reset(); // Reset form
+        setSelectedImages([]); // Reset danh sách ảnh
+        router.push("/admin/manage/product");
+      }
+    } catch (err) {
+      console.error("Lỗi:", err);
+      alert(
+        "Đã xảy ra lỗi: " +
+          (err instanceof Error ? err.message : "Unknown error")
+      );
+    }
   }
 
   return (
@@ -89,9 +189,20 @@ export default function addProduct() {
                           <SelectValue placeholder="Chọn loại sản phẩm" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="trung">Trứng</SelectItem>
-                          <SelectItem value="sua">Sữa</SelectItem>
-                          <SelectItem value="rau">Rau</SelectItem>
+                          {categories.length > 0 ? (
+                            categories.map((category) => (
+                              <SelectItem
+                                key={category.id}
+                                value={category.id.toString()}
+                              >
+                                {category.name}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="none" disabled>
+                              Không có danh mục nào
+                            </SelectItem>
+                          )}
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -135,9 +246,20 @@ export default function addProduct() {
                           <SelectValue placeholder="Chọn nhà cung cấp" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="bhx">Bách Hóa Xanh</SelectItem>
-                          <SelectItem value="tgdd">Thế giới di động</SelectItem>
-                          <SelectItem value="kera">Kera</SelectItem>
+                          {providers.length > 0 ? (
+                            providers.map((provider) => (
+                              <SelectItem
+                                key={provider.id}
+                                value={provider.id.toString()}
+                              >
+                                {provider.name}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="none" disabled>
+                              Không có nhà cung cấp nào
+                            </SelectItem>
+                          )}
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -173,6 +295,54 @@ export default function addProduct() {
               )}
             />
           </div>
+          <div className="relative justify-start text-black text-[16px] font-normal font-['Inter'] mt-[10px]">
+            Ảnh sản phẩm (tối đa 5 ảnh)
+          </div>
+          {/* Ảnh sản phẩm */}
+          <div className="w-full flex flex-col justify-start items-start mt-[10px] gap-2">
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageChange}
+            />
+
+            {selectedImages.map((image, index) => (
+              <div key={index}>
+                <img
+                  src={URL.createObjectURL(image)}
+                  alt="preview"
+                  width={100}
+                  height={100}
+                />
+                <button type="button" onClick={() => removeImage(index)}>
+                  Xóa
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Hiển thị ảnh đã chọn */}
+          <div className="grid grid-cols-3 gap-2 mt-4">
+            {selectedImages.map((image, index) => (
+              <div key={index} className="relative w-24 h-24">
+                <Image
+                  src={URL.createObjectURL(image)}
+                  alt={`Selected ${index}`}
+                  width={96}
+                  height={96}
+                  className="rounded-lg object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeImage(index)}
+                  className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full px-2 py-1"
+                >
+                  X
+                </button>
+              </div>
+            ))}
+          </div>
           {/* Button */}
           <div className="w-full self-stretch self-stretch inline-flex flex-col justify-start items-end gap-5 overflow-hidden mt-[15px]">
             <div className="inline-flex justify-start items-start gap-[29px]">
@@ -187,7 +357,7 @@ export default function addProduct() {
               <div className="relative">
                 <Save className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white" />
                 <Button className="pl-12" type="submit">
-                  <Link href="/admin/manage/product">Lưu</Link>
+                  Lưu
                 </Button>{" "}
               </div>
             </div>
