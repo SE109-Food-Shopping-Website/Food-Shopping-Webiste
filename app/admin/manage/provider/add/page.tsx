@@ -16,20 +16,60 @@ import {
 } from "@/components/ui/form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-  name: z.string(),
-  email: z.string().email(),
-  address: z.string(),
+  name: z.string().min(1, "Tên nhà cung cấp không được để trống"),
+  email: z.string(),
+  address: z.string().min(1, "Địa chỉ nhà cung cấp không được để trống"),
 });
 
 export default function addProvider() {
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      address: "",
+    },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    fetch("/api/provider", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: values.name,
+        address: values.address,
+        email: values.email,
+      }),
+    })
+      .then((res) => {
+        // Kiểm tra xem phản hồi có dữ liệu JSON hay không
+        if (!res.ok) {
+          // Nếu phản hồi không thành công, ném lỗi với thông điệp từ server
+          return res.text().then((text) => {
+            throw new Error(text || "Lỗi từ server");
+          });
+        }
+
+        // Nếu phản hồi có status OK, cố gắng parse JSON
+        return res.json();
+      })
+      .then((data) => {
+        if (data.error) {
+          alert("Lỗi: " + data.error);
+        } else {
+          alert("Thêm thành công!");
+          form.reset(); // Reset form về giá trị mặc định
+          router.push("/admin/manage/provider");
+        }
+      })
+      .catch((err) => {
+        console.error("Lỗi từ FE:", err);
+        alert("Lỗi: " + err.message);
+      });
   }
 
   return (
@@ -116,7 +156,7 @@ export default function addProvider() {
               <div className="relative">
                 <Save className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white" />
                 <Button className="pl-12" type="submit">
-                  <Link href="/admin/manage/provider/add">Lưu</Link>
+                  Lưu
                 </Button>{" "}
               </div>
             </div>

@@ -12,7 +12,6 @@ export interface Provider {
   name: string;
   email: string;
   address: string;
-  status: string;
   action: string;
 }
 
@@ -76,13 +75,6 @@ export const columns: ColumnDef<Provider>[] = [
       );
     },
     cell: ({ row }) => <div>{row.getValue("address")}</div>,
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <Badge status={row.getValue("status")}>{row.getValue("status")}</Badge>
-    ),
   },
   {
     id: "action",

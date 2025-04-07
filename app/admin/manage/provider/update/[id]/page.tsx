@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -23,25 +23,79 @@ import {
 } from "@/components/ui/form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useParams, useRouter } from "next/navigation";
 
-const schema = z.object({
+const formSchema = z.object({
   name: z.string(),
   email: z.string(),
-  phone: z.string(),
   address: z.string(),
-  status: z.string(),
 });
 
 export default function updateProvider() {
-  const [preview, setPreview] = useState<string | null>(null);
-
-  const form = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
+  const router = useRouter();
+  const { id } = useParams(); // Lấy ID từ URL
+  const [loading, setLoading] = useState(true);
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      address: "",
+    },
   });
 
-  function onSubmit(values: z.infer<typeof schema>) {
-    console.log(values);
+  useEffect(() => {
+    if (!id) return;
+
+    fetch(`/api/provider/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) {
+          alert("Lỗi: " + data.error);
+        } else {
+          form.reset({
+            name: data.name,
+            address: data.address,
+            email: data.email,
+          });
+        }
+      })
+      .catch((err) => {
+        console.error("Lỗi:", err);
+        alert("Không thể tải dữ liệu!");
+      })
+      .finally(() => setLoading(false));
+  }, [id, form]);
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log("Submitting form with values:", values);
+    fetch(`/api/provider/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id,
+        name: values.name,
+        address: values.address,
+        email: values.email,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) {
+          alert("Lỗi: " + data.error);
+        } else {
+          alert("Cập nhật thành công!");
+          router.push("/admin/manage/provider");
+        }
+      })
+      .catch((err) => {
+        console.error("Lỗi:", err);
+        alert("Đã xảy ra lỗi!");
+      });
   }
+
+  if (loading) return <p>Đang tải dữ liệu...</p>;
+
   return (
     <div>
       <div className="relative justify-start text-black text-base font-normal font-['Inter']">
@@ -66,7 +120,7 @@ export default function updateProvider() {
                       Tên nhà cung cấp
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Công ty ABC" {...field} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -83,7 +137,7 @@ export default function updateProvider() {
                       Địa chỉ nhà cung cấp
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="123 Thủ Đức" {...field} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -102,37 +156,7 @@ export default function updateProvider() {
                       Email nhà cung cấp
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        className="h-[60px]"
-                        placeholder="abc@gmail.com"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="w-[500px] h-[40px] flex flex-col justify-start items-start gap-5 mb-[35px]">
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormLabel className="font-normal">Trạng thái</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <SelectTrigger className="w-full h-[40px] p-5">
-                          <SelectValue placeholder="Active" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="inactive">Inactive</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Input className="h-[60px]" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -151,10 +175,9 @@ export default function updateProvider() {
                 </Button>{" "}
               </div>
               <div className="relative">
-                <Save className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white" />
-                <Button className="pl-12" type="submit">
-                  <Link href="/admin/manage/provider/add">Lưu</Link>
-                </Button>{" "}
+                <Button type="submit">
+                  <Save className="mr-2" /> Lưu
+                </Button>
               </div>
             </div>
           </div>
