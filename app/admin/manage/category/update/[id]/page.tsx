@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -16,20 +16,76 @@ import {
 } from "@/components/ui/form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter, useParams } from "next/navigation";
 
 const formSchema = z.object({
-  name: z.string(),
-  percent: z.string(),
+  name: z.string().min(1, "Tên loại sản phẩm không được để trống"),
+  percent: z
+    .string()
+    .regex(/^\d+$/, "Giá bán chênh lệch phải là số")
+    .transform((val) => parseFloat(val)),
 });
 
 export default function updateCategory() {
+  const router = useRouter();
+  const { id } = useParams(); // Lấy ID từ URL
+  const [loading, setLoading] = useState(true);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      percent: 0,
+    },
   });
 
+  useEffect(() => {
+    if (!id) return;
+
+    fetch(`/api/product-types/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) {
+          alert("Lỗi: " + data.error);
+        } else {
+          form.reset({
+            name: data.name,
+            percent: data.priceMarginPct,
+          });
+        }
+      })
+      .catch((err) => {
+        console.error("Lỗi:", err);
+        alert("Không thể tải dữ liệu!");
+      })
+      .finally(() => setLoading(false));
+  }, [id, form]);
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    fetch(`/api/product-types/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id,
+        name: values.name,
+        priceMarginPct: Number(values.percent),
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) {
+          alert("Lỗi: " + data.error);
+        } else {
+          alert("Cập nhật thành công!");
+          router.push("/admin/manage/category");
+        }
+      })
+      .catch((err) => {
+        console.error("Lỗi:", err);
+        alert("Đã xảy ra lỗi!");
+      });
   }
+
+  if (loading) return <p>Đang tải dữ liệu...</p>;
 
   return (
     <div>
@@ -51,12 +107,12 @@ export default function updateCategory() {
                 control={form.control}
                 name="name"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-[500px]">
                     <FormLabel className="font-normal">
                       Tên loại sản phẩm
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Rau" {...field} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -68,12 +124,12 @@ export default function updateCategory() {
                 control={form.control}
                 name="percent"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-[500px]">
                     <FormLabel className="font-normal">
-                      Giá bán chênh lệch
+                      Giá bán chênh lệch (%)
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="10" {...field} />
+                      <Input type="number" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -93,10 +149,9 @@ export default function updateCategory() {
                 </Button>{" "}
               </div>
               <div className="relative">
-                <Save className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white" />
-                <Button className="pl-12" type="submit">
-                  <Link href="/admin/manage/category">Lưu</Link>
-                </Button>{" "}
+                <Button type="submit">
+                  <Save className="mr-2" /> Lưu
+                </Button>
               </div>
             </div>
           </div>
