@@ -5,6 +5,7 @@ import { Cancelleds } from "./data";
 import { Cancelled } from "./type"; 
 import { usePathname } from "next/navigation";
 import {Button} from "@/components/ui/button";
+import Link from "next/link";
 
 export default function PageCancelled() {
   const [cans, setCancelleds] = useState<Cancelled[]>([]); 
@@ -32,6 +33,7 @@ export default function PageCancelled() {
                 <div key={can.id} className="w-[1240px] bg-white rounded-[3px] px-4 py-6 flex flex-col gap-4 border border-gray-200 shadow-sm">
                   <div className="w-full flex px-2 py-2 bg-[#F9FAFB] border border-gray-200 rounded-md flex-col gap-5">
                     {/* Thông tin đơn hàng */}
+                    <Link href={`/client/history/order_detail/${can.id}`}>
                     <div className="w-full rounded-[5px] flex flex-row items-center justify-between flex-wrap p-3 gap-y-4">
                       <div className="flex flex-row items-center gap-5">
                         <img className="w-[50px] h-[50px] rounded-full" src={can.image} alt={can.name} />
@@ -51,11 +53,14 @@ export default function PageCancelled() {
                     <div className="w-full flex flex-row items-center justify-end gap-2 text-base">
                       <div className="font-medium text-foreground">Tổng số tiền: <b className="text-primary">{(can.price * can.quantity).toLocaleString()}đ</b></div>
                     </div>
+                    </Link>
                   </div>
                   {/* Button */}
                   <div className="w-full flex flex-row items-center justify-end gap-3 text-background">
-                    <Button variant="outline" className="bg-white border border-primary text-black shadow-none">
+                    <Button asChild variant="outline" className="bg-white border border-primary text-black shadow-none">
+                    <Link href={`/client/history/cancelled/cancel_detail/${can.id}`}>                        
                       Xem chi tiết đơn hủy
+                      </Link>
                     </Button>
                     <Button variant="default">
                       Mua lại

@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import Link from "next/link";
 import React, {useState, useEffect} from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -33,7 +33,7 @@ const mockProducts: Product[] = [
   { id: 6, name: "Trứng vịt", price: 15000, images: "/duck.jpg", productTypeId: 3 },
 ];
 
-export default function CategoryPage() {
+export default function PageProduct() {
   const [categories, setCategories] = useState<ProductType[]>(mockCategories);
   const [products, setProducts] = useState<Product[]>(mockProducts);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
@@ -126,6 +126,11 @@ export default function CategoryPage() {
           <h1 className="text-2xl font-bold p-2">Tất cả sản phẩm</h1>
           <div className="flex flex-wrap gap-10">
             {products.map((product) => (
+              <Link
+              key={product.id}
+              href={`/client/detail/${product.id}`} 
+              className="w-[200px] flex flex-col gap-2.5 cursor-pointer"
+            >
               <div key={product.id} className="w-[200px] flex flex-col gap-2.5">
                 <div className="w-full h-[200px] border-primary border-[3px] flex items-center justify-center rounded-md">
                   <img
@@ -141,6 +146,7 @@ export default function CategoryPage() {
                   </b>
                 </div>
               </div>
+              </Link>
             ))}
           </div>
         </div>

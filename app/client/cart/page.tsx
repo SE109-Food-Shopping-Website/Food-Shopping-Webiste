@@ -6,7 +6,7 @@ import QuantitySelector from "@/components/ui/quantity";
 import Link from "next/link";
 import { useCart } from "@/app/client/context/CartContext";
 
-export default function PageDetail() {
+export default function PageCart() {
   const { cart, updateCart } = useCart();
 
   // Cập nhật số lượng sản phẩm
@@ -34,29 +34,31 @@ export default function PageDetail() {
           {/* Giỏ hàng */}
           <div className="flex-1 w-[700px] p-2.5 gap-2.5">
             <b className="text-[18px]">Giỏ hàng</b>
-            <div className="w-full overflow-x-auto">
-              <table className="w-full text-center text-white">
+            <div className="w-full overflow-x-auto">  
+              <table className="w-full text-center text-white table-fixed min-w-[700px] border-collapse">
                 <thead>
                   <tr className="bg-primary">
-                    <th className="px-4 py-2">Sản phẩm</th>
-                    <th className="px-4 py-2">Đơn giá</th>
-                    <th className="px-4 py-2">Số lượng</th>
-                    <th className="px-4 py-2">Tạm tính</th>
-                    <th className="px-2 py-2"></th>
+                    <th className="px-4 py-2 w-[30%]">Sản phẩm</th>
+                    <th className="px-4 py-2 w-[15%]">Đơn giá</th>
+                    <th className="px-4 py-2 w-[20%]">Số lượng</th>
+                    <th className="px-4 py-2 w-[25%]">Tạm tính</th>
+                    <th className="px-2 py-2 w-[10%]"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {cart.map((product) => (
-                    <tr key={product.id} className="text-foreground border-t border-gray-300">
-                      <td className="px-4 py-2">{product.name}</td>
-                      <td className="px-4 py-2">{product.price.toLocaleString()}đ</td>
-                      <td className="px-4 py-2 flex justify-center">
-                        <QuantitySelector
-                          quantity={product.quantity}
-                          onChange={(newQuantity) => handleQuantityChange(product.id, newQuantity)}
-                        />
+                    <tr key={product.id} className="text-foreground border-t border-gray-300 min-h-[60px]">
+                      <td className="px-4 py-2 truncate max-w-[200px]">{product.name}</td>
+                      <td className="px-4 py-2 whitespace-nowrap">{product.price.toLocaleString()}đ</td>
+                      <td className="px-4 py-2">
+                        <div className="flex justify-center min-w-[80px]">
+                          <QuantitySelector
+                            cartQuantity={product.quantity}
+                            onChange={(newQuantity) => handleQuantityChange(product.id, newQuantity)}
+                          />
+                        </div>
                       </td>
-                      <td className="px-4 py-2">{(product.price * product.quantity).toLocaleString()}đ</td>
+                      <td className="px-4 py-2 whitespace-nowrap">{(product.price * product.quantity).toLocaleString()}đ</td>
                       <td className="px-2 py-2">
                         <button onClick={() => handleRemoveItem(product.id)}>
                           <X className="text-black cursor-pointer hover:opacity-70" />
@@ -114,9 +116,11 @@ export default function PageDetail() {
             <b className="relative leading-[130%] text-primary">{totalAmount.toLocaleString()}đ</b>
           </div>
           <div className="self-stretch flex flex-col items-center justify-start text-[20px] text-white">
-            <Button className="w-full rounded-[5px] bg-primary h-[50px] overflow-hidden shrink-0 flex flex-row items-center justify-center py-2.5 px-5 box-border gap-5">
-              <Link href="/client/pay" className="text-white">THANH TOÁN</Link>
-            </Button>
+          <Button asChild className="w-full rounded-[5px] bg-primary h-[50px] gap-5">
+                <Link href="/client/pay">
+                  <b className="text-white">THANH TOÁN</b>
+                </Link>
+              </Button>
           </div>
         </div>
       </div>

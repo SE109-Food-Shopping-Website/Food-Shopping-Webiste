@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import Link from "next/link";
 
 interface Product {
   id: number;
@@ -27,7 +28,7 @@ const products: Product[] = [
   { id: 6, name: "Trứng vịt", price: 15000, images: "/duck.jpg", productTypeId: 3 },
 ];
 
-export default function CategoryPage() {
+export default function PageCategory() {
   const params = useParams();
   const categoryId = Number(params.id); 
 
@@ -80,6 +81,11 @@ export default function CategoryPage() {
           {/* Danh sách sản phẩm */}
           <div className="flex flex-wrap gap-10 p-2">
             {filteredProducts.map((product) => (
+              <Link
+              key={product.id}
+              href={`/client/detail/${product.id}`} 
+              className="w-[200px] flex flex-col gap-2.5 cursor-pointer"
+            >
               <div key={product.id} className="w-[200px] flex flex-col gap-2.5">
                 <div className="w-full h-[200px] border-primary border-[3px] flex items-center justify-center rounded-md">
                   <img className="w-auto h-auto" src={product.images || "/ava.png"} alt={product.name} />
@@ -89,6 +95,7 @@ export default function CategoryPage() {
                   <b className="text-base text-primary">{product.price.toLocaleString()}đ</b>
                 </div>
               </div>
+              </Link>
             ))}
           </div>
         </div>
