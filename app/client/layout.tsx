@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import React, { useEffect, useState } from "react";
 import {
     DropdownMenu,
     DropdownMenuItem,
@@ -9,7 +10,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import {User, ShoppingCart, Search, ChevronDown} from "lucide-react";  
-import {useState} from "react";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import { CartProvider } from "./context/CartContext";
@@ -18,14 +18,49 @@ interface ClientLayoutProps {
     children: ReactNode;
 }
 
+interface ProductType {
+    id: number;
+    name: string;
+}
+
 export default function ClientLayout({ children }: ClientLayoutProps) {
     const pathname = usePathname();
-    const [selectedCategory, setSelectedCategory] = useState("Danh mục sản phẩm");
+    const [categories, setCategories] = useState<ProductType[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState<string>("Danh mục sản phẩm");
     const [query, setQuery] = useState("");
     const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         console.log("Tìm kiếm:", query);
     };
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+          try {
+            const res = await fetch("/api/product-types");
+    
+            if (!res.ok) {
+              throw new Error(`HTTP error! Status: ${res.status}`);
+            }
+    
+            const text = await res.text();
+            if (!text) {
+              console.warn("⚠️ Response từ /api/product-types rỗng");
+              return;
+            }
+    
+            const data = JSON.parse(text);
+            if (Array.isArray(data)) {
+              setCategories(data);
+            } else {
+              throw new Error("Dữ liệu trả về không hợp lệ");
+            }
+          } catch (error) {
+            console.error("❌ Lỗi khi lấy danh mục sản phẩm:", error);
+          }
+        };
+    
+        fetchCategories();
+    }, []);
 
     return (  
         <div className="w-full h-full min-h-screen flex flex-col jutify-start items-start inline-flex gap-[0px]">
@@ -39,15 +74,18 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                 <div className="w-[600px] relative rounded-[10px] bg-white border border-gray-300 h-10 flex flex-row items-center p-2 text-[14px] text-black font-inter">
                     {/* Dropdown */}
                     <DropdownMenu>
-                        <DropdownMenuTrigger className="w-[170px] flex justify-between items-center px-2 text-gray-700">
-                            <span className="font-medium">{selectedCategory}</span>
+                        <DropdownMenuTrigger className="w-[170px] flex justify-between items-center px-2 text-gray-700 py-1">
+                            <span className="font-medium truncate">{selectedCategory}</span>
                             <ChevronDown className="w-4 h-4 text-gray-500" />
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-[150px]" align="start">
-                            {["Rau", "Sữa", "Trứng"].map((item) => (
-                                <DropdownMenuItem key={item} onClick={() => setSelectedCategory(item)}>
-                                {item}
-                                </DropdownMenuItem>
+                        <DropdownMenuContent className="w-[170px]" align="start">
+                            {categories.map((item) => (
+                            <DropdownMenuItem
+                                key={item.id}
+                                onClick={() => setSelectedCategory(item.name)}
+                            >
+                                {item.name}
+                            </DropdownMenuItem>
                             ))}
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -67,10 +105,14 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                 {/* Right */}
                 <div className="h-[50px] justify-end items-center inline-flex gap-5">
                     <Link href="/client/profile">
-                        <User className="text-black" />
+                        <div title="Profile">
+                            <User/>
+                        </div>
                     </Link>
                     <Link href="/client/cart">  
-                        <ShoppingCart className="text-black" />
+                        <div title="Giỏ hàng">
+                            <ShoppingCart />
+                        </div>
                     </Link>
                 </div>
             </div>

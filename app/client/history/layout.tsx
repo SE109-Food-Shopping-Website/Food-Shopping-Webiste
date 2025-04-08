@@ -76,7 +76,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                         Trả hàng
                     </Link>
                 </nav>
-                <main className="flex-1 flex flex-col items-center text-left text-white font-inter">
+                <main className="flex-1 flex flex-col items-stretch text-left text-white font-inter">
                     {children}
                 </main>
             </div>
