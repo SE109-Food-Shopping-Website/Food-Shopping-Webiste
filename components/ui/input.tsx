@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   ({ className, type, ...props }, ref) => {
     return (
-      <div className="w-[500px] h-[40px] p-5 rounded-[5px] border border-[#5CB338] justify-start items-center inline-flex overflow-hidden">
+      <div className=" h-[40px] p-5 rounded-[5px] border border-[#5CB338] justify-start items-center inline-flex overflow-hidden">
         <input
           type={type}
           className={cn(
