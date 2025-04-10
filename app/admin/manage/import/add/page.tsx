@@ -24,9 +24,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Provider } from "@radix-ui/react-toast";
 
 const formSchema = z.object({
-  name: z.string().min(1, "Tên loại sản phẩm không được để trống"),
+  provider: z.string().min(1, "Tên loại sản phẩm không được để trống"),
 });
 
 const mockProducts = [
@@ -39,7 +40,7 @@ export default function addImport() {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      provider: "",
     },
   });
   const router = useRouter();
@@ -67,7 +68,7 @@ export default function addImport() {
     return price && quantity ? Number(price) * Number(quantity) : 0;
   };
 
-  const onSubmit = (data: { name: string }) => {
+  const onSubmit = (data: { provider: string }) => {
     console.log("Submitting form with data:", { ...data, products });
   };
   return (
@@ -85,18 +86,18 @@ export default function addImport() {
         >
           {/* Tên Loại */}
           <div className="w-full self-stretch inline-flex justify-between items-center mt-[10px]">
-            <div className="w-[500px] inline-flex flex-col justify-start items-start gap-5">
+            <div className="w-[500px] flex flex-col gap-2">
               <FormField
                 control={form.control}
-                name="name"
+                name="provider"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="flex flex-col">
                     <FormLabel className="font-normal">
-                      Tên loại sản phẩm
+                      Tên nhà cung cấp
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Rau"
+                        placeholder="BHX"
                         {...field}
                         value={field.value ?? ""}
                       />
@@ -107,6 +108,7 @@ export default function addImport() {
               />
             </div>
           </div>
+
           <div className="relative justify-start text-[#5cb338] text-base font-bold font-['Inter'] mt-[10px]">
             Chi tiết nhập hàng
           </div>
