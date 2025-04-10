@@ -29,8 +29,8 @@ import Image from "next/image";
 
 const formSchema = z.object({
   name: z.string(),
-  category: z.string(),
-  provider: z.string(),
+  productType_id: z.string(),
+  provider_id: z.string(),
   unit: z.string(),
   description: z.string(),
 });
@@ -95,8 +95,8 @@ export default function addProduct() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      category: "",
-      provider: "",
+      productType_id: "",
+      provider_id: "",
       unit: "",
       description: "",
     },
@@ -105,10 +105,10 @@ export default function addProduct() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const formData = new FormData();
     formData.append("name", values.name);
-    formData.append("category", values.category);
-    formData.append("provider", values.provider);
     formData.append("unit", values.unit);
     formData.append("description", values.description);
+    formData.append("productType_id", values.productType_id);
+    formData.append("provider_id", values.provider_id);
 
     // Thêm ảnh vào FormData
     selectedImages.forEach((image) => {
@@ -176,7 +176,7 @@ export default function addProduct() {
             <div className="w-[500px] inline-flex flex-col justify-start items-start gap-5">
               <FormField
                 control={form.control}
-                name="category"
+                name="productType_id"
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormLabel className="font-normal">Loại sản phẩm</FormLabel>
@@ -233,7 +233,7 @@ export default function addProduct() {
             <div className="w-[500px] inline-flex flex-col justify-start items-start gap-5">
               <FormField
                 control={form.control}
-                name="provider"
+                name="provider_id"
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormLabel className="font-normal">Nhà cung cấp</FormLabel>

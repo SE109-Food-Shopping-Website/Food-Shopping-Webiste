@@ -6,7 +6,7 @@ import Image from "next/image";
 type Product = {
   id: number;
   name: string;
-  images?: string | null;
+  images?: string[] | null;
 };
 
 export default function ProductList() {
@@ -17,7 +17,12 @@ export default function ProductList() {
     fetch("/api/products")
       .then((res) => res.json())
       .then((data) => {
-        setProducts(data);
+        const processed = data.map((item: any) => ({
+          ...item,
+          images: item.images ? JSON.parse(item.images) : null,
+        }));
+        setProducts(processed);
+        // setProducts(data);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -31,9 +36,9 @@ export default function ProductList() {
         products.map((product) => (
           <div key={product.id} className="border p-2 rounded-lg text-center">
             <div className="w-full h-40 bg-gray-200 flex items-center justify-center">
-              {product.images ? (
+              {product.images && product.images.length > 0 ? (
                 <Image
-                  src={product.images}
+                  src={product.images[0]}
                   alt={product.name}
                   width={150}
                   height={150}
