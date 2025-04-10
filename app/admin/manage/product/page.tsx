@@ -20,7 +20,7 @@ export default function pageProduct() {
         </div>
       </div>
       {/* Danh sách sản phẩm */}
-      <div className="grid grid-cols-3 gap-4 mt-4">
+      <div className="grid grid-cols-1 gap-4 mt-4">
         <ProductList />
       </div>
     </div>

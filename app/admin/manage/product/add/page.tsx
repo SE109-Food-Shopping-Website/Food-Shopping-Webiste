@@ -163,7 +163,7 @@ export default function addProduct() {
                 control={form.control}
                 name="name"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full flex flex-col">
                     <FormLabel className="font-normal">Tên sản phẩm</FormLabel>
                     <FormControl>
                       <Input placeholder="Rau" {...field} />
@@ -220,7 +220,7 @@ export default function addProduct() {
                 control={form.control}
                 name="unit"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full flex flex-col">
                     <FormLabel className="font-normal">Đơn vị tính</FormLabel>
                     <FormControl>
                       <Input placeholder="Quả" {...field} />

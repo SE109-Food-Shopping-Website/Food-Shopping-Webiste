@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 type Product = {
   id: number;
@@ -12,6 +13,7 @@ type Product = {
 export default function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     fetch("/api/products")
@@ -31,18 +33,24 @@ export default function ProductList() {
   if (loading) return <p>Đang tải...</p>;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
+    <div className="w-full grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-4 gap-4 p-4">
       {products.length > 0 ? (
         products.map((product) => (
-          <div key={product.id} className="border p-2 rounded-lg text-center">
-            <div className="w-full h-40 bg-gray-200 flex items-center justify-center">
+          <div
+            key={product.id}
+            className="border p-4 rounded-lg text-center"
+            onClick={() =>
+              router.push(`/admin/manage/product/update/${product.id}`)
+            }
+          >
+            <div className="w-full h-40 bg-gray-200 flex items-center justify-center overflow-hidden">
               {product.images && product.images.length > 0 ? (
                 <Image
                   src={product.images[0]}
                   alt={product.name}
                   width={150}
                   height={150}
-                  className="object-cover"
+                  className="object-cover w-full h-full hover:cursor-pointer"
                 />
               ) : (
                 <span className="text-gray-500">Không có ảnh</span>
@@ -52,9 +60,7 @@ export default function ProductList() {
           </div>
         ))
       ) : (
-        <p className="col-span-2 md:col-span-4 text-center">
-          Không có sản phẩm nào
-        </p>
+        <p className="col-span-full text-center">Không có sản phẩm nào</p>
       )}
     </div>
   );
