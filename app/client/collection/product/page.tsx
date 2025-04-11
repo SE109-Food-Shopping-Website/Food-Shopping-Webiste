@@ -14,77 +14,72 @@ interface Product {
   id: number;
   name: string;
   price: number;
-  images?: string;
-  productTypeId?: number;
+  images?: string[] | null;
+  productTypeId: number;
 }
 
-const mockCategories: ProductType[] = [
-  { id: 1, name: "Rau củ quả" },
-  { id: 2, name: "Sữa" },
-  { id: 3, name: "Trứng" },
-];
-
-const mockProducts: Product[] = [
-  { id: 1, name: "Rau chân vịt", price: 40000, images: "/spinach_3.jpg", productTypeId: 1 },
-  { id: 2, name: "Súp lơ", price: 35000, images: "/cauli.png", productTypeId: 1 },
-  { id: 3, name: "Sữa milo", price: 150000, images: "/milo_3.jpg", productTypeId: 2 },
-  { id: 4, name: "Sữa TH True Milk", price: 200000, images: "/truemilk.jpg", productTypeId: 2 },
-  { id: 5, name: "Trứng gà", price: 25000, images: "/egg.jpg", productTypeId: 3 },
-  { id: 6, name: "Trứng vịt", price: 15000, images: "/duck.jpg", productTypeId: 3 },
-];
-
 export default function PageProduct() {
-  const [categories, setCategories] = useState<ProductType[]>(mockCategories);
-  const [products, setProducts] = useState<Product[]>(mockProducts);
+  const [categories, setCategories] = useState<ProductType[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
 
-  // useEffect(() => {
-  //     const fetchCategories = async () => {
-  //       try {
-  //         const res = await fetch("/api/product-types");
-  //         if (!res.ok) {
-  //           throw new Error(`HTTP error! Status: ${res.status}`);
-  //         }
-  //         const text = await res.text(); 
-  //         if (!text) {
-  //           throw new Error("Empty response from server");
-  //         }
-  //         const data = JSON.parse(text); 
-  //         if (Array.isArray(data)) {
-  //           setCategories(data);
-  //         } else {
-  //           throw new Error("Invalid JSON format");
-  //         }
-  //       } catch (error) {
-  //         console.error("Lỗi khi lấy danh mục sản phẩm:", error);
-  //       }
-  //     };
-    
-  //     const fetchProducts = async () => {
-  //       try {
-  //         const res = await fetch("/api/products");
-  //         if (!res.ok) {
-  //           throw new Error(`HTTP error! Status: ${res.status}`);
-  //         }
-  //         const text = await res.text();
-  //         if (!text) {
-  //           throw new Error("Empty response from server");
-  //         }
-  //         const data = JSON.parse(text);
-  //         if (Array.isArray(data)) {
-  //           setProducts(data);
-  //         } else {
-  //           throw new Error("Invalid JSON format");
-  //         }
-  //       } catch (error) {
-  //         console.error("Lỗi khi lấy sản phẩm:", error);
-  //       }
-  //     };
-    
-  //     fetchCategories();
-  //     fetchProducts();
-  // }, []);
+  const filteredProducts = selectedCategory
+  ? products.filter((p) => p.productTypeId === selectedCategory)
+  : products;
 
+  const fetchProducts = async (categoryId: number | null = null) => {
+    try {
+      const url = categoryId
+        ? `/api/products?categoryId=${categoryId}`
+        : `/api/products`;
+    
+      const res = await fetch(url);
+    
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status}`);
+      }
+    
+      const text = await res.text();
+      if (!text) {
+        console.warn("Response từ /api/products rỗng");
+        return;
+      }
+    
+      const data = JSON.parse(text);
+      console.log("Products from API:", data);
+    
+      if (Array.isArray(data)) {
+        const processed = data.map((item: any) => ({
+          ...item,
+          images: item.images ? JSON.parse(item.images) : null,
+        }));
+        setProducts(processed);
+      } else {
+        throw new Error("Dữ liệu không hợp lệ từ API products");
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy sản phẩm:", error);
+    }
+  };
+
+  useEffect(() => {
+      const fetchCategories = async () => {
+        try {
+          const res = await fetch("/api/product-types");
+          const data = await res.json();
+          console.log("Categories from API:", data);
+          if (Array.isArray(data)) {
+            setCategories(data);
+          }
+        } catch (error) {
+          console.error("Lỗi khi lấy danh mục sản phẩm:", error);
+        }
+      };
+  
+      fetchCategories();
+      fetchProducts();
+    }, []);
+  
   return (
     <div className="w-full min-h-screen flex flex-col bg-white">
       {/* Body */}
@@ -106,26 +101,37 @@ export default function PageProduct() {
           <div className="w-full h-[1px] bg-gray-300 opacity-80 rounded-full"></div>
           {/* Product Type */}
           <div className="self-stretch relative font-bold text-[16px]">Loại sản phẩm</div>
-          <RadioGroup className="space-y-3">
-            <div className="flex items-center gap-3 bg-white p-3 rounded-md shadow-sm cursor-pointer hover:bg-gray-100">
-              <RadioGroupItem value="option-one" id="option-one" />
-              <Label htmlFor="option-one" className="text-black">Rau củ quả</Label>
-            </div>
-            <div className="flex items-center gap-3 bg-white p-3 rounded-md shadow-sm cursor-pointer hover:bg-gray-100">
-              <RadioGroupItem value="option-two" id="option-two" />
-              <Label htmlFor="option-two" className="text-black">Sữa</Label>
-            </div>
-            <div className="flex items-center gap-3 bg-white p-3 rounded-md shadow-sm cursor-pointer hover:bg-gray-100">
-              <RadioGroupItem value="option-three" id="option-three" />
-              <Label htmlFor="option-three" className="text-black">Trứng</Label>
-            </div>
-          </RadioGroup>
+          <RadioGroup
+              className="space-y-3"
+              value={selectedCategory !== null ? selectedCategory.toString() : "all"}
+              onValueChange={(value) => {
+                const selected = value === "all" ? null : Number(value);
+                setSelectedCategory(selected);
+                fetchProducts(selected); 
+              }}
+            >
+              <div className="flex items-center gap-3 bg-white p-3 rounded-md shadow-sm cursor-pointer hover:bg-gray-100">
+                <RadioGroupItem value="all" id="category-all" />
+                <Label htmlFor="category-all" className="text-black">Tất cả</Label>
+              </div>
+              {categories.map((category) => (
+                <div
+                  key={category.id}
+                  className="flex items-center gap-3 bg-white p-3 rounded-md shadow-sm cursor-pointer hover:bg-gray-100"
+                >
+                  <RadioGroupItem value={category.id.toString()} id={`category-${category.id}`} />
+                  <Label htmlFor={`category-${category.id}`} className="text-black">
+                    {category.name}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
         </div>
         {/* Right */}
         <div className="self-stretch flex-1 flex flex-col items-start justify-start text-black">
           <h1 className="text-2xl font-bold p-2">Tất cả sản phẩm</h1>
           <div className="flex flex-wrap gap-10">
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <Link
               key={product.id}
               href={`/client/detail/${product.id}`} 
@@ -133,11 +139,17 @@ export default function PageProduct() {
             >
               <div key={product.id} className="w-[200px] flex flex-col gap-2.5">
                 <div className="w-full h-[200px] border-primary border-[3px] flex items-center justify-center rounded-md">
-                  <img
-                    className="w-auto h-auto"
-                    src={product.images || "/ava.png"}
-                    alt={product.name}
-                  />
+                  {product.images && product.images.length > 0 ? (
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      width={150}
+                      height={150}
+                      className="object-cover"
+                    />
+                  ) : (
+                    <span className="text-gray-500">Không có ảnh</span>
+                  )}
                 </div>
                 <div className="w-full flex flex-col px-2.5 gap-2.5">
                   <span className="font-semibold">{product.name}</span>
