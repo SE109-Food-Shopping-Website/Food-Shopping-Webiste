@@ -5,6 +5,7 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const query = searchParams.get("query");
+    const productType = searchParams.get("productType");
 
     if (!query) return NextResponse.json([]);
 
@@ -14,12 +15,24 @@ export async function GET(req: Request) {
           contains: query,
           mode: "insensitive",
         },
+        ...(productType && productType !== "Danh mục sản phẩm"
+          ? {
+              productType: {
+                // đây là quan hệ tới PRODUCT_TYPE nên truy theo tên ở bảng đó
+                name: {
+                  equals: productType,
+                  mode: "insensitive",
+                },
+              },
+            }
+          : {}),
       },
       take: 10,
       select: {
         id: true,
         name: true,
         images: true,
+        productType: true, // thêm productType vào select nếu cần
       },
     });
 
@@ -30,7 +43,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json(parsed);
   } catch (error) {
-    console.error("Lỗi API gợi ý:", error);
+    console.error("❌ Lỗi API gợi ý:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

@@ -86,7 +86,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                         </DropdownMenuContent>
                     </DropdownMenu>
                     <span className="w-[1px] h-5 bg-gray-300 mx-2"></span>
-                    <SearchBar />
+                    <SearchBar selectedCategory={selectedCategory}/>
                 </div>
                 {/* Right */}
                 <div className="h-[50px] justify-end items-center inline-flex gap-5">
