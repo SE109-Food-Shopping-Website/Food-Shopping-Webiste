@@ -9,11 +9,11 @@ import {
     DropdownMenuContent,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import {User, ShoppingCart, Search, ChevronDown} from "lucide-react";  
-import { Button } from "@/components/ui/button";
+import {User, ShoppingCart, ChevronDown} from "lucide-react";  
 import { Toaster } from "@/components/ui/sonner";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname} from "next/navigation";
 import { CartProvider } from "./context/CartContext";
+import SearchBar from "@/components/ui/searchbar";
 
 interface ClientLayoutProps {
     children: ReactNode;
@@ -28,18 +28,6 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     const pathname = usePathname();
     const [categories, setCategories] = useState<ProductType[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string>("Danh mục sản phẩm");
-    const [query, setQuery] = useState("");
-    const router = useRouter();
-
-    const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const params = new URLSearchParams();
-    if (query.trim()) params.set("query", query);
-    if (selectedCategory !== "Danh mục sản phẩm") params.set("category", selectedCategory);
-
-    router.push(`/client/collection/search?${params.toString()}`);
-    };
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -73,13 +61,13 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     return (  
         <div className="w-full h-full min-h-screen flex flex-col jutify-start items-start inline-flex gap-[0px]">
             {/* Heading */}
-            <div className="w-full h-15 px-[30px] py-2.5 bg-white border-b border-black/20 justify-between items-center inline-flex overflow-hidden">
+            <div className="w-full h-15 px-[30px] py-2.5 bg-white border-b border-black/20 justify-between items-center inline-flex overflow-visible">
                 {/* Left */}
                 <div className="h-[40px] justify-start items-center inline-flex gap-5">
                     <img className="w-[170px] h-[60px]" src="/logo_left.png" alt="Logo" />
                 </div>
                 {/* Between */}
-                <div className="w-[600px] relative rounded-[10px] bg-white border border-gray-300 h-10 flex flex-row items-center p-2 text-[14px] text-black font-inter">
+                <div className="w-[600px] relative z-[9999] rounded-[10px] bg-white border border-gray-300 h-10 flex flex-row items-center p-2 text-[14px] text-black font-inter">
                     {/* Dropdown */}
                     <DropdownMenu>
                         <DropdownMenuTrigger className="w-[170px] flex justify-between items-center px-2 text-gray-700 py-1">
@@ -98,17 +86,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                         </DropdownMenuContent>
                     </DropdownMenu>
                     <span className="w-[1px] h-5 bg-gray-300 mx-2"></span>
-                    <form onSubmit={handleSearch} className="flex flex-1 items-center ">
-                        <input 
-                            value={query} 
-                            onChange={(e) => setQuery(e.target.value)} 
-                            placeholder="Tìm kiếm theo tên sản phẩm" 
-                            className="w-full h-full px-2 text-[14px] text-gray-700 border-none outline-none placeholder-gray-400" 
-                        />
-                        <Button type="submit" className="w-[50px] rounded-[5px] h-[30px] flex items-center justify-center">
-                            <Search className="text-white w-5 h-5" />
-                        </Button>
-                    </form>
+                    <SearchBar />
                 </div>
                 {/* Right */}
                 <div className="h-[50px] justify-end items-center inline-flex gap-5">
