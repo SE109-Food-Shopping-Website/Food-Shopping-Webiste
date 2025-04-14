@@ -11,7 +11,8 @@ import {
 import Link from "next/link";
 import {User, ShoppingCart, Search, ChevronDown} from "lucide-react";  
 import { Button } from "@/components/ui/button";
-import { usePathname } from "next/navigation";
+import { Toaster } from "@/components/ui/sonner";
+import { usePathname, useRouter } from "next/navigation";
 import { CartProvider } from "./context/CartContext";
 
 interface ClientLayoutProps {
@@ -28,9 +29,16 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     const [categories, setCategories] = useState<ProductType[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string>("Danh mục sản phẩm");
     const [query, setQuery] = useState("");
+    const router = useRouter();
+
     const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        console.log("Tìm kiếm:", query);
+    e.preventDefault();
+
+    const params = new URLSearchParams();
+    if (query.trim()) params.set("query", query);
+    if (selectedCategory !== "Danh mục sản phẩm") params.set("category", selectedCategory);
+
+    router.push(`/client/collection/search?${params.toString()}`);
     };
 
     useEffect(() => {
@@ -94,8 +102,8 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                         <input 
                             value={query} 
                             onChange={(e) => setQuery(e.target.value)} 
-                            placeholder="Tìm kiếm" 
-                            className="w-full h-full px-2 text-[16px] text-gray-700 border-none outline-none placeholder-gray-400" 
+                            placeholder="Tìm kiếm theo tên sản phẩm" 
+                            className="w-full h-full px-2 text-[14px] text-gray-700 border-none outline-none placeholder-gray-400" 
                         />
                         <Button type="submit" className="w-[50px] rounded-[5px] h-[30px] flex items-center justify-center">
                             <Search className="text-white w-5 h-5" />
@@ -173,6 +181,12 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
             <CartProvider>
                 <main className="w-full flex-1 overflow-y-auto">
                     {children}
+                    <Toaster
+                        position="top-right" 
+                        richColors 
+                        duration={5000} 
+                        closeButton 
+                    />
                 </main>
             </CartProvider>
         </div>

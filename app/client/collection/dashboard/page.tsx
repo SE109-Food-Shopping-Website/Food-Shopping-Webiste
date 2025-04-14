@@ -15,6 +15,7 @@ interface Product {
   name: string;
   price: number;
   images?: string[] | null;
+  productType_id: number;
 }
 
 export default function PageDashboard() {

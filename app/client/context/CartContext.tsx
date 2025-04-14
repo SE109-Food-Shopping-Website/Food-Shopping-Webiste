@@ -33,11 +33,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     const storedCart = localStorage.getItem("cart");
     if (storedCart) {
       setCart(JSON.parse(storedCart));
-    } else {
-      setCart([
-        { id: 1, name: "Cà rốt", price: 30000, quantity: 2, totalPrice: 60000 },
-        { id: 2, name: "Khoai tây", price: 25000, quantity: 1, totalPrice: 25000 },
-      ]);
+      localStorage.setItem("cart", JSON.stringify(JSON.parse(storedCart)));
     }
   }, []);
 
