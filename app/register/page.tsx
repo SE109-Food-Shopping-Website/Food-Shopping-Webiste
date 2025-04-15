@@ -6,16 +6,25 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-export default function pageLogin() {
+export default function pageRegister() {
   interface User {
     id: number;
     name: string;
     email: string;
+    phone: string;
+    address: string;
+    password: string;
+    repassword: string;
   }
 
   const [users, setUsers] = useState<User[]>([]);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const [repassword, setRepassword] = useState("");
+  const [name, setName] = useState("");
 
   const handleAddUser = (event: React.FormEvent) => {
     event.preventDefault();
@@ -32,7 +41,7 @@ export default function pageLogin() {
           alt="logo"
         />
         <div className="relative justify-start text-[#fb4141] text-[28px] font-bold font-['Inter']">
-          ĐĂNG NHẬP
+          ĐĂNG KÝ
         </div>
       </div>
 
@@ -48,26 +57,58 @@ export default function pageLogin() {
         </div>
 
         {/* Right */}
-        <div className="w-1/2 h-full px-[50px] py-[100px] inline-flex justify-start items-center gap-2.5 overflow-hidden">
-          <div className="w-full h-full px-[60px] py-[30px] bg-white inline-flex flex-col justify-start items-center gap-[30px] overflow-hidden">
+        <div className="w-1/2 h-full px-[50px] py-[20px] inline-flex justify-start items-center gap-2.5 overflow-hidden">
+          <div className="w-full h-full px-[60px] py-[20px] bg-white inline-flex flex-col justify-start items-center gap-[25px] overflow-hidden">
             <Form>
               <div className="relative justify-start text-[#fb4141] text-[32px] font-bold font-['Inter']">
-                ĐĂNG NHẬP
+                ĐĂNG KÝ
               </div>
               <Input
                 type="email"
-                className="w-[460px] h-[60px] p-2.5 rounded-[5px] placeholder:text-gray-400"
+                className="w-[460px] h-[60px] p-2.5 rounded-[5px] border-none placeholder:text-gray-400"
                 placeholder="Email"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <Input
+                type="phone"
+                className="w-[460px] h-[60px] p-2.5 rounded-[5px] border-none placeholder:text-gray-400"
+                placeholder="Số điện thoại giao hàng"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 required
               />
               <Input
                 type="password"
                 placeholder="Password"
-                className="w-[460px] h-[60px] p-2.5 rounded-[5px] placeholder:text-gray-400"
+                className="w-[460px] h-[60px] p-2.5 rounded-[5px] border-none placeholder:text-gray-400"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <Input
+                type="password"
+                placeholder="Nhập lại mật khẩu"
+                className="w-[460px] h-[60px] p-2.5 rounded-[5px] border-none placeholder:text-gray-400"
+                value={repassword}
+                onChange={(e) => setRepassword(e.target.value)}
+                required
+              />
+              <Input
+                type="name"
+                className="w-[460px] h-[60px] p-2.5 rounded-[5px] border-none placeholder:text-gray-400"
+                placeholder="Tên khách hàng"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+              <Input
+                type="address"
+                className="w-[460px] h-[60px] p-2.5 rounded-[5px] border-none placeholder:text-gray-400"
+                placeholder="Địa chỉ giao hàng"
+                value={address}
+                onChange={(e) => setName(e.target.value)}
                 required
               />
               <Button
@@ -75,26 +116,20 @@ export default function pageLogin() {
                 className="w-[500px] h-[40px] p-2.5 bg-[#5cb338] rounded-[5px] inline-flex justify-center items-center gap-2.5 overflow-hidden"
               >
                 <div className="relative justify-start text-white text-[20px] font-bold font-['Inter']">
-                  ĐĂNG NHẬP
+                  ĐĂNG KÝ
                 </div>
               </Button>
             </Form>
 
-            {/* 📌 Quên mật khẩu + Đăng ký */}
+            {/* Đăng nhập */}
             <div className="w-full flex flex-col items-center gap-2">
-              <Link
-                href="/forgetpw"
-                className="text-[16px] text-[#5cb338] hover:underline"
-              >
-                Quên mật khẩu?
-              </Link>
-              <div className="text-[16px] text-gray-600 mt-[15px]">
-                Chưa có tài khoản?{" "}
+              <div className="text-[16px] text-gray-600">
+                Đã có tài khoản?{" "}
                 <Link
-                  href="/register"
+                  href="/login"
                   className="text-[#fb4141] font-bold text-[16px] hover:underline"
                 >
-                  Đăng ký
+                  Đăng nhập
                 </Link>
               </div>
             </div>

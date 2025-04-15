@@ -16,6 +16,7 @@ export interface Customer {
   birthday: string;
   gender: string;
   isActive: boolean;
+  created_at: string;
 }
 
 export const columns: ColumnDef<Customer>[] = [
@@ -155,6 +156,30 @@ export const columns: ColumnDef<Customer>[] = [
           {isActive ? "Hoạt động" : "Không hoạt động"}
         </Badge>
       );
+    },
+  },
+  {
+    accessorKey: "created_at",
+    header: ({ column }) => {
+      return (
+        <Button
+          className="pl-0"
+          variant="ghost"
+          style={{ backgroundColor: "transparent" }}
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Ngày tạo
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const rawDate = row.getValue("created_at");
+      const date =
+        typeof rawDate === "string" || typeof rawDate === "number"
+          ? new Date(rawDate)
+          : null;
+
+      return <div>{date ? date.toLocaleDateString("vi-VN") : ""}</div>;
     },
   },
 ];

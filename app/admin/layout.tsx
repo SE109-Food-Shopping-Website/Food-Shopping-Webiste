@@ -78,7 +78,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </div>
             {/* Thống kê */}
             <AccordionItem value="thongke" className="w-full">
-              {/* <div className="w-full h-[30px] justify-between items-center inline-flex">
+              <div className="w-full h-[30px] justify-between items-center inline-flex">
                 <AccordionTrigger>
                   <div data-svg-wrapper className="relative">
                     <svg
@@ -100,10 +100,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   </div>
                   Thống kê
                 </AccordionTrigger>
-              </div> */}
+              </div>
               <AccordionContent className="w-full">
                 <Link
-                  href="/admin/statics/revenue"
+                  href="/admin/statics"
                   className="block w-full py-2 px-2 text-black hover:bg-gray-200"
                 >
                   Doanh thu

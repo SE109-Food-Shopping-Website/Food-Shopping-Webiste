@@ -5,21 +5,27 @@ import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-export default function pageLogin() {
-  interface User {
-    id: number;
-    name: string;
-    email: string;
-  }
+export default function ForgetPassword() {
+  const router = useRouter();
 
-  const [users, setUsers] = useState<User[]>([]);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
 
-  const handleAddUser = (event: React.FormEvent) => {
+  // Danh sách email giả lập có trong hệ thống
+  const mockEmails = ["an@gmail.com", "binh@gmail.com", "chi@gmail.com"];
+
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    // TODO: Call login API here
+
+    // Kiểm tra email trong danh sách
+    if (mockEmails.includes(email.trim().toLowerCase())) {
+      setError("");
+      router.push("/forgetpw/confirm");
+    } else {
+      setError("Email không tồn tại trong hệ thống!");
+    }
   };
 
   return (
@@ -32,7 +38,7 @@ export default function pageLogin() {
           alt="logo"
         />
         <div className="relative justify-start text-[#fb4141] text-[28px] font-bold font-['Inter']">
-          ĐĂNG NHẬP
+          QUÊN MẬT KHẨU
         </div>
       </div>
 
@@ -52,42 +58,36 @@ export default function pageLogin() {
           <div className="w-full h-full px-[60px] py-[30px] bg-white inline-flex flex-col justify-start items-center gap-[30px] overflow-hidden">
             <Form>
               <div className="relative justify-start text-[#fb4141] text-[32px] font-bold font-['Inter']">
-                ĐĂNG NHẬP
+                QUÊN MẬT KHẨU
+              </div>
+              <div className="self-stretch justify-start text-black text-base font-medium font-['Inter']">
+                Nhập email cho quá trình xác thực, chúng tôi sẽ gửi mã xác thực
+                gồm 4 ký tự vào email này
               </div>
               <Input
                 type="email"
                 className="w-[460px] h-[60px] p-2.5 rounded-[5px] placeholder:text-gray-400"
                 placeholder="Email"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
-              <Input
-                type="password"
-                placeholder="Password"
-                className="w-[460px] h-[60px] p-2.5 rounded-[5px] placeholder:text-gray-400"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              {error && (
+                <div className="text-red-500 text-sm mt-[-20px]">{error}</div>
+              )}
               <Button
                 type="submit"
+                onClick={handleSubmit}
                 className="w-[500px] h-[40px] p-2.5 bg-[#5cb338] rounded-[5px] inline-flex justify-center items-center gap-2.5 overflow-hidden"
               >
                 <div className="relative justify-start text-white text-[20px] font-bold font-['Inter']">
-                  ĐĂNG NHẬP
+                  TIẾP THEO
                 </div>
               </Button>
             </Form>
 
-            {/* 📌 Quên mật khẩu + Đăng ký */}
+            {/* Link đăng ký */}
             <div className="w-full flex flex-col items-center gap-2">
-              <Link
-                href="/forgetpw"
-                className="text-[16px] text-[#5cb338] hover:underline"
-              >
-                Quên mật khẩu?
-              </Link>
               <div className="text-[16px] text-gray-600 mt-[15px]">
                 Chưa có tài khoản?{" "}
                 <Link
