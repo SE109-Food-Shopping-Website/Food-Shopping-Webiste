@@ -1,20 +1,35 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { DataTable } from "./components/data-table";
 import { columns } from "./components/columns";
-import { customerData } from "./data/customer-data";
 
 export default function pageCustomer() {
+  const [data, setData] = useState([]);
+  const [error, setError] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    fetch("/api/customer")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Dữ liệu từ API:", data); // Console log dữ liệu
+        setData(data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error("Fetch error:", err);
+        setError(err.message);
+        setIsLoading(false);
+      });
+  }, []);
 
   return (
     <div className="relative justify-start text-black text-base font-normal font-['Inter']">
       Góp ý / Khách hàng / Danh sách
       <DataTable
         columns={columns}
-        data={customerData}
+        data={data}
         isLoading={isLoading}
         error={error}
       />
