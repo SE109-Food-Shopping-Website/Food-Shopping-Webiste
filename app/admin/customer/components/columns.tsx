@@ -102,13 +102,23 @@ export const columns: ColumnDef<Customer>[] = [
           className="pl-0"
           variant="ghost"
           style={{ backgroundColor: "transparent" }}
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Ngày sinh
         </Button>
       );
     },
-    cell: ({ row }) => <div>{row.getValue("birthday")}</div>,
+    cell: ({ row }) => {
+      const rawDate = row.getValue("birthday");
+      const date =
+        typeof rawDate === "string" || typeof rawDate === "number"
+          ? new Date(rawDate)
+          : null;
+
+      return <div>{date ? date.toLocaleDateString("vi-VN") : ""}</div>;
+    },
   },
+
   {
     accessorKey: "gender",
     header: ({ column }) => {
