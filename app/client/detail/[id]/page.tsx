@@ -58,7 +58,7 @@ export default function PageProductDetail() {
             const res = await fetch(`/api/products/${id}`)
             if (!res.ok) throw new Error("Không thể lấy thông tin sản phẩm")
             const data = await res.json()
-            const parsedImages = data.images ? JSON.parse(data.images) : null
+            const parsedImages = Array.isArray(data.images) ? data.images : null
             setProduct({ ...data, images: parsedImages })
             setSelectedImage(parsedImages?.[0] || null)
         } catch (error) {
