@@ -16,13 +16,13 @@ export default function PageSearch() {
 
   const searchParams = useSearchParams();
   const query = searchParams.get("query");
-  const category = searchParams.get("category");
+  const productType = searchParams.get("productType");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/products?query=${query || ""}&category=${category || ""}`);
+        const res = await fetch(`/api/products?query=${query || ""}&productType=${productType || ""}`);
         const text = await res.text();
       if (!text) {
         console.warn("Response từ /api/products rỗng");
@@ -40,10 +40,10 @@ export default function PageSearch() {
           const matchName = query
             ? item.name.toLowerCase().includes(query.toLowerCase())
             : true;
-          const matchCategory = category
-            ? item.productType?.name?.toLowerCase() === category.toLowerCase()
+          const matchProductType = productType
+            ? item.productType?.name?.toLowerCase() === productType.toLowerCase()
             : true;
-          return matchName && matchCategory;
+          return matchName && matchProductType;
         });
         setProducts(filtered);
       } else {
@@ -57,7 +57,7 @@ export default function PageSearch() {
     };
 
     fetchData();
-  }, [query, category]);
+  }, [query, productType]);
 
   return (
     <div className="w-full min-h-screen flex flex-col">

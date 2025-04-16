@@ -72,7 +72,7 @@ export default function SearchBar({ selectedCategory }: { selectedCategory: stri
     const handleSearchSubmit = (e: React.FormEvent) => {
       e.preventDefault();
       if (query.trim()) {
-      router.push(`/client/collection/search?query=${encodeURIComponent(query)}`);
+        router.push(`/client/collection/search?query=${encodeURIComponent(query)}&productType=${encodeURIComponent(selectedCategory)}`);
       setShowSuggestions(false);
     }
   };

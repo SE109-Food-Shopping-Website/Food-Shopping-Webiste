@@ -18,7 +18,6 @@ export async function GET(req: Request) {
         ...(productType && productType !== "Danh mục sản phẩm"
           ? {
               productType: {
-                // đây là quan hệ tới PRODUCT_TYPE nên truy theo tên ở bảng đó
                 name: {
                   equals: productType,
                   mode: "insensitive",
@@ -32,7 +31,7 @@ export async function GET(req: Request) {
         id: true,
         name: true,
         images: true,
-        productType: true, // thêm productType vào select nếu cần
+        productType: true, 
       },
     });
 
