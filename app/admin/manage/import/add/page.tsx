@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -27,37 +27,55 @@ import {
 import { Provider } from "@radix-ui/react-toast";
 
 const formSchema = z.object({
-  provider: z.string().min(1, "Tên loại sản phẩm không được để trống"),
+  provider_id: z.string().min(1, "Tên nhà cung cấp không được để trống"),
 });
-
-const mockProducts = [
-  { id: 1, name: "Lốc Milo" },
-  { id: 2, name: "Sữa tươi Vinamilk" },
-  { id: 3, name: "Bánh Oreo" },
-];
 
 export default function addImport() {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      provider: "",
+      provider_id: "",
     },
   });
   const router = useRouter();
   const [products, setProducts] = useState([
-    { id: Date.now(), name: "", price: "", quantity: "" },
+    { id: Date.now(), product_id: 0, price: "", quantity: "" },
   ]);
+  const [providers, setProviders] = useState<{ id: number; name: string }[]>(
+    []
+  );
+  const [productList, setProductList] = useState<{ id: number; name: string }[]>([]);
+
+  // Fetch providers from the server
+  useEffect(() => {
+    const fetchProviders = async () => {
+      const res = await fetch("/api/provider");
+      const data = await res.json();
+      setProviders(data);
+    };
+    fetchProviders();
+  }, []);
+
+  // Fetch products from the server
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const res = await fetch("/api/products");
+      const data = await res.json();
+      setProductList(data);
+    };
+    fetchProducts();
+  }, []);
 
   const addProduct = () => {
     setProducts([
       ...products,
-      { id: Date.now(), name: "", price: "", quantity: "" },
+      { id: Date.now(), product_id: 0, price: "", quantity: "" },
     ]);
   };
   const updateProduct = (
     index: number,
-    field: "name" | "price" | "quantity",
-    value: string
+    field: "product_id" | "price" | "quantity",
+    value: string | number
   ) => {
     const newProducts = [...products];
     newProducts[index][field] = value;
@@ -68,8 +86,30 @@ export default function addImport() {
     return price && quantity ? Number(price) * Number(quantity) : 0;
   };
 
-  const onSubmit = (data: { provider: string }) => {
-    console.log("Submitting form with data:", { ...data, products });
+  const onSubmit = async (data: { provider_id: string }) => {
+    try {
+      const res = await fetch("/api/import", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          provider_id: Number(data.provider_id),
+          products,
+        }),
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        alert("Thêm đơn nhập hàng thành công!");
+        router.push("/admin/manage/import");
+      } else {
+        alert("Lỗi: " + result.error || "Có lỗi xảy ra!");
+      }
+    } catch (error) {
+      console.error("Lỗi:", error);
+    }
   };
   return (
     <div>
@@ -89,18 +129,45 @@ export default function addImport() {
             <div className="w-[500px] flex flex-col gap-2">
               <FormField
                 control={form.control}
-                name="provider"
+                name="provider_id"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel className="font-normal">
                       Tên nhà cung cấp
                     </FormLabel>
                     <FormControl>
-                      <Input
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                        }}
+                        value={field.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn nhà cung cấp" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {providers.length > 0 ? (
+                            providers.map((provider) => (
+                              <SelectItem
+                                key={provider.id}
+                                value={provider.id.toString()}
+                              >
+                                {provider.name}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="none" disabled>
+                              Không có nhà cung cấp nào
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+
+                      {/* <Input
                         placeholder="BHX"
                         {...field}
                         value={field.value ?? ""}
-                      />
+                      />  */}
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -125,15 +192,15 @@ export default function addImport() {
                   <div className="text-black text-base">Sản phẩm</div>
                   <Select
                     onValueChange={(value) =>
-                      updateProduct(index, "name", value)
+                      updateProduct(index, "product_id", value)
                     }
                   >
                     <SelectTrigger className="w-full min-w-0">
                       <SelectValue placeholder="Chọn sản phẩm" />
                     </SelectTrigger>
                     <SelectContent>
-                      {mockProducts.map((item) => (
-                        <SelectItem key={item.id} value={item.name}>
+                      {productList.map((item) => (
+                        <SelectItem key={item.id} value={item.id.toString()}>
                           {item.name}
                         </SelectItem>
                       ))}

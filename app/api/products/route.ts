@@ -8,7 +8,11 @@ import path from "path";
 
 export async function GET() {
   try {
-    const products = await prisma.pRODUCT.findMany();
+    const products = await prisma.pRODUCT.findMany({
+      orderBy: {
+        id: 'asc', // hoặc 'desc' nếu bạn muốn sắp xếp theo thứ tự giảm dần
+      },
+    });
     return NextResponse.json(products);
   } catch (error) {
     return NextResponse.json({ error: "Lỗi lấy sản phẩm" }, { status: 500 });

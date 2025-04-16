@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -24,8 +24,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import { toast } from "@/hooks/use-toast";
+import { set } from "date-fns";
 
 const formSchema = z.object({
   name: z.string(),
@@ -35,15 +37,96 @@ const formSchema = z.object({
   description: z.string(),
 });
 
-export default function updateProduct() {
+export default function UpdateProduct() {
   const router = useRouter();
+  const { id } = useParams(); // Lấy ID từ URL
+  const [loading, setLoading] = useState(true);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
   const [categories, setCategories] = useState<{ id: number; name: string }[]>(
     []
   );
   const [providers, setProviders] = useState<{ id: number; name: string }[]>(
     []
   );
+  const [productInfo, setProductInfo] = useState<{
+    provider_name?: string;
+    productType_name?: string;
+  }>({});
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      productType_id: "",
+      provider_id: "",
+      unit: "",
+      description: "",
+    },
+  });
+
+  // Fetch dữ liệu sản phẩm và danh sách nhà cung cấp, loại sản phẩm
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch dữ liệu sản phẩm
+        const productRes = await fetch(`/api/products/${id}`);
+        const productData = await productRes.json();
+        if (productData.error) {
+          console.error("Lỗi:", productData.error);
+          return;
+        }
+        console.log("Dữ liệu sản phẩm:", productData); // Console log dữ liệu
+
+        // Lưu thông tin hiển thị
+        setProductInfo({
+          provider_name: productData.provider_name,
+          productType_name: productData.productType_name,
+        });
+
+        console.log("Thông tin sản phẩm:", productInfo); // Console log thông tin sản phẩm
+
+        // Set exiting images
+        if (productData.images) {
+          setExistingImages(productData.images);
+        }
+
+        // Set form values
+        form.reset({
+          name: productData.name,
+          productType_id: productData.productType_id?.toString() || "",
+          provider_id: productData.provider_id?.toString() || "",
+          unit: productData.unit,
+          description: productData.description,
+        });
+
+        // Fetch danh sách nhà cung cấp và loại sản phẩm
+        const [categoriesRes, providersRes] = await Promise.all([
+          fetch("/api/product-types"),
+          fetch("/api/provider"),
+        ]);
+        const [categoriesData, providersData] = await Promise.all([
+          categoriesRes.json(),
+          providersRes.json(),
+        ]);
+        setCategories(categoriesData);
+        setProviders(providersData);
+      } catch (error) {
+        console.error("Lỗi khi tải dữ liệu:", error);
+        toast({
+          title: "Lỗi",
+          description: "Không thể tải dữ liệu!",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchData();
+    }
+  }, [id, form]);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -75,29 +158,53 @@ export default function updateProduct() {
     setSelectedImages((prevImages) => prevImages.filter((_, i) => i !== index));
   };
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      productType_id: "",
-      provider_id: "",
-      unit: "",
-      description: "",
-    },
-  });
+  const removeExistingImage = (index: number) => {
+    setExistingImages((prev) => prev.filter((_, i) => i !== index));
+  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const formData = new FormData();
-    formData.append("name", values.name);
-    formData.append("unit", values.unit);
-    formData.append("description", values.description);
-    formData.append("productType_id", values.productType_id);
-    formData.append("provider_id", values.provider_id);
+    try {
+      const formData = new FormData();
+      formData.append("name", values.name);
+      formData.append("unit", values.unit);
+      formData.append("description", values.description);
+      formData.append("productType_id", values.productType_id);
+      formData.append("provider_id", values.provider_id);
 
-    // Thêm ảnh vào FormData
-    selectedImages.forEach((image) => {
-      formData.append("images", image);
-    });
+      // Thêm ảnh vào FormData
+      selectedImages.forEach((image) => {
+        formData.append("images", image);
+      });
+
+      // Thêm ảnh hiện tại (nếu có)
+      formData.append("existingImages", JSON.stringify(existingImages));
+
+      const response = await fetch(`/api/products/${id}`, {
+        method: "PUT",
+        body: formData,
+      });
+      const data = await response.json();
+      if (data.error) {
+        toast({
+          title: "Lỗi",
+          description: data.error,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Thành công",
+          description: "Cập nhật sản phẩm thành công!",
+        });
+        router.push("/admin/manage/product");
+      }
+    } catch (error) {
+      console.error("Lỗi khi cập nhật sản phẩm:", error);
+      toast({
+        title: "Lỗi",
+        description: "Không thể cập nhật sản phẩm!",
+        variant: "destructive",
+      });
+    }
   }
 
   return (
@@ -140,19 +247,24 @@ export default function updateProduct() {
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Chọn loại sản phẩm" />
+                          <SelectValue
+                            placeholder={
+                              productInfo.productType_name ||
+                              "Chọn loại sản phẩm"
+                            }
+                          />
                         </SelectTrigger>
                         <SelectContent>
                           {categories.length > 0 ? (
-                            categories.map((category) => (
+                            categories.map((productType) => (
                               <SelectItem
-                                key={category.id}
-                                value={category.id.toString()}
+                                key={productType.id}
+                                value={productType.id.toString()}
                               >
-                                {category.name}
+                                {productType.name}
                               </SelectItem>
                             ))
                           ) : (
@@ -169,7 +281,6 @@ export default function updateProduct() {
               />
             </div>
           </div>
-
           {/* Nhà cung cấp & Đơn vị tính */}
           <div className="w-full self-stretch inline-flex justify-between items-center mt-[10px]">
             <div className="w-[500px] inline-flex flex-col justify-start items-start gap-5">
@@ -197,10 +308,14 @@ export default function updateProduct() {
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Chọn nhà cung cấp" />
+                          <SelectValue
+                            placeholder={
+                              productInfo.provider_name || "Chọn nhà cung cấp"
+                            }
+                          />
                         </SelectTrigger>
                         <SelectContent>
                           {providers.length > 0 ? (
@@ -278,7 +393,27 @@ export default function updateProduct() {
               </div>
             ))}
           </div>
-
+          <div className="grid grid-cols-3 gap-2 mt-4">
+            {/* Hiển thị ảnh hiện tại */}
+            {existingImages.map((img, index) => (
+              <div key={`existing-${index}`} className="relative w-24 h-24">
+                <Image
+                  src={img}
+                  alt={`Existing ${index}`}
+                  width={96}
+                  height={96}
+                  className="rounded-lg object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeExistingImage(index)}
+                  className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full px-2 py-1"
+                >
+                  X
+                </button>
+              </div>
+            ))}
+          </div>
           {/* Hiển thị ảnh đã chọn */}
           <div className="grid grid-cols-3 gap-2 mt-4">
             {selectedImages.map((image, index) => (
