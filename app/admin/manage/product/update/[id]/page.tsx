@@ -33,6 +33,7 @@ const formSchema = z.object({
   name: z.string(),
   productType_id: z.string(),
   provider_id: z.string(),
+  quantity: z.number(),
   unit: z.string(),
   description: z.string(),
 });
@@ -60,6 +61,7 @@ export default function UpdateProduct() {
       name: "",
       productType_id: "",
       provider_id: "",
+      quantity: 0,
       unit: "",
       description: "",
     },
@@ -96,6 +98,7 @@ export default function UpdateProduct() {
           name: productData.name,
           productType_id: productData.productType_id?.toString() || "",
           provider_id: productData.provider_id?.toString() || "",
+          quantity: productData.quantity || 0,
           unit: productData.unit,
           description: productData.description,
         });
@@ -170,6 +173,7 @@ export default function UpdateProduct() {
       formData.append("description", values.description);
       formData.append("productType_id", values.productType_id);
       formData.append("provider_id", values.provider_id);
+      formData.append("quantity", values.quantity.toString());
 
       // Thêm ảnh vào FormData
       selectedImages.forEach((image) => {
@@ -341,6 +345,34 @@ export default function UpdateProduct() {
               />
             </div>
           </div>
+
+          {/* Số lượng trong kho */}
+          <div className="w-full self-stretch inline-flex justify-between items-center mt-[10px]">
+            <div className="w-[500px] inline-flex flex-col justify-start items-start gap-5">
+              <FormField
+                control={form.control}
+                name="quantity"
+                render={({ field }) => (
+                  <FormItem className="w-full flex flex-col">
+                    <FormLabel className="font-normal">
+                      Số lượng trong kho
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(parseInt(e.target.value) || 0)
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
           <div className="relative justify-start text-[#5cb338] text-base font-bold font-['Inter'] mt-[10px]">
             Mô tả sản phẩm
           </div>

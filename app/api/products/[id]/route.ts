@@ -74,6 +74,7 @@ export async function PUT(
     const provider_id = formData.get("provider_id") as string;
     const unit = formData.get("unit") as string;
     const description = formData.get("description") as string;
+    const quantity = parseInt(formData.get("quantity") as string) || 0;
     const existingImages =
       JSON.parse(formData.get("existingImages") as string) || [];
 
@@ -111,6 +112,7 @@ export async function PUT(
         provider_id: provider_id ? parseInt(provider_id, 10) : null,
         unit,
         description,
+        quantity,
         images: JSON.stringify(allImages), // Lưu đường dẫn ảnh dưới dạng JSON string
       },
     });
