@@ -65,7 +65,7 @@ export default function PagePayment() {
         <div className="flex-1 flex flex-col gap-2.5 text-base text-black">
           <b className="text-[18px]">Đơn hàng</b>
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse border border-gray-300 text-center text-white">
+            <table className="w-full border-collapse border border-gray-300 text-left text-white">
               <thead>
                 <tr className="bg-primary">
                   <th className="px-4 py-2">Sản phẩm</th>

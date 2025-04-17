@@ -59,7 +59,7 @@ export default function PageCart() {
           <div className="flex-1 w-[700px] p-2.5 gap-2.5">
             <b className="text-[18px]">Giỏ hàng</b>
             <div className="w-full overflow-x-auto">  
-              <table className="w-full text-center text-white table-fixed min-w-[700px] border-collapse">
+              <table className="w-full text-left text-white table-fixed min-w-[700px] border-collapse">
                 <thead>
                   <tr className="bg-primary">
                     <th className="px-4 py-2 w-[30%]">Sản phẩm</th>
@@ -72,7 +72,7 @@ export default function PageCart() {
                 <tbody>
                   {cart.map((product) => (
                     <tr key={product.id} className="text-foreground border-t border-gray-300 min-h-[60px]">
-                      <td className="px-4 py-2 truncate max-w-[200px]">{product.name}</td>
+                      <td className="px-4 py-2 w-auto">{product.name}</td>
                       <td className="px-4 py-2 whitespace-nowrap">{product.price.toLocaleString()}đ</td>
                       <td className="px-4 py-2">
                         <div className="flex justify-center min-w-[80px]">
