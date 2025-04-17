@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { useCart } from "@/app/client/context/CartContext";
 // import { getServerSession } from "next-auth";
 // import { authOptions } from "@/lib/auth";
 
@@ -60,6 +61,13 @@ export async function POST(req: Request) {
               increment: item.quantity,
             },
           },
+        });
+      }
+
+      // Xóa giỏ hàng sau khi đặt hàng thành công
+      if (userId) {
+        await prisma.cART.deleteMany({
+          where: { user_id: userId },
         });
       }
 

@@ -9,15 +9,15 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/app/client/context/CartContext";
 
 export default function PagePayment() {
-  const { cart, shippingFee, discount, totalPayment } = useCart();
+  const { cart, shippingFee, discount, totalPayment, updateCart } = useCart();
   const router = useRouter();
-
   const [name, setName] = useState("Nguyễn Văn A");
   const [phone, setPhone] = useState("0123456789");
   const [address, setAddress] = useState("123 Đường ABC, Phường XYZ, Quận 1, TP.HCM");
   const [loading, setLoading] = useState(false);
 
   const handlePlaceOrder = async () => {
+
     try {
       setLoading(true);
       const res = await fetch("/api/order", {
@@ -37,6 +37,9 @@ export default function PagePayment() {
       const data = await res.json();
 
       if (!res.ok) throw new Error(data.message || "Failed to create order");
+
+      // Xóa giỏ hàng sau khi đặt hàng thành công
+      updateCart([]);
 
       router.push(`/client/view?orderId=${data.order.id}`);
     } catch (err) {
@@ -65,7 +68,7 @@ export default function PagePayment() {
         <div className="flex-1 flex flex-col gap-2.5 text-base text-black">
           <b className="text-[18px]">Đơn hàng</b>
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse border border-gray-300 text-center text-white">
+            <table className="w-full border-collapse border border-gray-300 text-left text-white">
               <thead>
                 <tr className="bg-primary">
                   <th className="px-4 py-2">Sản phẩm</th>
