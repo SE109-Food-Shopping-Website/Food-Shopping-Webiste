@@ -1,34 +1,56 @@
 "use client";
 
-import { Form } from "@/components/ui/form";
-import React, { useState } from "react";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useRouter } from "next/navigation";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-export default function pageRegister() {
-  interface User {
-    id: number;
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-    password: string;
-    repassword: string;
-  }
+// Schema validate
+const registerSchema = z
+  .object({
+    email: z.string().email("Email không hợp lệ"),
+    phone: z.string().min(9, "Số điện thoại không hợp lệ"),
+    password: z.string().min(6, "Mật khẩu phải ít nhất 6 ký tự"),
+    repassword: z.string(),
+    name: z.string().min(1, "Vui lòng nhập tên"),
+    address: z.string().min(1, "Vui lòng nhập địa chỉ"),
+  })
+  .refine((data) => data.password === data.repassword, {
+    message: "Mật khẩu xác nhận không khớp",
+    path: ["repassword"],
+  });
 
-  const [users, setUsers] = useState<User[]>([]);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
-  const [repassword, setRepassword] = useState("");
-  const [name, setName] = useState("");
+export default function PageRegister() {
+  const router = useRouter();
 
-  const handleAddUser = (event: React.FormEvent) => {
-    event.preventDefault();
-    // TODO: Call login API here
+  const form = useForm<z.infer<typeof registerSchema>>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      email: "",
+      phone: "",
+      password: "",
+      repassword: "",
+      name: "",
+      address: "",
+    },
+  });
+
+  const onSubmit = (data: z.infer<typeof registerSchema>) => {
+    console.log("Register data:", data);
+    // TODO: Gọi API đăng ký ở đây
+    router.push("/login");
   };
 
   return (
@@ -59,69 +81,134 @@ export default function pageRegister() {
         {/* Right */}
         <div className="w-1/2 h-full px-[50px] py-[20px] inline-flex justify-start items-center gap-2.5 overflow-hidden">
           <div className="w-full h-full px-[60px] py-[20px] bg-white inline-flex flex-col justify-start items-center gap-[25px] overflow-hidden">
-            <Form>
-              <div className="relative justify-start text-[#fb4141] text-[32px] font-bold font-['Inter']">
-                ĐĂNG KÝ
-              </div>
-              <Input
-                type="email"
-                className="w-[460px] h-[60px] p-2.5 rounded-[5px] border-none placeholder:text-gray-400"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <Input
-                type="phone"
-                className="w-[460px] h-[60px] p-2.5 rounded-[5px] border-none placeholder:text-gray-400"
-                placeholder="Số điện thoại giao hàng"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-              />
-              <Input
-                type="password"
-                placeholder="Password"
-                className="w-[460px] h-[60px] p-2.5 rounded-[5px] border-none placeholder:text-gray-400"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <Input
-                type="password"
-                placeholder="Nhập lại mật khẩu"
-                className="w-[460px] h-[60px] p-2.5 rounded-[5px] border-none placeholder:text-gray-400"
-                value={repassword}
-                onChange={(e) => setRepassword(e.target.value)}
-                required
-              />
-              <Input
-                type="name"
-                className="w-[460px] h-[60px] p-2.5 rounded-[5px] border-none placeholder:text-gray-400"
-                placeholder="Tên khách hàng"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-              <Input
-                type="address"
-                className="w-[460px] h-[60px] p-2.5 rounded-[5px] border-none placeholder:text-gray-400"
-                placeholder="Địa chỉ giao hàng"
-                value={address}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-              <Button
-                type="submit"
-                className="w-[500px] h-[40px] p-2.5 bg-[#5cb338] rounded-[5px] inline-flex justify-center items-center gap-2.5 overflow-hidden"
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="w-full flex flex-col gap-[20px]"
               >
-                <div className="relative justify-start text-white text-[20px] font-bold font-['Inter']">
+                <div className="relative justify-start text-[#fb4141] text-[32px] font-bold font-['Inter']">
                   ĐĂNG KÝ
                 </div>
-              </Button>
+
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="Email"
+                          className="w-[460px] h-[60px] p-2.5 rounded-[5px] placeholder:text-gray-400"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          placeholder="Số điện thoại giao hàng"
+                          className="w-[460px] h-[60px] p-2.5 rounded-[5px] placeholder:text-gray-400"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="Mật khẩu"
+                          className="w-[460px] h-[60px] p-2.5 rounded-[5px] placeholder:text-gray-400"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="repassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="Nhập lại mật khẩu"
+                          className="w-[460px] h-[60px] p-2.5 rounded-[5px] placeholder:text-gray-400"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          placeholder="Tên khách hàng"
+                          className="w-[460px] h-[60px] p-2.5 rounded-[5px] placeholder:text-gray-400"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          placeholder="Địa chỉ giao hàng"
+                          className="w-[460px] h-[60px] p-2.5 rounded-[5px] placeholder:text-gray-400"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button
+                  type="submit"
+                  className="w-[500px] h-[40px] p-2.5 bg-[#5cb338] rounded-[5px] inline-flex justify-center items-center gap-2.5 overflow-hidden"
+                >
+                  <div className="relative justify-start text-white text-[20px] font-bold font-['Inter']">
+                    ĐĂNG KÝ
+                  </div>
+                </Button>
+              </form>
             </Form>
 
-            {/* Đăng nhập */}
             <div className="w-full flex flex-col items-center gap-2">
               <div className="text-[16px] text-gray-600">
                 Đã có tài khoản?{" "}

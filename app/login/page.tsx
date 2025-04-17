@@ -1,25 +1,56 @@
 "use client";
 
-import { Form } from "@/components/ui/form";
-import React, { useState } from "react";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useRouter } from "next/navigation";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-export default function pageLogin() {
-  interface User {
-    id: number;
-    name: string;
-    email: string;
-  }
+// Schema validate
+const loginSchema = z.object({
+  email: z.string().email("Email không hợp lệ"),
+  password: z.string().min(6, "Mật khẩu phải ít nhất 6 ký tự"),
+});
 
-  const [users, setUsers] = useState<User[]>([]);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+export default function PageLogin() {
+  const router = useRouter();
 
-  const handleAddUser = (event: React.FormEvent) => {
-    event.preventDefault();
-    // TODO: Call login API here
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (data: any) => {
+    const res = await fetch("/api/login", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+
+    if (res.ok) {
+      const { role } = await res.json();
+
+      if (role === 1) {
+        router.push("/admin/manage/provider"); // Nếu role là admin (1)
+      } else if (role === 2) {
+        router.push("/client/collection/dashboard"); // Nếu role là client (2)
+      }
+    } else {
+      alert("Sai thông tin đăng nhập");
+    }
   };
 
   return (
@@ -48,40 +79,65 @@ export default function pageLogin() {
         </div>
 
         {/* Right */}
-        <div className="w-1/2 h-full px-[50px] py-[100px] inline-flex justify-start items-center gap-2.5 overflow-hidden">
-          <div className="w-full h-full px-[60px] py-[30px] bg-white inline-flex flex-col justify-start items-center gap-[30px] overflow-hidden">
-            <Form>
-              <div className="relative justify-start text-[#fb4141] text-[32px] font-bold font-['Inter']">
-                ĐĂNG NHẬP
-              </div>
-              <Input
-                type="email"
-                className="w-[460px] h-[60px] p-2.5 rounded-[5px] placeholder:text-gray-400"
-                placeholder="Email"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-              />
-              <Input
-                type="password"
-                placeholder="Password"
-                className="w-[460px] h-[60px] p-2.5 rounded-[5px] placeholder:text-gray-400"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <Button
-                type="submit"
-                className="w-[500px] h-[40px] p-2.5 bg-[#5cb338] rounded-[5px] inline-flex justify-center items-center gap-2.5 overflow-hidden"
+        <div className="self-stretch self-stretch px-12 py-24 inline-flex justify-start items-center gap-2.5 overflow-hidden">
+          <div className="flex-1 px-14 py-7 bg-white inline-flex flex-col justify-start items-center gap-7 overflow-hidden">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="w-full flex flex-col gap-[20px]"
               >
-                <div className="relative justify-start text-white text-[20px] font-bold font-['Inter']">
+                <div className="self-stretch text-center justify-start text-red-500 text-3xl font-bold font-['Inter'] mt-[20px]">
                   ĐĂNG NHẬP
                 </div>
-              </Button>
+
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="Email"
+                          className="w-[460px] h-[60px] p-2.5 rounded-[5px] placeholder:text-gray-400"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="Mật khẩu"
+                          className="w-[460px] h-[60px] p-2.5 rounded-[5px] placeholder:text-gray-400"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button
+                  type="submit"
+                  className="w-[500px] h-[40px] p-2.5 bg-[#5cb338] rounded-[5px] inline-flex justify-center items-center gap-2.5 overflow-hidden mb-[20px]"
+                >
+                  <div className="relative justify-start text-white text-[20px] font-bold font-['Inter']">
+                    ĐĂNG NHẬP
+                  </div>
+                </Button>
+              </form>
             </Form>
 
-            {/* 📌 Quên mật khẩu + Đăng ký */}
-            <div className="w-full flex flex-col items-center gap-2">
+            {/* <div className="w-full flex flex-col items-center gap-2">
               <Link
                 href="/forgetpw"
                 className="text-[16px] text-[#5cb338] hover:underline"
@@ -97,7 +153,7 @@ export default function pageLogin() {
                   Đăng ký
                 </Link>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

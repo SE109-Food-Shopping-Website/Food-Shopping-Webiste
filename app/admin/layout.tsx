@@ -1,5 +1,6 @@
 // app/admin/layout.tsx
-import { ReactNode } from "react";
+"use client";
+import { ReactNode, useState } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -16,12 +17,37 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Receipt, Ticket } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface AdminLayoutProps {
   children: ReactNode;
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const handleLogout = async () => {
+    setIsLoading(true);
+
+    try {
+      // Gọi API logout
+      const res = await fetch("/api/logout", {
+        method: "POST",
+      });
+
+      if (res.ok) {
+        // Nếu logout thành công, chuyển hướng người dùng về trang login
+        router.push("/login");
+      } else {
+        alert("Đăng xuất thất bại");
+      }
+    } catch (error) {
+      console.error("Error during logout", error);
+      alert("Đã có lỗi xảy ra");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="h-full w-full bg-white flex-col justify-start items-start inline-flex overflow-hidden">
       {/* Heading */}
@@ -61,7 +87,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Đăng xuất</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
+                {isLoading ? "Đang đăng xuất..." : "Đăng xuất"}
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
