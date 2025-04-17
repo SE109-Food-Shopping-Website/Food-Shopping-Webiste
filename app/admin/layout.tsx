@@ -77,7 +77,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </div>
             </div>
             {/* Thống kê */}
-            <AccordionItem value="thongke" className="w-full">
+            {/* <AccordionItem value="thongke" className="w-full">
               <div className="w-full h-[30px] justify-between items-center inline-flex">
                 <AccordionTrigger>
                   <div data-svg-wrapper className="relative">
@@ -109,7 +109,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   Doanh thu
                 </Link>
               </AccordionContent>{" "}
-            </AccordionItem>
+            </AccordionItem> */}
             {/* Quản lý */}
             <AccordionItem value="quanly" className="w-full mb-[10px]">
               <div className="h-[30px] justify-between items-center inline-flex">
@@ -219,7 +219,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </AccordionItem>
 
             {/* Khuyến mãi */}
-            <AccordionItem value="khuyenmai" className="w-full mb-[10px]">
+            {/* <AccordionItem value="khuyenmai" className="w-full mb-[10px]">
               <div className="h-[30px] justify-between items-center inline-flex">
                 <AccordionTrigger>
                   <div data-svg-wrapper className="relative">
@@ -244,7 +244,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   Tích điểm
                 </Link>
               </AccordionContent>{" "}
-            </AccordionItem>
+            </AccordionItem> */}
 
             {/* Góp ý */}
             <div className="h-[30px] justify-start items-center gap-5 inline-flex">
@@ -284,14 +284,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   Danh sách
                 </Link>
               </AccordionContent>{" "}
-              <AccordionContent className="w-full">
+              {/* <AccordionContent className="w-full">
                 <Link
                   href="/admin/customer/comment"
                   className="block w-full py-2 px-2 text-black hover:bg-gray-200"
                 >
                   Góp ý
                 </Link>
-              </AccordionContent>{" "}
+              </AccordionContent>{" "} */}
             </AccordionItem>
           </Accordion>
         </div>
