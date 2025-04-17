@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { Eye, Pencil, Trash } from "lucide-react";
+import {format, toZonedTime} from "date-fns-tz";
 
 export interface Import {
   id: string;
@@ -48,34 +49,35 @@ export const columns: ColumnDef<Import>[] = [
   },
   {
     accessorKey: "created_at",
-    header: ({ column }) => {
-      return (
-        <Button
-          className="pl-0"
-          variant="ghost"
-          style={{ backgroundColor: "transparent" }}
-        >
-          Ngày nhập
-        </Button>
-      );
+    header: ({ column }) => (
+      <Button className="pl-0" variant="ghost" style={{ backgroundColor: "transparent" }}>
+        Ngày nhập
+      </Button>
+    ),
+    cell: ({ row }) => {
+      const rawDate = row.getValue("created_at") as string;
+      const timeZone = "Asia/Ho_Chi_Minh";
+      const date = toZonedTime(new Date(rawDate), timeZone);
+      const formatted = format(date, "dd/MM/yyyy HH:mm", { timeZone });
+      return <div>{formatted}</div>;
     },
-    cell: ({ row }) => <div>{row.getValue("created_at")}</div>,
   },
+  
   {
     accessorKey: "updated_at",
-    header: ({ column }) => {
-      return (
-        <Button
-          className="pl-0"
-          variant="ghost"
-          style={{ backgroundColor: "transparent" }}
-        >
-          Ngày tạo
-        </Button>
-      );
+    header: ({ column }) => (
+      <Button className="pl-0" variant="ghost" style={{ backgroundColor: "transparent" }}>
+        Ngày nhập
+      </Button>
+    ),
+    cell: ({ row }) => {
+      const rawDate = row.getValue("updated_at") as string;
+      const timeZone = "Asia/Ho_Chi_Minh";
+      const date = toZonedTime(new Date(rawDate), timeZone);
+      const formatted = format(date, "dd/MM/yyyy HH:mm", { timeZone });
+      return <div>{formatted}</div>;
     },
-    cell: ({ row }) => <div>{row.getValue("updated_at")}</div>,
-  },
+  },  
   {
     accessorKey: "provider_id",
     header: ({ column }) => {

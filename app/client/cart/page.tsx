@@ -97,9 +97,9 @@ export default function PageCart() {
 
           {/* Thanh toán */}
           <div className="w-[400px] relative rounded-[5px] border-primary border-solid border-[3px] box-border overflow-hidden shrink-0 flex flex-col items-start justify-start py-4 px-2 gap-[10px] text-left text-base font-inter">
-          <div className="self-stretch rounded bg-white overflow-hidden flex flex-col items-center justify-center">
+          {/* <div className="self-stretch rounded bg-white overflow-hidden flex flex-col items-center justify-center">
             <div className="self-stretch h-[70px] flex flex-row items-center justify-between px-4 text-[14px] text-black">
-              {/* <div className="flex flex-col items-start justify-center">
+              <div className="flex flex-col items-start justify-center">
                 <div className="h-[52px] flex flex-row items-center justify-start gap-2.5">
                   <div className="leading-[130%] font-medium flex flex-row items-center gap-2">
                     <Printer className="w-[20px] h-[20px] text-black" />
@@ -116,7 +116,7 @@ export default function PageCart() {
                 </div>
               </div>
             </div>
-            <div className="self-stretch h-[70px] flex flex-row items-center justify-between px-4 text-[14px] text-black border-t border-gray-300"> */}
+            <div className="self-stretch h-[70px] flex flex-row items-center justify-between px-4 text-[14px] text-black border-t border-gray-300">
               <div className="flex flex-col items-start justify-center">
                 <div className="h-[52px] flex flex-row items-center justify-start gap-2.5">
                   <div className="leading-[130%] font-medium flex flex-row items-center gap-2">
@@ -134,7 +134,7 @@ export default function PageCart() {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
           <div className="self-stretch flex flex-row items-start justify-between py-0 px-5 gap-0 text-[16px] text-black">
             <b className="relative leading-[130%]">TỔNG CỘNG</b>
             <b className="relative leading-[130%] text-primary">{totalAmount.toLocaleString()}đ</b>

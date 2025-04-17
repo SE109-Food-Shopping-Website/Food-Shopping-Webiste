@@ -165,6 +165,11 @@ export default function PageProductDetail() {
                     {product.price.toLocaleString()}đ
                     </b>
                 </div>
+                {/* Đơn vị tính */}
+                <div className="flex flex-row items-center gap-2.5">
+                    <div className="relative">Đơn vị tính:</div>
+                    <b className="relative">{product.unit || "Đang cập nhật"}</b>
+                </div>
                 <div className="flex flex-col items-start py-2.5 gap-[10px]">
                     {/* Số lượng thêm vào giỏ hàng */}
                     <div className="flex flex-row items-center gap-[60px]">

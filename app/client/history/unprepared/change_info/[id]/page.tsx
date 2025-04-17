@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, {useState} from "react";
 import {ArrowLeft} from "lucide-react"
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,47 +11,44 @@ import { useCart } from "@/app/client/context/CartContext";
 export default function PageChangeInfo() {
   const { cart,shippingFee, discount, totalPayment } = useCart();
   const router = useRouter();
+
+  const [name, setName] = useState("Nguyễn Văn A");
+  const [phone, setPhone] = useState("0123456789");
+  const [address, setAddress] = useState("123 Đường ABC, Phường XYZ, Quận 1, TP.HCM");
+  const [loading, setLoading] = useState(false);
+
   const handlePlaceOrder = () => {
-    const orderId = Math.floor(Math.random() * 1000000); // Giả lập mã đơn hàng
-    router.push(`/client/view?orderId=${orderId}`);
+    const orderId = Math.floor(Math.random() * 1000000); 
+    router.push(`/client/history/unprepared?orderId=${orderId}`);
   };
 
   return (
     <div className="w-[1440px] min-h-screen flex flex-col bg-white">
-      <div className="flex-1 flex flex-row items-start justify-start py-[10px] px-[100px] gap-[60px] text-left text-white font-inter">
+      <div className="flex-1 flex flex-row items-start justify-start py-[10px] px-[100px] gap-[30px] text-left text-white font-inter">
         {/* Left */}
         <div className="w-[500px] relative overflow-hidden shrink-0 flex flex-col items-start justify-start p-2.5 box-border gap-2.5 text-left text-lg text-black font-inter">
             <b className="relative text-[18px]">Thông tin nhận hàng</b>
             {/* Name */}
-            <div className="relative text-[16px] font-semibold">Tên người nhận</div>
-            <div className="self-stretch overflow-hidden shrink-0 flex flex-row items-center justify-start p-xl text-base">
-              <Input 
-                value="Nguyễn Văn A"  
-                onChange={() => {}}
-                // value={userName}
-                className="w-full h-[60px] text-[16px] text-black border-none outline-none"
-              />
-            </div>
+            <div className="relative text-[16px] font-semibold">Tên người nhận</div> 
+            <input 
+              value={name} 
+              onChange={(e) => setName(e.target.value)} 
+              className="h-[40px] w-full border border-[#5CB338] rounded-[5px] px-4 text-[16px] text-black placeholder:text-[#CCCCCC]"
+            />     
             {/* Phone */}
-            <div className="relative text-[16px] font-semibold">Số điện thoại người nhận</div>
-            <div className="self-stretch overflow-hidden shrink-0 flex flex-row items-center justify-start p-xl text-base">
-              <Input 
-                value="0123456789"  
-                onChange={() => {}}
-                // value={userName}
-                className="w-full h-[60px] text-[16px] text-black border-none outline-none"
-              />
-            </div>
+            <div className="relative text-[16px] font-semibold">Số điện thoại người nhận</div> 
+            <input 
+              value={phone} 
+              onChange={(e) => setPhone(e.target.value)} 
+              className="h-[40px] w-full border border-[#5CB338] rounded-[5px] px-4 text-[16px] text-black placeholder:text-[#CCCCCC]"
+            />     
             {/* Address */}
-            <div className="relative text-[16px] font-semibold">Địa chỉ giao hàng</div>
-            <div className="self-stretch overflow-hidden shrink-0 flex flex-row items-center justify-start p-xl text-base">
-              <Input 
-                value="123 Đường ABC, Phường XYZ, Quận 1, TP.HCM"  
-                onChange={() => {}}
-                // value={userName}
-                className="w-full h-[60px] text-[16px] text-black border-none outline-none"
-              />
-            </div>
+            <div className="relative text-[16px] font-semibold">Địa chỉ giao hàng</div> 
+            <input 
+              value={address} 
+              onChange={(e) => setAddress(e.target.value)} 
+              className="h-[40px] w-full border border-[#5CB338] rounded-[5px] px-4 text-[16px] text-black placeholder:text-[#CCCCCC]"
+            />
         </div>
         {/* Right */}
         <div className="flex-1 w-full relative overflow-hidden shrink-0 flex flex-col items-start justify-start p-2.5 box-border gap-2.5 text-left text-base text-black font-inter">

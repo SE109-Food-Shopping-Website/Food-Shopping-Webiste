@@ -54,13 +54,11 @@ export default function PagePayment() {
         <div className="w-[500px] flex flex-col gap-2.5 text-lg text-black">
           <b className="text-[18px]">Thông tin nhận hàng</b>
           <div className="font-semibold">Tên người nhận</div>
-          <Input value={name} onChange={(e) => setName(e.target.value)} className="h-[60px]" />
-
+            <Input value={name} onChange={(e) => setName(e.target.value)} className="h-[60px]" />
           <div className="font-semibold">Số điện thoại người nhận</div>
-          <Input value={phone} onChange={(e) => setPhone(e.target.value)} className="h-[60px]" />
-
+            <Input value={phone} onChange={(e) => setPhone(e.target.value)} className="h-[60px]" />
           <div className="font-semibold">Địa chỉ giao hàng</div>
-          <Input value={address} onChange={(e) => setAddress(e.target.value)} className="h-[60px]" />
+            <Input value={address} onChange={(e) => setAddress(e.target.value)} className="h-[60px]" />
         </div>
 
         {/* Right */}
