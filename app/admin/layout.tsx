@@ -214,18 +214,42 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </div>
               <AccordionContent className="w-full">
                 <Link
-                  href="/admin/order/prepared"
+                  href="/admin/order"
                   className="block w-full py-2 px-2 text-black hover:bg-gray-200"
                 >
-                  Đã soạn
+                  Chưa soạn
                 </Link>
               </AccordionContent>{" "}
               <AccordionContent className="w-full">
                 <Link
-                  href="/admin/order/unprepared"
+                  href="/admin/order/processing"
                   className="block w-full py-2 px-2 text-black hover:bg-gray-200"
                 >
-                  Chưa soạn
+                  Đang soạn
+                </Link>
+              </AccordionContent>{" "}
+              <AccordionContent className="w-full">
+                <Link
+                  href="/admin/order/shipping"
+                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                >
+                  Đang giao
+                </Link>
+              </AccordionContent>{" "}
+              <AccordionContent className="w-full">
+                <Link
+                  href="/admin/order/completed"
+                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                >
+                  Thành công
+                </Link>
+              </AccordionContent>{" "}
+              <AccordionContent className="w-full">
+                <Link
+                  href="/admin/order/request"
+                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                >
+                  Yêu cầu trả
                 </Link>
               </AccordionContent>{" "}
               <AccordionContent className="w-full">
@@ -238,10 +262,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </AccordionContent>{" "}
               <AccordionContent className="w-full">
                 <Link
-                  href="/admin/order"
+                  href="/admin/order/cancelled"
                   className="block w-full py-2 px-2 text-black hover:bg-gray-200"
                 >
-                  Danh sách đơn
+                  Bị hủy
                 </Link>
               </AccordionContent>{" "}
             </AccordionItem>

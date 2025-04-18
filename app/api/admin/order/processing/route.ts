@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const clients = await prisma.oRDER.findMany({
         where: {
-            status: 'PENDING', // Lọc đơn hàng có status là 'PENDING'
+            status: 'PROCESSING', // Lọc đơn hàng có status là 'PROCESSING'
           },
     });
     return NextResponse.json(clients);

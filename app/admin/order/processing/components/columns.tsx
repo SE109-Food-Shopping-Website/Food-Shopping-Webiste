@@ -142,7 +142,7 @@ export const columns: ColumnDef<Category>[] = [
     header: "Action",
     cell: ({ row }) => (
       <div className="self-stretch self-stretch inline-flex justify-center items-center gap-2.5">
-        <Link href={`/admin/order/detail/${row.getValue("id")}`}>
+        <Link href={`#`}>
           <Pencil color="#5cb338" />
         </Link>
       </div>
