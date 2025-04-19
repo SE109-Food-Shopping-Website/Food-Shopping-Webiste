@@ -1,16 +1,16 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 
+// Tạo đơn hàng (POST)
 export async function POST(req: Request) {
   try {
-    const session = await getSession(); // Lấy session từ token / cookie
+    const session = await getSession();
     if (!session) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const userId = session.id;
-
     const body = await req.json();
     const { name, phone, address, cart, shippingFee, discount, totalPayment } = body;
 
@@ -19,16 +19,16 @@ export async function POST(req: Request) {
       0
     );
 
-    const result = await prisma.$transaction(async (prisma) => {
-      // Tạo đơn hàng
-      const order = await prisma.oRDER.create({
+    const result = await prisma.$transaction(async (tx) => {
+      const order = await tx.oRDER.create({
         data: {
           user_id: userId,
           originalPrice,
           shippingFee,
           discountAmount: discount,
           totalPrice: totalPayment,
-          note: `Giao cho ${name}, sdt: ${phone}, địa chỉ: ${address}`,
+          note: `Giao cho ${name}, sđt: ${phone}, địa chỉ: ${address}`,
+          status: "PENDING",
           orderDetails: {
             create: cart.map((item: any) => ({
               product_id: item.id,
@@ -43,23 +43,17 @@ export async function POST(req: Request) {
         },
       });
 
-      // Cập nhật số lượng tồn kho và đã bán
       for (const item of cart) {
-        await prisma.pRODUCT.update({
+        await tx.pRODUCT.update({
           where: { id: item.id },
           data: {
-            quantity: {
-              decrement: item.quantity,
-            },
-            sold: {
-              increment: item.quantity,
-            },
+            quantity: { decrement: item.quantity },
+            sold: { increment: item.quantity },
           },
         });
       }
 
-      // Xóa giỏ hàng
-      await prisma.cART.deleteMany({
+      await tx.cART.deleteMany({
         where: { user_id: userId },
       });
 
@@ -70,5 +64,41 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Order error:", error);
     return NextResponse.json({ message: "Something went wrong" }, { status: 500 });
+  }
+}
+
+// Lấy đơn hàng theo status (GET)
+export async function GET(req: NextRequest) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  const userId = session.id;
+  type ORDER_status_enum = "PENDING" | "PROCESSING" | "SHIPPING" | "COMPLETED" | "CANCELLED"; 
+  const status = req.nextUrl.searchParams.get("status") as ORDER_status_enum | undefined; 
+
+  try {
+    const orders = await prisma.oRDER.findMany({
+      where: {
+        user_id: userId,
+        ...(status ? { status } : {}), 
+      },
+      include: {
+        orderDetails: {
+          include: {
+            product: true,
+          },
+        },
+      },
+      orderBy: {
+        created_at: "desc",
+      },
+    });
+
+    return NextResponse.json(orders);
+  } catch (error) {
+    console.error("Fetch orders error:", error);
+    return NextResponse.json({ message: "Error fetching orders" }, { status: 500 });
   }
 }

@@ -23,7 +23,7 @@ export default function PageUnprepared() {
     const fetchOrders = async () => {
       setLoading(true);
       try {
-        const res = await fetch("/api/order/unprepared");
+        const res = await fetch("/api/order/?status=PENDING");
         const data = await res.json();
         setOrders(data);
       } catch (err) {
