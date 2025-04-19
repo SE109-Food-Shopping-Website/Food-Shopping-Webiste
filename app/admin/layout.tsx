@@ -271,7 +271,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </AccordionItem>
 
             {/* Khuyến mãi */}
-            {/* <AccordionItem value="khuyenmai" className="w-full mb-[10px]">
+            <AccordionItem value="khuyenmai" className="w-full mb-[10px]">
               <div className="h-[30px] justify-between items-center inline-flex">
                 <AccordionTrigger>
                   <div data-svg-wrapper className="relative">
@@ -288,15 +288,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   Danh sách đơn
                 </Link>
               </AccordionContent>{" "}
-              <AccordionContent className="w-full">
+              {/* <AccordionContent className="w-full">
                 <Link
                   href="/admin/promotion/point"
                   className="block w-full py-2 px-2 text-black hover:bg-gray-200"
                 >
                   Tích điểm
                 </Link>
-              </AccordionContent>{" "}
-            </AccordionItem> */}
+              </AccordionContent>{" "} */}
+            </AccordionItem>
 
             {/* Góp ý */}
             <div className="h-[30px] justify-start items-center gap-5 inline-flex">
