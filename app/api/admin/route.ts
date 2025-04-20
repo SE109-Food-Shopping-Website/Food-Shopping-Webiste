@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
       gender: user.gender,
       address: user.address,
       role: user.role?.name,
+      password: user.password,
     },
   });
 }

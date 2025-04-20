@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Receipt, Ticket } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Toaster } from "@/components/ui/sonner";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -105,7 +106,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </svg>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>Profile</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/admin/password")}>
+                Profile
+              </DropdownMenuItem>{" "}
               <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
                 {isLoading ? "Đang đăng xuất..." : "Đăng xuất"}
               </DropdownMenuItem>
@@ -370,6 +373,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         {/* Main Content */}
         <main className="flex-1 p-6 bg-white h-full overflow-y-auto">
           {children}
+          <Toaster
+            position="top-right"
+            richColors
+            duration={5000}
+            closeButton
+          />
         </main>
       </div>
     </div>
