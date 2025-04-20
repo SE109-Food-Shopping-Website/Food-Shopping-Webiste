@@ -66,6 +66,16 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                         Đã hủy
                     </Link>
                     <Link
+                        href="/client/history/cancelled"
+                        className={`px-3 py-1 rounded-md ${
+                            pathname === "/client/history/cancelled"
+                                ? "bg-primary text-white font-bold"
+                                : "text-black hover:bg-accent hover:text-white"
+                        }`}
+                    >
+                        Yêu cầu
+                    </Link>
+                    <Link
                         href="/client/history/return"
                         className={`px-3 py-1 rounded-md ${
                             pathname === "/client/history/return"
