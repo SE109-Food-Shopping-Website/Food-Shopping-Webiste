@@ -1,6 +1,6 @@
 // app/admin/layout.tsx
 "use client";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Receipt, Ticket } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Toaster } from "@/components/ui/sonner";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -25,6 +26,7 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [userName, setUserName] = useState<string>("");
   const router = useRouter();
   const handleLogout = async () => {
     setIsLoading(true);
@@ -48,6 +50,24 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/admin");
+        if (res.ok) {
+          const data = await res.json();
+          setUserName(data.user.name); // Giả sử bạn cần hiển thị tên
+        } else {
+          console.error("Không thể lấy thông tin người dùng");
+        }
+      } catch (error) {
+        console.error("Lỗi khi fetch user:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
   return (
     <div className="h-full w-full bg-white flex-col justify-start items-start inline-flex overflow-hidden">
       {/* Heading */}
@@ -64,7 +84,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="w-[130px] self-stretch justify-start items-center gap-2.5 flex">
             <img className="grow shrink basis-0 self-stretch" src="/ava.png" />
             <div className="w-[100px] text-center text-black text-[16px] font-normal font-['Inter'] whitespace-nowrap flex items-center justify-center">
-              Ngoc Minh
+              {userName || "Đang tải..."}
             </div>
           </div>
           <DropdownMenu>
@@ -86,7 +106,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </svg>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>Profile</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/admin/password")}>
+                Profile
+              </DropdownMenuItem>{" "}
               <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
                 {isLoading ? "Đang đăng xuất..." : "Đăng xuất"}
               </DropdownMenuItem>
@@ -351,6 +373,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         {/* Main Content */}
         <main className="flex-1 p-6 bg-white h-full overflow-y-auto">
           {children}
+          <Toaster
+            position="top-right"
+            richColors
+            duration={5000}
+            closeButton
+          />
         </main>
       </div>
     </div>
