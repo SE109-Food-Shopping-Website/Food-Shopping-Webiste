@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import {toast} from "sonner";
 
 export default function PageEditAddress() {
   const [address, setAddress] = useState("");
@@ -41,12 +42,13 @@ export default function PageEditAddress() {
         },
         body: JSON.stringify({ address }),
       });
-      
-
       if (res.ok) {
-        router.push("/client/profile");
+        toast.success("Cập nhật địa chỉ thành công!");
+        setTimeout(() => {
+          router.push("/client/profile");
+        }, 1000);
       } else {
-        alert("Cập nhật địa chỉ thất bại!");
+        toast.error("Cập nhật địa chỉ thất bại!");
       }
     } catch (error) {
       console.error(error);

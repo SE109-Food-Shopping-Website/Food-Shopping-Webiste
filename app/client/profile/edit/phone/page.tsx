@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import {toast} from "sonner";
 
 export default function PageEditPhone() {
   const [phone, setPhone] = useState("");
@@ -44,9 +45,12 @@ export default function PageEditPhone() {
       
 
       if (res.ok) {
-        router.push("/client/profile");
+        toast.success("Cập nhật số điện thoại thành công!");
+        setTimeout(() => {
+          router.push("/client/profile");
+        }, 1000);
       } else {
-        alert("Cập nhật số điện thoại thất bại!");
+        toast.error("Cập nhật số điện thoại thất bại!");
       }
     } catch (error) {
       console.error(error);

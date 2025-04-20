@@ -92,7 +92,7 @@ export default function PageProfile() {
         </div>
         <div className="w-[120px] flex items-center justify-center p-4">
           <div
-            onClick={() => router.push("/client/profile/change-password")}
+            onClick={() => router.push("/client/profile/edit/change-password")}
             className="cursor-pointer hover:underline"
           >
             Thay đổi

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import {toast} from "sonner";
 
 export default function PageEditName() {
   const [name, setName] = useState("");
@@ -44,9 +45,12 @@ export default function PageEditName() {
       
 
       if (res.ok) {
-        router.push("/client/profile");
+        toast.success("Cập nhật tên thành công!");
+        setTimeout(() => {
+          router.push("/client/profile");
+        }, 1000);
       } else {
-        alert("Cập nhật tên thất bại!");
+        toast.error("Cập nhật tên thất bại!");
       }
     } catch (error) {
       console.error(error);

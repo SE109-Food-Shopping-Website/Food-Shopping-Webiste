@@ -40,7 +40,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     
             const text = await res.text();
             if (!text) {
-              console.warn("⚠️ Response từ /api/product-types rỗng");
+              console.warn("Response từ /api/product-types rỗng");
               return;
             }
     
@@ -51,7 +51,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
               throw new Error("Dữ liệu trả về không hợp lệ");
             }
           } catch (error) {
-            console.error("❌ Lỗi khi lấy danh mục sản phẩm:", error);
+            console.error("Lỗi khi lấy danh mục sản phẩm:", error);
           }
         };
     
