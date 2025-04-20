@@ -25,7 +25,7 @@ model USER {
   password   String
   name       String
   phone      String            @unique
-  birthday   DateTime?
+  birthday   DateTime?         @db.Date
   gender     USER_gender_enum?
   address    String?
   isActive   Boolean           @default(true)
@@ -167,4 +167,6 @@ enum ORDER_status_enum {
   SHIPPING
   COMPLETED
   CANCELLED
+  RETURN
+  REQUEST
 }

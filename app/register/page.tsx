@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { toast, Toaster } from "sonner";
 
 // Schema validate
 const registerSchema = z
@@ -23,7 +24,9 @@ const registerSchema = z
     email: z.string().email("Email không hợp lệ"),
     phone: z.string().min(9, "Số điện thoại không hợp lệ"),
     password: z.string().min(6, "Mật khẩu phải ít nhất 6 ký tự"),
-    repassword: z.string(),
+    gender: z.enum(["Male", "Female"]),
+    birthday: z.string().optional(),
+    repassword: z.string().optional(),
     name: z.string().min(1, "Vui lòng nhập tên"),
     address: z.string().min(1, "Vui lòng nhập địa chỉ"),
   })
@@ -44,13 +47,43 @@ export default function PageRegister() {
       repassword: "",
       name: "",
       address: "",
+      gender: undefined,
+      birthday: "",
     },
   });
 
-  const onSubmit = (data: z.infer<typeof registerSchema>) => {
-    console.log("Register data:", data);
-    // TODO: Gọi API đăng ký ở đây
-    router.push("/login");
+  const onSubmit = async (data: z.infer<typeof registerSchema>) => {
+    if (!data.email || !data.password) {
+      toast.error("Vui lòng nhập đầy đủ thông tin.");
+      return;
+    }
+
+    if (data.password.length < 6) {
+      toast.error("Mật khẩu phải có ít nhất 6 ký tự.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        toast.error(result.message || "Đăng ký thất bại");
+        return;
+      }
+
+      toast.success("Đăng ký thành công!", { duration: 5000 });
+      setTimeout(() => {
+        router.push("/login");
+      }, 5000);
+    } catch (error) {
+      toast.error("Đã xảy ra lỗi khi đăng ký");
+    }
   };
 
   return (
@@ -71,6 +104,12 @@ export default function PageRegister() {
       <div className="w-full h-full bg-[#5cb338] inline-flex justify-start items-start overflow-hidden">
         {/* Left */}
         <div className="w-1/2 h-full inline-flex justify-between items-center overflow-hidden">
+          <Toaster
+            position="top-right"
+            richColors
+            duration={5000}
+            closeButton
+          />
           <img
             className="h-full relative"
             src="/logo_slogan.png"
@@ -86,7 +125,7 @@ export default function PageRegister() {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="w-full flex flex-col gap-[20px]"
               >
-                <div className="relative justify-start text-[#fb4141] text-[32px] font-bold font-['Inter']">
+                <div className="self-stretch text-center justify-start text-red-500 text-3xl font-bold font-['Inter']">
                   ĐĂNG KÝ
                 </div>
 
@@ -197,6 +236,46 @@ export default function PageRegister() {
                     </FormItem>
                   )}
                 />
+
+                <div className="w-full flex flex-row gap-4">
+                  <FormField
+                    control={form.control}
+                    name="birthday"
+                    render={({ field }) => (
+                      <FormItem className="w-1/2">
+                        <FormControl>
+                          <Input
+                            type="date"
+                            placeholder="Ngày sinh"
+                            className="w-full h-[60px] p-2.5 rounded-[5px] placeholder:text-gray-400"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="gender"
+                    render={({ field }) => (
+                      <FormItem className="w-1/2">
+                        <FormControl>
+                          <select
+                            {...field}
+                            className="w-[220px] h-[40px] p-2.5 rounded-[5px] border border-primary text-gray-600"
+                          >
+                            <option value="">Chọn giới tính</option>
+                            <option value="Male">Nam</option>
+                            <option value="Female">Nữ</option>
+                          </select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <Button
                   type="submit"
