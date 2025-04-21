@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import {Button} from "@/components/ui/button";
 import Link from "next/link";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type OrderDetail = {
   id: string;
@@ -18,6 +20,28 @@ type OrderDetail = {
 export default function PageShipping() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  const handleCompleteOrder = async (orderId: number) => {
+    try {
+      const res = await fetch(`/api/order/${orderId}/complete`, {
+        method: "POST",
+      });
+  
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || "Có lỗi xảy ra");
+      }
+  
+      toast.success("Đã xác nhận đơn hàng thành công!");
+  
+      setTimeout(() => {
+        router.push("/client/history/completed");
+      }, 1500); // đợi 1.5s cho toast hiện xong
+    } catch (err: any) {
+      toast.error(err.message || "Xác nhận thất bại");
+    }
+  };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -111,7 +135,7 @@ export default function PageShipping() {
                       </span>
                     </div>
                     <div className="w-full flex flex-row items-center justify-end gap-3 text-white">
-                      <Button variant="secondary">
+                      <Button variant="secondary" onClick={() => handleCompleteOrder(order.id)}>
                         Đã nhận hàng
                       </Button>
                     </div>
