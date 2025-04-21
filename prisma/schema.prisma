@@ -120,20 +120,24 @@ model ORDER {
   paid_at        DateTime?
   user_id        Int?
   promotion_id   Int?
+  name           String?           // Thêm trường tên người nhận
+  phone          String?           // Thêm trường số điện thoại
+  address        String?           // Thêm trường địa chỉ giao hàng
   PROMOTION      PROMOTION?        @relation(fields: [promotion_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   user           USER?             @relation(fields: [user_id], references: [id])
   orderDetails   ORDER_DETAILS[]
 }
 
 model ORDER_DETAILS {
-  id            Int     @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   order_id      Int
   product_id    Int
   quantity      Int
-  originalPrice Float
-  salePrice     Float
-  order         ORDER   @relation(fields: [order_id], references: [id])
-  product       PRODUCT @relation(fields: [product_id], references: [id])
+  price         Float    @default(0)  // Thêm giá trị mặc định
+  originalPrice Float?   // Tùy chọn
+  salePrice     Float?   // Tùy chọn
+  product       PRODUCT? @relation(fields: [product_id], references: [id])
+  order         ORDER    @relation(fields: [order_id], references: [id])
 }
 
 model FEEDBACK {
