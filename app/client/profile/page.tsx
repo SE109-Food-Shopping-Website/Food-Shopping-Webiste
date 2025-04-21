@@ -27,7 +27,7 @@ export default function PageProfile() {
         const data = await res.json();
         setUser(data.user);
       } else {
-        router.push("/login"); // Nếu chưa login thì redirect
+        router.push("/login");
       }
     };
 
@@ -52,7 +52,6 @@ export default function PageProfile() {
       setIsLoading(false);
     }
   };
-  
 
   if (!user) return <div>Đang tải...</div>;
 
@@ -113,34 +112,33 @@ export default function PageProfile() {
       </div>
       {/* Đăng xuất */}
       <div className="self-stretch h-[70px] box-border overflow-hidden shrink-0 flex flex-row">
-      <AlertDialog>
-  <AlertDialogTrigger asChild>
-    <Button
-      disabled={isLoading}
-      className="bg-white self-stretch flex-1 h-[52px] flex items-start justify-start p-4 box-border gap-2.5 text-secondary text-[16px] font-bold hover:opacity-80 transition-all"
-    >
-      {isLoading ? "Đang đăng xuất..." : "ĐĂNG XUẤT"}
-    </Button>
-  </AlertDialogTrigger>
-  <AlertDialogContent>
-    <AlertDialogHeader>
-      <AlertDialogTitle>Bạn có chắc muốn đăng xuất?</AlertDialogTitle>
-      <AlertDialogDescription>
-        Sau khi đăng xuất, bạn sẽ cần đăng nhập lại để truy cập tài khoản.
-      </AlertDialogDescription>
-    </AlertDialogHeader>
-    <AlertDialogFooter>
-      <AlertDialogCancel>Huỷ</AlertDialogCancel>
-      <AlertDialogAction
-        onClick={handleLogout}
-        className="bg-red-600 hover:bg-red-700 text-white"
-      >
-        Đăng xuất
-      </AlertDialogAction>
-    </AlertDialogFooter>
-  </AlertDialogContent>
-</AlertDialog>
-
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              disabled={isLoading}
+              className="bg-white self-stretch flex-1 h-[52px] flex items-start justify-start p-4 box-border gap-2.5 text-secondary text-[16px] font-bold hover:opacity-80 transition-all"
+            >
+              {isLoading ? "Đang đăng xuất..." : "ĐĂNG XUẤT"}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Bạn có chắc muốn đăng xuất?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Sau khi đăng xuất, bạn sẽ cần đăng nhập lại để truy cập tài khoản.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Huỷ</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                Đăng xuất
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

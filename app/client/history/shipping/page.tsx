@@ -103,10 +103,18 @@ export default function PageShipping() {
                     </div>
                   </div>
                   {/* Button */}
-                  <div className="w-full flex flex-row items-center justify-end gap-3 text-white">
-                    <Button variant="secondary">
-                      Đã nhận hàng
-                    </Button>
+                  <div className="w-full relative h-[50px] flex flex-row items-center justify-end gap-[300px] text-left text-[14px] text-black font-inter">
+                    <div className="w-[691px] relative tracking-[0.03em] flex items-center shrink-0">
+                      <span className="w-full">
+                        <p className="m-0">{`Vui lòng chỉ bấm “Đã nhận hàng” khi đơn hàng đã được giao đến bạn `}</p>
+                        <p className="m-0">và sản phẩm được giao không có bất kỳ vấn đề nào</p>
+                      </span>
+                    </div>
+                    <div className="w-full flex flex-row items-center justify-end gap-3 text-white">
+                      <Button variant="secondary">
+                        Đã nhận hàng
+                      </Button>
+                    </div>
                   </div>
                 </div>
               );
