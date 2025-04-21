@@ -27,7 +27,7 @@ export default function PageCart() {
   };
 
   // Tính tổng tiền
-  const totalAmount = cart.reduce((sum, product) => sum + product.totalPrice, 0);
+  const totalAmount = cart.reduce((sum, product) => sum + product.price * product.quantity, 0);
 
   const handleCheckout = async () => {
     try {
