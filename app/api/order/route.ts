@@ -2,6 +2,42 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 
+// Lấy đơn hàng theo status (GET)
+export async function GET(req: NextRequest) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  const userId = session.id;
+  type ORDER_status_enum = "PENDING" | "PROCESSING" | "SHIPPING" | "COMPLETED" | "CANCELLED"; 
+  const status = req.nextUrl.searchParams.get("status") as ORDER_status_enum | undefined; 
+
+  try {
+    const orders = await prisma.oRDER.findMany({
+      where: {
+        user_id: userId,
+        ...(status ? { status } : {}), 
+      },
+      include: {
+        orderDetails: {
+          include: {
+            product: true,
+          },
+        },
+      },
+      orderBy: {
+        created_at: "desc",
+      },
+    });
+
+    return NextResponse.json(orders);
+  } catch (error) {
+    console.error("Fetch orders error:", error);
+    return NextResponse.json({ message: "Error fetching orders" }, { status: 500 });
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await getSession();
