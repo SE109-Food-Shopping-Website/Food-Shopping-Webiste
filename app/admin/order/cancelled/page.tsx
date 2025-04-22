@@ -25,7 +25,7 @@ export default function pageCancelled() {
 
   return (
     <div className="relative justify-start text-black text-base font-normal font-['Inter']">
-      Đơn hàng / Danh sách đơn / Đang giao
+      Đơn hàng / Danh sách đơn / Bị hủy
       <DataTable
         columns={columns}
         data={data}

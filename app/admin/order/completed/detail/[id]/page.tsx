@@ -26,7 +26,7 @@ const formSchema = z.object({
     .transform((val) => parseFloat(val)),
 });
 
-export default function detailCancelled() {
+export default function detailCompleted() {
   const router = useRouter();
   const { id } = useParams(); // Lấy ID từ URL
   const [loading, setLoading] = useState(true);
@@ -45,7 +45,7 @@ export default function detailCancelled() {
   useEffect(() => {
     async function fetchOrder() {
       try {
-        const res = await fetch(`/api/admin/order/cancelled/${id}`);
+        const res = await fetch(`/api/admin/order/completed/${id}`);
         const data = await res.json();
 
         if (res.ok) {
@@ -69,7 +69,7 @@ export default function detailCancelled() {
   return (
     <div>
       <div className="relative justify-start text-black text-base font-normal font-['Inter']">
-        Đơn hàng / Bị hủy / Chi tiết
+        Đơn hàng / Hoàn thành / Chi tiết
       </div>
       <div className="relative justify-start text-[#5cb338] text-base font-bold font-['Inter'] mt-[10px]">
         Thông tin khách đặt hàng
@@ -149,7 +149,7 @@ export default function detailCancelled() {
               <div className="relative">
                 <LogOut className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white" />
                 <Button variant={"secondary"} className="pl-12" type="button">
-                  <Link href="/admin/order/processing" className="text-white">
+                  <Link href="/admin/order/completed" className="text-white">
                     Thoát
                   </Link>
                 </Button>{" "}
