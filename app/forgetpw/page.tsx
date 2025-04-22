@@ -1,30 +1,58 @@
 "use client";
 
-import { Form } from "@/components/ui/form";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+
+const formSchema = z.object({
+  email: z.string().email({ message: "Email không hợp lệ" }),
+});
 
 export default function ForgetPassword() {
   const router = useRouter();
+  const [serverError, setServerError] = useState("");
 
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
 
-  // Danh sách email giả lập có trong hệ thống
-  const mockEmails = ["an@gmail.com", "binh@gmail.com", "chi@gmail.com"];
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setServerError("");
+    try {
+      const res = await fetch("/api/forgot-password", {
+        method: "POST",
+        body: JSON.stringify({ email: values.email }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Lỗi gửi mã xác thực");
+      }
 
-    // Kiểm tra email trong danh sách
-    if (mockEmails.includes(email.trim().toLowerCase())) {
-      setError("");
+      // Lưu email vào localStorage để dùng cho bước xác nhận
+      localStorage.setItem("resetEmail", values.email);
       router.push("/forgetpw/confirm");
-    } else {
-      setError("Email không tồn tại trong hệ thống!");
+    } catch (error: any) {
+      setServerError(error.message);
     }
   };
 
@@ -55,40 +83,56 @@ export default function ForgetPassword() {
 
         {/* Right */}
         <div className="w-1/2 h-full px-[50px] py-[100px] inline-flex justify-start items-center gap-2.5 overflow-hidden">
-          <div className="w-full h-full px-[60px] py-[30px] bg-white inline-flex flex-col justify-start items-center gap-[30px] overflow-hidden">
-            <Form>
-              <div className="relative justify-start text-[#fb4141] text-[32px] font-bold font-['Inter']">
-                QUÊN MẬT KHẨU
-              </div>
-              <div className="self-stretch justify-start text-black text-base font-medium font-['Inter']">
-                Nhập email cho quá trình xác thực, chúng tôi sẽ gửi mã xác thực
-                gồm 4 ký tự vào email này
-              </div>
-              <Input
-                type="email"
-                className="w-[460px] h-[60px] p-2.5 rounded-[5px] placeholder:text-gray-400"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              {error && (
-                <div className="text-red-500 text-sm mt-[-20px]">{error}</div>
-              )}
-              <Button
-                type="submit"
-                onClick={handleSubmit}
-                className="w-[500px] h-[40px] p-2.5 bg-[#5cb338] rounded-[5px] inline-flex justify-center items-center gap-2.5 overflow-hidden"
+          <div className="w-full px-[60px] py-[30px] bg-white inline-flex flex-col justify-start items-center gap-[30px] overflow-hidden">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-5 w-full flex flex-col items-center"
               >
-                <div className="relative justify-start text-white text-[20px] font-bold font-['Inter']">
-                  TIẾP THEO
+                <div className="text-[#fb4141] text-[32px] font-bold">
+                  QUÊN MẬT KHẨU
                 </div>
-              </Button>
+                <div className="text-black text-base font-medium text-center">
+                  Nhập email cho quá trình xác thực, chúng tôi sẽ gửi mã xác
+                  thực gồm 4 ký tự vào email này
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem className="w-full inline-flex items-center">
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="Email"
+                          className="h-[60px] w-[500px] inline-flex items-center"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {serverError && (
+                  <div className="text-red-500 text-sm">{serverError}</div>
+                )}
+
+                <Button
+                  type="submit"
+                  className="w-full h-[40px] bg-[#5cb338] rounded-[5px]"
+                >
+                  <span className="text-white text-[20px] font-bold">
+                    TIẾP THEO
+                  </span>
+                </Button>
+              </form>
             </Form>
 
             {/* Link đăng ký */}
             <div className="w-full flex flex-col items-center gap-2">
-              <div className="text-[16px] text-gray-600 mt-[15px]">
+              <div className="text-[16px] text-gray-600">
                 Chưa có tài khoản?{" "}
                 <Link
                   href="/register"

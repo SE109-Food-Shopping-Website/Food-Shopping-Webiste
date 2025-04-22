@@ -13,12 +13,10 @@ export default function ConfirmOTP() {
   const inputRefs = useRef<HTMLInputElement[]>([]);
 
   const handleChange = (index: number, value: string) => {
-    if (!/^[0-9a-zA-Z]?$/.test(value)) return; // Chỉ nhận 1 ký tự số hoặc chữ
-
+    if (!/^[0-9a-zA-Z]?$/.test(value)) return;
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
-
     if (value && index < 3) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -30,12 +28,40 @@ export default function ConfirmOTP() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = otp.join("");
+
     if (code.length === 4) {
-      // Giả lập đúng OTP, chuyển sang trang đổi mật khẩu mới
-      router.push("/forgetpw/newpassword");
+      // Lấy email từ localStorage
+      const email = localStorage.getItem("resetEmail");
+
+      if (!email) {
+        alert("Email không hợp lệ. Vui lòng thử lại.");
+        return;
+      }
+
+      // Gửi yêu cầu xác minh mã OTP tới API
+      const res = await fetch("/api/verify-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, code }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // Nếu mã OTP đúng, chuyển tới trang tạo mật khẩu mới
+        alert(
+          "Mã OTP xác thực thành công! Bạn sẽ được chuyển đến trang tạo mật khẩu mới."
+        );
+        router.push("/forgetpw/newpassword");
+      } else {
+        // Nếu mã OTP sai, hiển thị thông báo lỗi
+        alert(data.message || "Mã OTP không hợp lệ.");
+      }
     }
   };
 
@@ -68,10 +94,10 @@ export default function ConfirmOTP() {
         <div className="w-1/2 h-full px-[50px] py-[100px] inline-flex justify-start items-center gap-2.5 overflow-hidden">
           <div className="w-full px-[60px] py-[30px] bg-white inline-flex flex-col justify-start items-center gap-[30px] overflow-hidden">
             <form onSubmit={handleSubmit}>
-              <div className="text-[#fb4141] text-[32px] font-bold font-['Inter']">
-                NHẬP MÃ XÁC THỰC
+              <div className="self-stretch text-center justify-start text-red-500 text-3xl font-bold font-['Inter']">
+                XÁC THỰC
               </div>
-              <div className="text-black text-base font-medium font-['Inter'] text-center">
+              <div className="text-black text-base font-medium font-['Inter'] text-center mb-[20px] mt-[10px]">
                 Nhập 4 chữ số được gửi đến email của bạn
               </div>
 

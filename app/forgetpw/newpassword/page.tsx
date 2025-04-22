@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -30,6 +30,7 @@ const formSchema = z
 
 export default function SetNewPassword() {
   const router = useRouter();
+  const [serverError, setServerError] = useState<string>("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -39,10 +40,38 @@ export default function SetNewPassword() {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    console.log("Mật khẩu mới:", data.password);
-    // TODO: Gửi password mới đến backend tại đây
-    router.push("/login");
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    const email = localStorage.getItem("resetEmail"); // Lấy email từ localStorage
+
+    if (!email) {
+      alert("Không tìm thấy email để xác nhận! Vui lòng thử lại.");
+      return;
+    }
+
+    try {
+      // Gửi mật khẩu mới và email tới API
+      const res = await fetch("/api/reset-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, newPassword: data.password }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        setServerError(result.message || "Lỗi khi đặt lại mật khẩu.");
+        alert("Có lỗi xảy ra: " + result.message);
+      } else {
+        // Thành công
+        alert("Đặt lại mật khẩu thành công!");
+        router.push("/login"); // Chuyển hướng về trang đăng nhập
+      }
+    } catch (error) {
+      setServerError("Lỗi kết nối với server.");
+      alert("Lỗi kết nối với server. Vui lòng thử lại.");
+    }
   };
 
   return (
@@ -72,7 +101,7 @@ export default function SetNewPassword() {
 
         {/* Right */}
         <div className="w-1/2 h-full px-[50px] py-[100px] inline-flex justify-start items-center gap-2.5 overflow-hidden">
-          <div className="w-full h-full px-[60px] py-[30px] bg-white inline-flex flex-col justify-start items-center gap-[30px] overflow-hidden">
+          <div className="w-full px-[60px] py-[30px] bg-white inline-flex flex-col justify-start items-center gap-[30px] overflow-hidden">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
@@ -122,7 +151,7 @@ export default function SetNewPassword() {
 
                 <Button
                   type="submit"
-                  className="w-[500px] h-[40px] p-2.5 bg-[#5cb338] rounded-[5px] inline-flex justify-center items-center gap-2.5 overflow-hidden"
+                  className="w-[500px] h-[40px] p-2.5 bg-[#5cb338] rounded-[5px] inline-flex justify-center items-center gap-2.5 overflow-hidden mb-[20px]"
                 >
                   <div className="relative justify-start text-white text-[20px] font-bold font-['Inter']">
                     XÁC NHẬN
@@ -130,6 +159,9 @@ export default function SetNewPassword() {
                 </Button>
               </form>
             </Form>
+            {serverError && (
+              <div className="text-red-500 text-sm">{serverError}</div>
+            )}
           </div>
         </div>
       </div>

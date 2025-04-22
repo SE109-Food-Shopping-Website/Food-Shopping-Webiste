@@ -128,7 +128,7 @@ export default function PageLogin() {
 
                 <Button
                   type="submit"
-                  className="w-[500px] h-[40px] p-2.5 bg-[#5cb338] rounded-[5px] inline-flex justify-center items-center gap-2.5 overflow-hidden mb-[20px]"
+                  className="w-[500px] h-[40px] p-2.5 bg-[#5cb338] rounded-[5px] inline-flex justify-center items-center gap-2.5 overflow-hidden"
                 >
                   <div className="relative justify-start text-white text-[20px] font-bold font-['Inter']">
                     ĐĂNG NHẬP
@@ -137,7 +137,7 @@ export default function PageLogin() {
               </form>
             </Form>
 
-            {/* <div className="w-full flex flex-col items-center gap-2">
+            <div className="w-full flex flex-col items-center gap-2">
               <Link
                 href="/forgetpw"
                 className="text-[16px] text-[#5cb338] hover:underline"
@@ -153,7 +153,7 @@ export default function PageLogin() {
                   Đăng ký
                 </Link>
               </div>
-            </div> */}
+            </div>
           </div>
         </div>
       </div>
