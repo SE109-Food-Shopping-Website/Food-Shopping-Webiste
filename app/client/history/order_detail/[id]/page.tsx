@@ -47,19 +47,26 @@ export default function PageOrderDetail() {
         {order.orderDetails.map((detail: any, index: number) => (
           <div key={index} className="flex justify-between items-center border-b pb-4">
             <div className="flex items-center gap-4">
-              {detail.product?.image ? (
+            {(() => {
+              let imageSrc = "/ava.png"; 
+              try {
+                const parsedImages = JSON.parse(detail.product?.images || "[]");
+                if (Array.isArray(parsedImages) && parsedImages.length > 0) {
+                  imageSrc = parsedImages[0];
+                }
+              } catch (error) {
+                console.error("Error parsing product images:", error);
+              }
+              return (
                 <Image
-                  src={detail.product.image}
-                  alt={detail.product.name}
-                  width={100}
-                  height={100}
+                  src={imageSrc}
+                  alt={detail.product?.name || "Product image"}
+                  width={70}
+                  height={70}
                   className="object-cover rounded-md"
                 />
-              ) : (
-                <div className="w-[100px] h-[100px] bg-gray-200 flex items-center justify-center rounded-md text-xs text-gray-500">
-                  No Image
-                </div>
-              )}
+              );
+            })()}
               <div>
                 <p className="font-bold">{detail.product?.name}</p>
                 <p>Đơn vị tính: {detail.product?.unit}</p>

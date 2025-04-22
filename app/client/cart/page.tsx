@@ -58,6 +58,9 @@ export default function PageCart() {
           {/* Giỏ hàng */}
           <div className="flex-1 w-[700px] p-2.5 gap-2.5">
             <b className="text-[18px]">Giỏ hàng</b>
+            {cart.length === 0 ? (
+              <div className="text-gray-500 mt-4">Không có sản phẩm nào trong giỏ hàng</div>
+            ) : (
             <div className="w-full overflow-x-auto">  
               <table className="w-full text-left text-white table-fixed min-w-[700px] border-collapse">
                 <thead>
@@ -93,58 +96,61 @@ export default function PageCart() {
                 </tbody>
               </table>
             </div>
+            )}
           </div>
 
           {/* Thanh toán */}
-          <div className="w-[400px] relative rounded-[5px] border-primary border-solid border-[3px] box-border overflow-hidden shrink-0 flex flex-col items-start justify-start py-4 px-2 gap-[10px] text-left text-base font-inter">
-          {/* <div className="self-stretch rounded bg-white overflow-hidden flex flex-col items-center justify-center">
-            <div className="self-stretch h-[70px] flex flex-row items-center justify-between px-4 text-[14px] text-black">
-              <div className="flex flex-col items-start justify-center">
-                <div className="h-[52px] flex flex-row items-center justify-start gap-2.5">
-                  <div className="leading-[130%] font-medium flex flex-row items-center gap-2">
-                    <Printer className="w-[20px] h-[20px] text-black" />
-                    Xuất hóa đơn
+          {cart.length > 0 && (
+            <div className="w-[400px] relative rounded-[5px] border-primary border-solid border-[3px] box-border overflow-hidden shrink-0 flex flex-col items-start justify-start py-4 px-2 gap-[10px] text-left text-base font-inter">
+            {/* <div className="self-stretch rounded bg-white overflow-hidden flex flex-col items-center justify-center">
+              <div className="self-stretch h-[70px] flex flex-row items-center justify-between px-4 text-[14px] text-black">
+                <div className="flex flex-col items-start justify-center">
+                  <div className="h-[52px] flex flex-row items-center justify-start gap-2.5">
+                    <div className="leading-[130%] font-medium flex flex-row items-center gap-2">
+                      <Printer className="w-[20px] h-[20px] text-black" />
+                      Xuất hóa đơn
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end justify-center">
+                  <div className="flex-1 flex flex-row items-center justify-end">
+                    <div className="leading-[130%] cursor-pointer hover:underline flex flex-row items-center gap-1.5">
+                      Thay đổi
+                      <ChevronRight className="w-[20px] h-[20px] text-black" />
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col items-end justify-center">
-                <div className="flex-1 flex flex-row items-center justify-end">
-                  <div className="leading-[130%] cursor-pointer hover:underline flex flex-row items-center gap-1.5">
-                    Thay đổi
-                    <ChevronRight className="w-[20px] h-[20px] text-black" />
+              <div className="self-stretch h-[70px] flex flex-row items-center justify-between px-4 text-[14px] text-black border-t border-gray-300">
+                <div className="flex flex-col items-start justify-center">
+                  <div className="h-[52px] flex flex-row items-center justify-start gap-2.5">
+                    <div className="leading-[130%] font-medium flex flex-row items-center gap-2">
+                      <SquarePen className="w-[20px] h-[20px] text-black" />
+                      Ghi chú
+                    </div>
                   </div>
                 </div>
+                <div className="flex flex-col items-end justify-center">
+                  <div className="flex-1 flex flex-row items-center justify-end">
+                    <div className="leading-[130%] cursor-pointer hover:underline flex flex-row items-center gap-1.5">
+                      Thay đổi
+                      <ChevronRight className="w-[20px] h-[20px] text-black" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div> */}
+              <div className="self-stretch flex flex-row items-start justify-between py-0 px-5 gap-0 text-[16px] text-black">
+                <b className="relative leading-[130%]">TỔNG CỘNG</b>
+                <b className="relative leading-[130%] text-primary">{totalAmount.toLocaleString()}đ</b>
+              </div>
+              <div className="self-stretch flex flex-col items-center justify-start text-[20px] text-white">
+                <Button asChild className="w-full rounded-[5px] bg-primary h-[50px] gap-5 cursor-pointer" onClick={handleCheckout}>
+                  <b className="text-white">THANH TOÁN</b>
+                </Button>
               </div>
             </div>
-            <div className="self-stretch h-[70px] flex flex-row items-center justify-between px-4 text-[14px] text-black border-t border-gray-300">
-              <div className="flex flex-col items-start justify-center">
-                <div className="h-[52px] flex flex-row items-center justify-start gap-2.5">
-                  <div className="leading-[130%] font-medium flex flex-row items-center gap-2">
-                    <SquarePen className="w-[20px] h-[20px] text-black" />
-                    Ghi chú
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-col items-end justify-center">
-                <div className="flex-1 flex flex-row items-center justify-end">
-                  <div className="leading-[130%] cursor-pointer hover:underline flex flex-row items-center gap-1.5">
-                    Thay đổi
-                    <ChevronRight className="w-[20px] h-[20px] text-black" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div> */}
-          <div className="self-stretch flex flex-row items-start justify-between py-0 px-5 gap-0 text-[16px] text-black">
-            <b className="relative leading-[130%]">TỔNG CỘNG</b>
-            <b className="relative leading-[130%] text-primary">{totalAmount.toLocaleString()}đ</b>
-          </div>
-          <div className="self-stretch flex flex-col items-center justify-start text-[20px] text-white">
-            <Button asChild className="w-full rounded-[5px] bg-primary h-[50px] gap-5 cursor-pointer" onClick={handleCheckout}>
-              <b className="text-white">THANH TOÁN</b>
-            </Button>
-          </div>
-        </div>
+          )}
       </div>
     </div>
   );
