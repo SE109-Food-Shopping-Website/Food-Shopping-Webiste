@@ -7,7 +7,7 @@ import Link from "next/link";
 type OrderDetail = {
   id: string;
   product: {
-    image: string;
+    images: string;
     name: string;
     unit: string;
   };
@@ -52,45 +52,54 @@ export default function PageUnprepared() {
                   className="w-[1240px] bg-white rounded-[3px] px-4 py-6 flex flex-col gap-4 border border-gray-200 shadow-sm"
                 >
                   <div className="w-full flex px-2 py-2 bg-[#F9FAFB] border border-gray-200 rounded-md flex-col gap-4">
-                    {/* Hiển thị các sản phẩm đầu tiên */}
-                    {displayedItems.map((detail: OrderDetail) => (
-                      <Link
-                      key={detail.id}
-                      href={`/client/history/order_detail/${order.id}`}
-                      className="w-full rounded-[5px] flex flex-row items-center justify-between flex-wrap p-3 gap-y-4 hover:bg-gray-50"
-                      >
-                      <div className="flex flex-row items-center gap-5">
-                        <img
-                        className="w-[50px] h-[50px] rounded-full"
-                        src={detail.product.image}
-                        alt={detail.product.name}
-                        />
-                        <div className="flex flex-col">
-                        <b className="text-[18px] text-primary">
-                          {detail.product.name}
-                        </b>
-                        <div className="text-[16px] text-foreground">
-                          Đơn vị tính: {detail.product.unit}
-                        </div>
-                        <div className="text-base text-foreground">
-                          x {detail.quantity}
-                        </div>
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end text-base">
-                        <b className="text-primary text-[18px]">
-                        {detail.salePrice.toLocaleString()}đ
-                        </b>
-                      </div>
-                      </Link>
-                    ))}          
-                    {/* Nếu còn sản phẩm khác, hiển thị số lượng còn lại */}
+                    {displayedItems.map((detail: OrderDetail) => {
+                      let imageSrc = "/ava.png";
+                      try {
+                        const parsedImages = JSON.parse(detail.product.images);
+                        if (Array.isArray(parsedImages) && parsedImages.length > 0) {
+                          imageSrc = parsedImages[0];
+                        }
+                      } catch (error) {
+                        console.error("Error parsing product images:", error);
+                      }
+
+                      return (
+                        <Link
+                          key={detail.id}
+                          href={`/client/history/order_detail/${order.id}`}
+                          className="w-full rounded-[5px] flex flex-row items-center justify-between flex-wrap p-3 gap-y-4 hover:bg-gray-50"
+                        >
+                          <div className="flex flex-row items-center gap-5">
+                            <img
+                              className="w-[50px] h-[50px] rounded-full"
+                              src={imageSrc}
+                              alt={detail.product.name}
+                            />
+                            <div className="flex flex-col">
+                              <b className="text-[18px] text-primary">
+                                {detail.product.name}
+                              </b>
+                              <div className="text-[16px] text-foreground">
+                                Đơn vị tính: {detail.product.unit}
+                              </div>
+                              <div className="text-base text-foreground">
+                                x {detail.quantity}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-end text-base">
+                            <b className="text-primary text-[18px]">
+                              {detail.salePrice.toLocaleString()}đ
+                            </b>
+                          </div>
+                        </Link>
+                      );
+                    })}
                     {remainingCount > 0 && (
-                      <div className="px-3 text-sm text-muted">
+                      <div className="px-3 text-base text-foreground text-[14px]">
                         ...và {remainingCount} sản phẩm khác
                       </div>
                     )}
-                    {/* Tổng tiền */}
                     <div className="w-full flex flex-row items-center justify-end gap-2 text-base px-3">
                       <div className="font-medium text-foreground">
                         Tổng số tiền:{" "}
@@ -106,7 +115,11 @@ export default function PageUnprepared() {
                         Hủy đơn
                       </Link>
                     </Button>
-                    <Button asChild variant="outline" className="bg-white border border-primary text-black shadow-none">
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="bg-white border border-primary text-black shadow-none"
+                    >
                       <Link href={`/client/history/unprepared/change_info/${order.id}`}>
                         Thay đổi thông tin
                       </Link>

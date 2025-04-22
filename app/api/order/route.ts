@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
         created_at: "desc",
       },
     });
-
+    console.log("Orders:", JSON.stringify(orders, null, 2));
     return NextResponse.json(orders);
   } catch (error) {
     console.error("Fetch orders error:", error);
