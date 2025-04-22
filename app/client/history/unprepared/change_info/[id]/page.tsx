@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { MapPin } from "lucide-react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button"; // Nếu bạn dùng shadcn hoặc tương tự
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
 
 export default function PageChangeInfo() {
   const { id } = useParams();
@@ -12,57 +13,85 @@ export default function PageChangeInfo() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const formatPrice = (price?: number) => price?.toLocaleString() ?? "0";
 
   useEffect(() => {
     const fetchOrder = async () => {
-      const res = await fetch(`/api/order/${id}`);
-      const json = await res.json();
-      setOrder(json.order);
-
-      if (json.order.user?.name) {
-        setName(json.order.user.name);
-        setPhone(json.order.user.phone);
-        setAddress(json.order.user.address);
-      } else if (json.order.note) {
-        // Tách tên, sđt, địa chỉ từ order.note
-        const note = json.order.note;
-        const nameMatch = note.match(/Giao cho (.*?),/);
-        const phoneMatch = note.match(/sđt: ([\d+]+),/);
-        const addressMatch = note.match(/địa chỉ: (.*)/);
-      
-        setName(nameMatch?.[1] || "");
-        setPhone(phoneMatch?.[1] || "");
-        setAddress(addressMatch?.[1] || "");
+      try {
+        const res = await fetch(`/api/order/${id}`);
+        const json = await res.json();
+        if (json.message) {
+          throw new Error(json.message);
+        }
+        setOrder(json.order);
+        setName(json.order.name || "");
+        setPhone(json.order.phone || "");
+        setAddress(json.order.address || "");
+      } catch (error: any) {
+        console.error("Lỗi khi lấy đơn hàng:", error);
+        toast({
+          title: "Lỗi",
+          description: error.message || "Không thể tải thông tin đơn hàng!",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
       }
-      
     };
 
     if (id) fetchOrder();
   }, [id]);
 
   const handleUpdateInfo = async () => {
-    const res = await fetch("/api/order/update-info", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        orderId: id,
-        name,
-        phone,
-        address,
-      }),
-    });
+    try {
+      // Validate dữ liệu
+      if (!name.trim()) {
+        throw new Error("Họ tên không được để trống");
+      }
+      if (!phone.trim() || !/^\d{10,}$/.test(phone)) {
+        throw new Error("Số điện thoại không hợp lệ (phải có ít nhất 10 chữ số)");
+      }
+      if (!address.trim()) {
+        throw new Error("Địa chỉ không được để trống");
+      }
 
-    const result = await res.json();
-    if (result.message === "Đơn hàng đã được cập nhật") {
-      alert("Cập nhật thông tin thành công!");
-    } else {
-      alert("Cập nhật thất bại!");
+      const payload = {
+        orderId: id,
+        name: name.trim(),
+        phone: phone.trim(),
+        address: address.trim(),
+      };
+      console.log("Payload gửi đi:", payload);
+
+      const res = await fetch("/api/order/update-info", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await res.json();
+      if (result.message === "Thông tin giao hàng đã được cập nhật") {
+        toast({
+          title: "Cập nhật thành công",
+          description: "Thông tin giao hàng của bạn đã được cập nhật thành công!",
+          variant: "default",
+        });
+      } else {
+        throw new Error(result.message || "Dữ liệu không hợp lệ");
+      }
+    } catch (error: any) {
+      console.error("Lỗi khi cập nhật thông tin:", error);
+      toast({
+        title: "Lỗi",
+        description: error.message || "Cập nhật thông tin giao hàng thất bại!",
+        variant: "destructive",
+      });
     }
   };
 
-  if (!order) return <div>Đang tải...</div>;
+  if (loading || !order) return <div>Đang tải...</div>;
 
   return (
     <div className="w-[1240px] flex flex-col gap-5 text-black font-inter">
@@ -110,9 +139,9 @@ export default function PageChangeInfo() {
         {order.orderDetails.map((detail: any, index: number) => (
           <div key={index} className="flex justify-between items-center border-b pb-4">
             <div className="flex items-center gap-4">
-              {detail.product?.image ? (
+              {detail.product?.images ? (
                 <Image
-                  src={detail.product.image}
+                  src={JSON.parse(detail.product.images)[0] || "/ava.png"}
                   alt={detail.product.name}
                   width={100}
                   height={100}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -27,29 +27,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "@/hooks/use-toast";
-import { set } from "date-fns";
 
 const formSchema = z.object({
-  name: z.string(),
-  productType_id: z.string(),
-  provider_id: z.string(),
-  quantity: z.number(),
-  unit: z.string(),
-  description: z.string(),
+  name: z.string().min(1, "Tên sản phẩm không được để trống"),
+  productType_id: z.string().min(1, "Vui lòng chọn loại sản phẩm"),
+  provider_id: z.string().min(1, "Vui lòng chọn nhà cung cấp"),
+  quantity: z.number().min(0, "Số lượng không được âm"),
+  unit: z.string().min(1, "Đơn vị tính không được để trống"),
+  description: z.string().min(1, "Mô tả không được để trống"),
 });
 
 export default function UpdateProduct() {
   const router = useRouter();
-  const { id } = useParams(); // Lấy ID từ URL
+  const { id } = useParams();
   const [loading, setLoading] = useState(true);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
-  const [categories, setCategories] = useState<{ id: number; name: string }[]>(
-    []
-  );
-  const [providers, setProviders] = useState<{ id: number; name: string }[]>(
-    []
-  );
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
+  const [providers, setProviders] = useState<{ id: number; name: string }[]>([]);
   const [productInfo, setProductInfo] = useState<{
     provider_name?: string;
     productType_name?: string;
@@ -67,43 +62,34 @@ export default function UpdateProduct() {
     },
   });
 
-  // Fetch dữ liệu sản phẩm và danh sách nhà cung cấp, loại sản phẩm
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch dữ liệu sản phẩm
         const productRes = await fetch(`/api/products/${id}`);
         const productData = await productRes.json();
         if (productData.error) {
-          console.error("Lỗi:", productData.error);
-          return;
+          throw new Error(productData.error);
         }
-        console.log("Dữ liệu sản phẩm:", productData); // Console log dữ liệu
+        console.log("Dữ liệu sản phẩm:", productData);
 
-        // Lưu thông tin hiển thị
         setProductInfo({
           provider_name: productData.provider_name,
           productType_name: productData.productType_name,
         });
 
-        console.log("Thông tin sản phẩm:", productInfo); // Console log thông tin sản phẩm
-
-        // Set exiting images
         if (productData.images) {
           setExistingImages(productData.images);
         }
 
-        // Set form values
         form.reset({
-          name: productData.name,
+          name: productData.name || "",
           productType_id: productData.productType_id?.toString() || "",
           provider_id: productData.provider_id?.toString() || "",
           quantity: productData.quantity || 0,
-          unit: productData.unit,
-          description: productData.description,
+          unit: productData.unit || "",
+          description: productData.description || "",
         });
 
-        // Fetch danh sách nhà cung cấp và loại sản phẩm
         const [categoriesRes, providersRes] = await Promise.all([
           fetch("/api/product-types"),
           fetch("/api/provider"),
@@ -118,7 +104,7 @@ export default function UpdateProduct() {
         console.error("Lỗi khi tải dữ liệu:", error);
         toast({
           title: "Lỗi",
-          description: "Không thể tải dữ liệu!",
+          description: "Không thể tải dữ liệu sản phẩm!",
           variant: "destructive",
         });
       } finally {
@@ -135,19 +121,25 @@ export default function UpdateProduct() {
     const files = event.target.files;
     if (!files) return;
 
-    let newImages: File[] = [...selectedImages];
+    const newImages: File[] = [...selectedImages];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
-      // Kiểm tra dung lượng file (5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert(`File ${file.name} vượt quá 5MB!`);
+        toast({
+          title: "Lỗi",
+          description: `File ${file.name} vượt quá 5MB!`,
+          variant: "destructive",
+        });
         continue;
       }
 
-      // Giới hạn tối đa 5 ảnh
-      if (newImages.length >= 5) {
-        alert("Chỉ được chọn tối đa 5 ảnh.");
+      if (newImages.length + existingImages.length >= 5) {
+        toast({
+          title: "Lỗi",
+          description: "Chỉ được chọn tối đa 5 ảnh.",
+          variant: "destructive",
+        });
         break;
       }
 
@@ -175,40 +167,50 @@ export default function UpdateProduct() {
       formData.append("provider_id", values.provider_id);
       formData.append("quantity", values.quantity.toString());
 
-      // Thêm ảnh vào FormData
       selectedImages.forEach((image) => {
         formData.append("images", image);
       });
 
-      // Thêm ảnh hiện tại (nếu có)
       formData.append("existingImages", JSON.stringify(existingImages));
+
+      console.log("Payload gửi đi:", {
+        name: values.name,
+        unit: values.unit,
+        description: values.description,
+        productType_id: values.productType_id,
+        provider_id: values.provider_id,
+        quantity: values.quantity,
+        existingImages,
+        images: selectedImages.map((img) => img.name),
+      });
 
       const response = await fetch(`/api/products/${id}`, {
         method: "PUT",
         body: formData,
       });
+
       const data = await response.json();
       if (data.error) {
-        toast({
-          title: "Lỗi",
-          description: data.error,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Thành công",
-          description: "Cập nhật sản phẩm thành công!",
-        });
-        router.push("/admin/manage/product");
+        throw new Error(data.error);
       }
-    } catch (error) {
+
+      toast({
+        title: "Thành công",
+        description: "Cập nhật sản phẩm thành công!",
+      });
+      router.push("/admin/manage/product");
+    } catch (error: any) {
       console.error("Lỗi khi cập nhật sản phẩm:", error);
       toast({
         title: "Lỗi",
-        description: "Không thể cập nhật sản phẩm!",
+        description: error.message || "Không thể cập nhật sản phẩm!",
         variant: "destructive",
       });
     }
+  }
+
+  if (loading) {
+    return <div>Đang tải...</div>;
   }
 
   return (
@@ -224,7 +226,6 @@ export default function UpdateProduct() {
           onSubmit={form.handleSubmit(onSubmit)}
           encType="multipart/form-data"
         >
-          {/* Tên sản phẩm */}
           <div className="w-full self-stretch inline-flex justify-between items-center mt-[10px]">
             <div className="w-[500px] inline-flex flex-col justify-start items-start gap-5">
               <FormField
@@ -285,7 +286,6 @@ export default function UpdateProduct() {
               />
             </div>
           </div>
-          {/* Nhà cung cấp & Đơn vị tính */}
           <div className="w-full self-stretch inline-flex justify-between items-center mt-[10px]">
             <div className="w-[500px] inline-flex flex-col justify-start items-start gap-5">
               <FormField
@@ -345,8 +345,6 @@ export default function UpdateProduct() {
               />
             </div>
           </div>
-
-          {/* Số lượng trong kho */}
           <div className="w-full self-stretch inline-flex justify-between items-center mt-[10px]">
             <div className="w-[500px] inline-flex flex-col justify-start items-start gap-5">
               <FormField
@@ -372,11 +370,9 @@ export default function UpdateProduct() {
               />
             </div>
           </div>
-
           <div className="relative justify-start text-[#5cb338] text-base font-bold font-['Inter'] mt-[10px]">
             Mô tả sản phẩm
           </div>
-          {/* Thông tin sản phẩm */}
           <div className="w-full flex flex-col justify-start items-start mt-[10px] gap-2">
             <FormField
               control={form.control}
@@ -402,7 +398,6 @@ export default function UpdateProduct() {
           <div className="relative justify-start text-black text-[16px] font-normal font-['Inter'] mt-[10px]">
             Ảnh sản phẩm (tối đa 5 ảnh)
           </div>
-          {/* Ảnh sản phẩm */}
           <div className="w-full flex flex-col justify-start items-start mt-[10px] gap-2">
             <input
               type="file"
@@ -410,23 +405,8 @@ export default function UpdateProduct() {
               multiple
               onChange={handleImageChange}
             />
-
-            {selectedImages.map((image, index) => (
-              <div key={index}>
-                <img
-                  src={URL.createObjectURL(image)}
-                  alt="preview"
-                  width={100}
-                  height={100}
-                />
-                <button type="button" onClick={() => removeImage(index)}>
-                  Xóa
-                </button>
-              </div>
-            ))}
           </div>
           <div className="grid grid-cols-3 gap-2 mt-4">
-            {/* Hiển thị ảnh hiện tại */}
             {existingImages.map((img, index) => (
               <div key={`existing-${index}`} className="relative w-24 h-24">
                 <Image
@@ -446,7 +426,6 @@ export default function UpdateProduct() {
               </div>
             ))}
           </div>
-          {/* Hiển thị ảnh đã chọn */}
           <div className="grid grid-cols-3 gap-2 mt-4">
             {selectedImages.map((image, index) => (
               <div key={index} className="relative w-24 h-24">
@@ -467,8 +446,7 @@ export default function UpdateProduct() {
               </div>
             ))}
           </div>
-          {/* Button */}
-          <div className="w-full self-stretch self-stretch inline-flex flex-col justify-start items-end gap-5 overflow-hidden mt-[15px]">
+          <div className="w-full self-stretch inline-flex flex-col justify-start items-end gap-5 mt-[15px]">
             <div className="inline-flex justify-start items-start gap-[29px]">
               <div className="relative">
                 <LogOut className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white" />
@@ -476,13 +454,13 @@ export default function UpdateProduct() {
                   <Link href="/admin/manage/product" className="text-white">
                     Thoát
                   </Link>
-                </Button>{" "}
+                </Button>
               </div>
               <div className="relative">
                 <Save className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white" />
                 <Button className="pl-12" type="submit">
                   Lưu
-                </Button>{" "}
+                </Button>
               </div>
             </div>
           </div>

@@ -94,6 +94,7 @@ export async function POST(req: NextRequest) {
           name,
           phone,
           address,
+          note: `Giao cho ${name}, Số điện thoại: ${phone}, Địa chỉ: ${address}`, // Thêm note
           status: "PENDING",
           originalPrice,
           discountAmount: discount,
