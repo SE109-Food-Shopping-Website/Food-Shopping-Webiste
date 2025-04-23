@@ -33,10 +33,10 @@ export default function PageOrderDetail() {
           <MapPin className="text-black" />
           <div>
             <p>
-              <span className="font-semibold">{order.user?.name}</span>{" "}
-              {order.user?.phone}
+              <span className="font-semibold">{order.name}</span>{" "}
+              {order.phone}
             </p>
-            <p className="text-lg">{order.user?.address}</p>
+            <p className="text-lg">{order.address}</p>
           </div>
         </div>
       </div>

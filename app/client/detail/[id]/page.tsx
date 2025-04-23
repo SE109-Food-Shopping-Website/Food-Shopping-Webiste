@@ -142,7 +142,7 @@ import { toast } from "sonner";
     if (!product) return <div className="p-10">Không tìm thấy sản phẩm</div>;
 
     return (
-        <div className="w-full h-full relative flex flex-col py-[10px] px-[100px] box-border text-left text-11xl text-black font-inter">
+        <div className="w-full h-full relative flex flex-col py-[10px] px-[100px] box-border text-left text-11xl text-black font-inter overflow-auto">
         <div className="self-stretch flex flex-row gap-2.5">
             {/* Left */}
             <div className="w-[700px] overflow-hidden shrink-0 flex flex-col items-center justify-start box-border gap-5">

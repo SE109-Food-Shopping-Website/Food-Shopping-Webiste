@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { MapPin } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export default function PageChangeInfo() {
   const { id } = useParams();
+  const router = useRouter();
   const [order, setOrder] = useState<any>(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -22,20 +22,14 @@ export default function PageChangeInfo() {
       try {
         const res = await fetch(`/api/order/${id}`);
         const json = await res.json();
-        if (json.message) {
-          throw new Error(json.message);
-        }
+        if (json.message) throw new Error(json.message);
         setOrder(json.order);
         setName(json.order.name || "");
         setPhone(json.order.phone || "");
         setAddress(json.order.address || "");
       } catch (error: any) {
         console.error("Lỗi khi lấy đơn hàng:", error);
-        toast({
-          title: "Lỗi",
-          description: error.message || "Không thể tải thông tin đơn hàng!",
-          variant: "destructive",
-        });
+        toast.error(error.message || "Không thể tải thông tin đơn hàng!");
       } finally {
         setLoading(false);
       }
@@ -46,16 +40,10 @@ export default function PageChangeInfo() {
 
   const handleUpdateInfo = async () => {
     try {
-      // Validate dữ liệu
-      if (!name.trim()) {
-        throw new Error("Họ tên không được để trống");
-      }
-      if (!phone.trim() || !/^\d{10,}$/.test(phone)) {
+      if (!name.trim()) throw new Error("Họ tên không được để trống");
+      if (!phone.trim() || !/^\d{10,}$/.test(phone))
         throw new Error("Số điện thoại không hợp lệ (phải có ít nhất 10 chữ số)");
-      }
-      if (!address.trim()) {
-        throw new Error("Địa chỉ không được để trống");
-      }
+      if (!address.trim()) throw new Error("Địa chỉ không được để trống");
 
       const payload = {
         orderId: id,
@@ -63,7 +51,6 @@ export default function PageChangeInfo() {
         phone: phone.trim(),
         address: address.trim(),
       };
-      console.log("Payload gửi đi:", payload);
 
       const res = await fetch("/api/order/update-info", {
         method: "POST",
@@ -73,21 +60,16 @@ export default function PageChangeInfo() {
 
       const result = await res.json();
       if (result.message === "Thông tin giao hàng đã được cập nhật") {
-        toast({
-          title: "Cập nhật thành công",
-          description: "Thông tin giao hàng của bạn đã được cập nhật thành công!",
-          variant: "default",
-        });
+        toast.success("Cập nhật thành công: Thông tin giao hàng đã được cập nhật!");
+        setTimeout(() => {
+          router.push("/client/history/unprepared");
+        }, 1500);
       } else {
         throw new Error(result.message || "Dữ liệu không hợp lệ");
       }
     } catch (error: any) {
       console.error("Lỗi khi cập nhật thông tin:", error);
-      toast({
-        title: "Lỗi",
-        description: error.message || "Cập nhật thông tin giao hàng thất bại!",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Cập nhật thông tin giao hàng thất bại!");
     }
   };
 
@@ -121,7 +103,8 @@ export default function PageChangeInfo() {
           </label>
           <label>
             Địa chỉ:
-            <textarea
+            <input
+              type="text"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               className="w-full p-2 mt-1 border rounded-md"
@@ -136,34 +119,40 @@ export default function PageChangeInfo() {
       {/* Danh sách sản phẩm */}
       <div className="rounded-[5px] px-[20px] py-[10px] flex flex-col gap-5 bg-white">
         <b>Sản phẩm</b>
-        {order.orderDetails.map((detail: any, index: number) => (
-          <div key={index} className="flex justify-between items-center border-b pb-4">
-            <div className="flex items-center gap-4">
-              {detail.product?.images ? (
+        {order.orderDetails.map((detail: any, index: number) => {
+          let imageSrc = "/ava.png";
+          try {
+            const parsedImages = JSON.parse(detail.product?.images || "[]");
+            if (Array.isArray(parsedImages) && parsedImages.length > 0) {
+              imageSrc = parsedImages[0];
+            }
+          } catch (err) {
+            console.error("Lỗi parse ảnh:", err);
+          }
+
+          return (
+            <div key={index} className="flex justify-between items-center border-b pb-4">
+              <div className="flex items-center gap-4">
                 <Image
-                  src={JSON.parse(detail.product.images)[0] || "/ava.png"}
-                  alt={detail.product.name}
+                  src={imageSrc}
+                  alt={detail.product?.name || "Sản phẩm"}
                   width={100}
                   height={100}
                   className="object-cover rounded-md"
                 />
-              ) : (
-                <div className="w-[100px] h-[100px] bg-gray-200 flex items-center justify-center rounded-md text-xs text-gray-500">
-                  No Image
+                <div>
+                  <p className="font-bold">{detail.product?.name}</p>
+                  <p>Đơn vị tính: {detail.product?.unit}</p>
+                  <p>Số lượng: x{detail.quantity}</p>
                 </div>
-              )}
-              <div>
-                <p className="font-bold">{detail.product?.name}</p>
-                <p>Đơn vị tính: {detail.product?.unit}</p>
-                <p>Số lượng: x{detail.quantity}</p>
+              </div>
+              <div className="text-right">
+                <p className="line-through text-gray-500">{formatPrice(detail.originalPrice)}đ</p>
+                <p className="text-primary text-[18px] font-semibold">{formatPrice(detail.salePrice)}đ</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="line-through text-gray-500">{formatPrice(detail.originalPrice)}đ</p>
-              <p className="text-primary text-[18px] font-semibold">{formatPrice(detail.salePrice)}đ</p>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Thông tin giá tiền */}
