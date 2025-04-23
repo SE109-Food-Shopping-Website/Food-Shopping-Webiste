@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   }
 
   const userId = session.id;
-  type ORDER_status_enum = "PENDING" | "PROCESSING" | "SHIPPING" | "COMPLETED" | "CANCELLED"; 
+  type ORDER_status_enum = "PENDING" | "PROCESSING" | "SHIPPING" | "COMPLETED" | "REQUEST" | "RETURN" | "CANCELLED"; 
   const status = req.nextUrl.searchParams.get("status") as ORDER_status_enum | undefined; 
 
   try {

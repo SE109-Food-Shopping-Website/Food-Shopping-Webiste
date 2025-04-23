@@ -37,7 +37,7 @@ export default function PageShipping() {
   
       setTimeout(() => {
         router.push("/client/history/completed");
-      }, 1500); // đợi 1.5s cho toast hiện xong
+      }, 1500);
     } catch (err: any) {
       toast.error(err.message || "Xác nhận thất bại");
     }
