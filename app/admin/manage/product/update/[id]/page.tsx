@@ -50,6 +50,18 @@ export default function UpdateProduct() {
     productType_name?: string;
   }>({});
 
+  const [maxQuantity, setMaxQuantity] = useState(0);
+  const [inputQuantity, setInputQuantity] = useState(0);
+  const handleQuantityChange = (value: number) => {
+    if (value < 0) {
+      setInputQuantity(0);
+    } else if (value > maxQuantity) {
+      setInputQuantity(maxQuantity);
+    } else {
+      setInputQuantity(value);
+    }
+  }
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -80,6 +92,13 @@ export default function UpdateProduct() {
         if (productData.images) {
           setExistingImages(productData.images);
         }
+
+        const totalImported = productData.importDetails?.reduce(
+          (acc: number, item: { quantity: number }) => acc + item.quantity,
+          0
+        ) || 0;
+        setInputQuantity(productData.quantity || 0);
+        setMaxQuantity(totalImported);
 
         form.reset({
           name: productData.name || "",
@@ -347,27 +366,24 @@ export default function UpdateProduct() {
           </div>
           <div className="w-full self-stretch inline-flex justify-between items-center mt-[10px]">
             <div className="w-[500px] inline-flex flex-col justify-start items-start gap-5">
-              <FormField
-                control={form.control}
-                name="quantity"
-                render={({ field }) => (
-                  <FormItem className="w-full flex flex-col">
-                    <FormLabel className="font-normal">
-                      Số lượng trong kho
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(parseInt(e.target.value) || 0)
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              name="quantity"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem className="w-full flex flex-col">
+                  <FormLabel>Số lượng</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="number"
+                      value={inputQuantity}
+                      onChange={(e) => handleQuantityChange(Number(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             </div>
           </div>
           <div className="relative justify-start text-[#5cb338] text-base font-bold font-['Inter'] mt-[10px]">

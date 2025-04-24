@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -70,8 +71,14 @@ export default function PageSearch() {
             <p>Không tìm thấy sản phẩm nào phù hợp.</p>
           ) : (
             <div className="flex flex-wrap gap-10 p-2">
-              {products.map((product) => (
-                <div key={product.id} className="w-[200px] flex flex-col">
+              {products.map((product) => {
+                console.log("Product:", product);
+                return (
+                <Link 
+                  key={product.id} 
+                  href={`/client/detail/${product.id}`}
+                  className="w-[200px] flex flex-col"
+                >
                   <div className="w-full h-[200px] border-primary border-[3px] flex items-center justify-center rounded-md">
                     {product.images && product.images.length > 0 ? (
                       <img
@@ -89,8 +96,9 @@ export default function PageSearch() {
                     <span className="font-semibold truncate whitespace-nowrap overflow-hidden">{product.name}</span>
                     <b className="text-base text-primary">{product.price.toLocaleString()}đ</b>
                   </div>
-                </div>
-              ))}
+                </Link>
+                );
+              })}
             </div>
           )}
         </div>

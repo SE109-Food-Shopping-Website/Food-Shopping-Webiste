@@ -16,6 +16,9 @@ export async function GET(req: NextRequest) {
       select: {
         id: true,
         name: true,
+        price: true,
+        images: true,
+        productType_id: true,
       },
       orderBy: {
         id: "asc",

@@ -11,6 +11,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       include: {
         provider: { select: { id: true, name: true } },
         productType: { select: { id: true, name: true } },
+        importDetails: true, 
       },
     });
 
@@ -18,12 +19,19 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ error: "Không tìm thấy sản phẩm" }, { status: 404 });
     }
 
+    const totalImportedQuantity = product.importDetails.reduce(
+      (acc, detail) => acc + detail.quantity,
+      0
+    );
+
     const responseData = {
       ...product,
       images: product.images ? JSON.parse(product.images) : [],
       provider_name: product.provider?.name || null,
       productType_name: product.productType?.name || null,
+      totalImportedQuantity,
     };
+
     console.log("Dữ liệu sản phẩm:", responseData);
     return NextResponse.json(responseData);
   } catch (error) {

@@ -29,6 +29,13 @@ const formSchema = z.object({
   provider_id: z.string().min(1, "Tên nhà cung cấp không được để trống"),
 });
 
+type Product = {
+  id: number;
+  product_id: number;
+  price: string;
+  quantity: string;
+};
+
 export default function AddImport() {
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -36,15 +43,17 @@ export default function AddImport() {
       provider_id: "",
     },
   });
+
   const router = useRouter();
-  const [products, setProducts] = useState([
+  const [products, setProducts] = useState<Product[]>([
     { id: Date.now(), product_id: 0, price: "", quantity: "" },
   ]);
   const [providers, setProviders] = useState<{ id: number; name: string }[]>([]);
-  const [productList, setProductList] = useState<{ id: number; name: string }[]>([]);
+  const [productList, setProductList] = useState<{ id: number; name: string }[]>(
+    []
+  );
   const [providerId, setProviderId] = useState<string>("");
 
-  // Fetch providers from the server
   useEffect(() => {
     const fetchProviders = async () => {
       const res = await fetch("/api/provider");
@@ -54,7 +63,6 @@ export default function AddImport() {
     fetchProviders();
   }, []);
 
-  // Fetch products based on selected provider
   useEffect(() => {
     const fetchProducts = async () => {
       if (!providerId) {
@@ -75,10 +83,10 @@ export default function AddImport() {
     ]);
   };
 
-  const updateProduct = (
+  const updateProduct = <K extends keyof Product>(
     index: number,
-    field: "product_id" | "price" | "quantity",
-    value: string | number
+    field: K,
+    value: Product[K]
   ) => {
     const newProducts = [...products];
     newProducts[index][field] = value;
@@ -91,9 +99,19 @@ export default function AddImport() {
 
   const onSubmit = async (data: { provider_id: string }) => {
     try {
-      // Validate products
-      if (products.some(p => p.product_id === 0 || !p.price || !p.quantity)) {
-        alert("Vui lòng điền đầy đủ thông tin sản phẩm (sản phẩm, giá, số lượng)!");
+      if (
+        products.some(
+          (p) =>
+            p.product_id === 0 ||
+            !p.price ||
+            !p.quantity ||
+            Number(p.price) <= 0 ||
+            Number(p.quantity) <= 0
+        )
+      ) {
+        alert(
+          "Vui lòng điền đầy đủ và đúng thông tin sản phẩm (sản phẩm, giá > 0, số lượng > 0)!"
+        );
         return;
       }
 
@@ -131,7 +149,7 @@ export default function AddImport() {
         Thông tin nhập hàng
       </div>
       <Form {...form}>
-        <form
+        <form 
           onSubmit={form.handleSubmit(onSubmit)}
           encType="multipart/form-data"
         >
@@ -200,7 +218,11 @@ export default function AddImport() {
                     onValueChange={(value) =>
                       updateProduct(index, "product_id", Number(value))
                     }
-                    value={product.product_id === 0 ? undefined : product.product_id.toString()}
+                    value={
+                      product.product_id === 0
+                        ? undefined
+                        : product.product_id.toString()
+                    }
                   >
                     <SelectTrigger className="w-full min-w-0">
                       <SelectValue placeholder="Chọn sản phẩm" />
@@ -225,10 +247,12 @@ export default function AddImport() {
                   <Input
                     type="number"
                     placeholder="Nhập giá"
+                    min={1}
                     value={product.price}
-                    onChange={(e) =>
-                      updateProduct(index, "price", e.target.value)
-                    }
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      updateProduct(index, "price", value > 0 ? value.toString() : "1");
+                    }}
                     className="w-full min-w-0"
                   />
                 </div>
@@ -237,10 +261,12 @@ export default function AddImport() {
                   <Input
                     type="number"
                     placeholder="Nhập số lượng"
+                    min={1}
                     value={product.quantity}
-                    onChange={(e) =>
-                      updateProduct(index, "quantity", e.target.value)
-                    }
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      updateProduct(index, "quantity", value > 0 ? value.toString() : "1");
+                    }}
                     className="w-full min-w-0"
                   />
                 </div>
@@ -257,7 +283,6 @@ export default function AddImport() {
               </div>
             ))}
 
-            {/* Nút Thêm Sản Phẩm luôn nằm dưới cùng */}
             <Button
               type="button"
               onClick={addProduct}
@@ -266,7 +291,6 @@ export default function AddImport() {
               <PlusCircle className="w-5 h-5" /> Thêm sản phẩm
             </Button>
 
-            {/* Tổng tiền luôn nằm dưới cùng */}
             <div className="w-full text-right mt-6 text-lg font-bold text-black">
               Tổng tiền:{" "}
               {products
@@ -280,8 +304,7 @@ export default function AddImport() {
             </div>
           </div>
 
-          {/* Button */}
-          <div className="w-full self-stretch self-stretch inline-flex flex-col justify-start items-end gap-5 overflow-hidden mt-[15px]">
+          <div className="w-full self-stretch inline-flex flex-col justify-start items-end gap-5 overflow-hidden mt-[15px]">
             <div className="inline-flex justify-start items-start gap-[29px]">
               <div className="relative">
                 <LogOut className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white" />
@@ -289,7 +312,7 @@ export default function AddImport() {
                   <Link href="/admin/manage/import" className="text-white">
                     Thoát
                   </Link>
-                </Button>{" "}
+                </Button>
               </div>
               <div className="relative">
                 <Save className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white" />
