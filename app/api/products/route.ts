@@ -6,15 +6,24 @@ import path from "path";
 //import { mkdir } from "fs";
 
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const providerId = searchParams.get("provider_id");
+
     const products = await prisma.pRODUCT.findMany({
+      where: providerId ? { provider_id: Number(providerId) } : {},
+      select: {
+        id: true,
+        name: true,
+      },
       orderBy: {
-        id: 'asc', // hoặc 'desc' nếu bạn muốn sắp xếp theo thứ tự giảm dần
+        id: "asc",
       },
     });
     return NextResponse.json(products);
   } catch (error) {
+    console.error("Lỗi khi lấy sản phẩm:", error);
     return NextResponse.json({ error: "Lỗi lấy sản phẩm" }, { status: 500 });
   }
 }

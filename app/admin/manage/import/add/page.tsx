@@ -24,13 +24,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Provider } from "@radix-ui/react-toast";
 
 const formSchema = z.object({
   provider_id: z.string().min(1, "Tên nhà cung cấp không được để trống"),
 });
 
-export default function addImport() {
+export default function AddImport() {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -41,10 +40,9 @@ export default function addImport() {
   const [products, setProducts] = useState([
     { id: Date.now(), product_id: 0, price: "", quantity: "" },
   ]);
-  const [providers, setProviders] = useState<{ id: number; name: string }[]>(
-    []
-  );
+  const [providers, setProviders] = useState<{ id: number; name: string }[]>([]);
   const [productList, setProductList] = useState<{ id: number; name: string }[]>([]);
+  const [providerId, setProviderId] = useState<string>("");
 
   // Fetch providers from the server
   useEffect(() => {
@@ -56,15 +54,19 @@ export default function addImport() {
     fetchProviders();
   }, []);
 
-  // Fetch products from the server
+  // Fetch products based on selected provider
   useEffect(() => {
     const fetchProducts = async () => {
-      const res = await fetch("/api/products");
+      if (!providerId) {
+        setProductList([]);
+        return;
+      }
+      const res = await fetch(`/api/products?provider_id=${providerId}`);
       const data = await res.json();
       setProductList(data);
     };
     fetchProducts();
-  }, []);
+  }, [providerId]);
 
   const addProduct = () => {
     setProducts([
@@ -72,6 +74,7 @@ export default function addImport() {
       { id: Date.now(), product_id: 0, price: "", quantity: "" },
     ]);
   };
+
   const updateProduct = (
     index: number,
     field: "product_id" | "price" | "quantity",
@@ -88,6 +91,12 @@ export default function addImport() {
 
   const onSubmit = async (data: { provider_id: string }) => {
     try {
+      // Validate products
+      if (products.some(p => p.product_id === 0 || !p.price || !p.quantity)) {
+        alert("Vui lòng điền đầy đủ thông tin sản phẩm (sản phẩm, giá, số lượng)!");
+        return;
+      }
+
       const res = await fetch("/api/import", {
         method: "POST",
         headers: {
@@ -109,8 +118,10 @@ export default function addImport() {
       }
     } catch (error) {
       console.error("Lỗi:", error);
+      alert("Lỗi khi thêm đơn nhập hàng!");
     }
   };
+
   return (
     <div>
       <div className="justify-start text-black text-base font-normal font-['Inter']">
@@ -124,7 +135,7 @@ export default function addImport() {
           onSubmit={form.handleSubmit(onSubmit)}
           encType="multipart/form-data"
         >
-          {/* Tên Loại */}
+          {/* Tên nhà cung cấp */}
           <div className="w-full self-stretch inline-flex justify-between items-center mt-[10px]">
             <div className="w-[500px] flex flex-col gap-2">
               <FormField
@@ -139,6 +150,7 @@ export default function addImport() {
                       <Select
                         onValueChange={(value) => {
                           field.onChange(value);
+                          setProviderId(value);
                         }}
                         value={field.value}
                       >
@@ -162,12 +174,6 @@ export default function addImport() {
                           )}
                         </SelectContent>
                       </Select>
-
-                      {/* <Input
-                        placeholder="BHX"
-                        {...field}
-                        value={field.value ?? ""}
-                      />  */}
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -192,18 +198,25 @@ export default function addImport() {
                   <div className="text-black text-base">Sản phẩm</div>
                   <Select
                     onValueChange={(value) =>
-                      updateProduct(index, "product_id", value)
+                      updateProduct(index, "product_id", Number(value))
                     }
+                    value={product.product_id === 0 ? undefined : product.product_id.toString()}
                   >
                     <SelectTrigger className="w-full min-w-0">
                       <SelectValue placeholder="Chọn sản phẩm" />
                     </SelectTrigger>
                     <SelectContent>
-                      {productList.map((item) => (
-                        <SelectItem key={item.id} value={item.id.toString()}>
-                          {item.name}
+                      {productList.length > 0 ? (
+                        productList.map((item) => (
+                          <SelectItem key={item.id} value={item.id.toString()}>
+                            {item.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="none" disabled>
+                          Không có sản phẩm nào
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
