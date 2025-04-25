@@ -125,9 +125,9 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                     TẤT CẢ SẢN PHẨM
                 </Link>
                 <Link
-                    href="/client/"
+                    href="/client/promotion"
                     className={`px-3 py-1 rounded-md transition-colors ${
-                        pathname === "/client/"
+                        pathname === "/client/promotion"
                             ? "bg-primary text-white font-bold"
                             : "text-white hover:text-accent"
                     }`}
@@ -145,9 +145,9 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                     LỊCH SỬ MUA HÀNG
                 </Link>
                 <Link
-                    href="/client/"
+                    href="/client/point"
                     className={`px-3 py-1 rounded-md transition-colors ${
-                        pathname === "/client/"
+                        pathname === "/client/point"
                             ? "bg-primary text-white font-bold"
                             : "text-white hover:text-accent"
                     }`}

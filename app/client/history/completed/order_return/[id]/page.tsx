@@ -1,14 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-import Image from "next/image";
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown} from "lucide-react";
+import React, { useState, useEffect} from "react";
 import { Button } from "@/components/ui/button";
 import {
   FormField,
@@ -23,21 +15,16 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useRouter } from "next/navigation";
 import {toast} from "sonner";
-import { useEffect } from "react";
 
 const formSchema = z.object({
-  reason: z.string().min(1, "Hãy chọn lý do"),
-  description: z.string().optional(),
-  img_links: z.string().array().optional(),
-  date: z.string().min(1, "Hãy chọn thời gian"),
-  address: z.string().min(1, "Hãy nhập địa chỉ"),
+  reason: z.string().min(1, "Hãy nhập lý do"),
 });
 
-async function returnOrder(orderId: string, reason: string, date: string, address: string, description?: string, img_links?: string[]) {
+async function returnOrder(orderId: string, reason: string) {
     const res = await fetch("/api/order/return", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderId, reason, description, img_links, date, address }),
+      body: JSON.stringify({ orderId, reason }),
     });
   
     if (!res.ok) {
@@ -53,10 +40,6 @@ export default function PageOrderReturn() {
         resolver: zodResolver(formSchema),
         defaultValues: {
         reason: "",
-        description: "",
-        img_links: [],
-        date: "",
-        address: "",
         },
     });
 
@@ -64,45 +47,13 @@ export default function PageOrderReturn() {
     const [order, setOrder] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const [selectedReason, setSelectedReason] = useState("Chọn lý do trả hàng");
-    const [selectedImages, setSelectedImages] = useState<File[]>([]);
-
-    const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const files = event.target.files;
-        if (!files) return;
-    
-        let newImages: File[] = [...selectedImages];
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            if (file.size > 5 * 1024 * 1024) {
-                alert(`File ${file.name} vượt quá 5MB!`);
-                continue;
-            }
-            if (newImages.length >= 5) {
-                alert("Chỉ được chọn tối đa 5 ảnh.");
-                break;
-            }
-        
-            newImages.push(file);
-        }
-        setSelectedImages(newImages);
-      };
-    
-    const removeImage = (index: number) => {
-        setSelectedImages((prevImages) => prevImages.filter((_, i) => i !== index));
-    };
-
-    function handleSelectReason(reason: string) {
-        setSelectedReason(reason);
-        form.setValue("reason", reason);
-      }
     
     const formatPrice = (price?: number) => price?.toLocaleString() ?? "0";
     
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
           toast.loading("Đang gửi yêu cầu trả hàng...");
-          await returnOrder(id as string, values.reason, values.date, values.address, values.description, values.img_links);
+          await returnOrder(id as string, values.reason);
           toast.success("Đã gửi yêu cầu trả hàng thành công!");
           setTimeout(() => {
             router.push("/client/history/request");
@@ -194,132 +145,17 @@ export default function PageOrderReturn() {
         </div>
             <FormProvider {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-[1240px] mx-auto p-4 space-y-4 text-black">
-                    {/* Dropdown lý do */}
-                    <div>
+                    {/* Lý do */}
                     <FormField
                         control={form.control}
                         name="reason"
-                        render={() => (
-                        <FormItem>
-                            <FormLabel>Lý do trả hàng</FormLabel>
-                            <DropdownMenu>
-                            <DropdownMenuTrigger className="w-full border border-gray-300 rounded px-4 py-2 flex justify-between items-center">
-                                <span>{selectedReason}</span>
-                                <ChevronDown className="w-4 h-4 text-gray-500" />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-[1200px]">
-                                {["Sai sản phẩm", "Hỏng hóc", "Không đúng mô tả", "Lý do khác"].map((item) => (
-                                <DropdownMenuItem key={item} onClick={() => handleSelectReason(item)}>
-                                    {item}
-                                </DropdownMenuItem>
-                                ))}
-                            </DropdownMenuContent>
-                            </DropdownMenu>
-                            <FormMessage className="text-red-600 font-semibold mt-1 flex items-center gap-1" />                               
-                        </FormItem>
-                        )}
-                    />
-                    </div>
-                    {/* Mô tả */}
-                    <FormField
-                        control={form.control}
-                        name="description"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Mô tả lỗi sản phẩm</FormLabel>
+                            <FormLabel>Lý do trả hàng/hoàn tiền</FormLabel>
                             <FormControl>
                                 <Textarea
                                 placeholder="Nhập mô tả lý do hoàn trả..."
                                 className="h-28 resize-none"
-                                {...field}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    {/* Upload hình ảnh */}
-                    <div className="w-full flex flex-col justify-start items-start mt-[10px] gap-2">
-                        <input
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={handleImageChange}
-                            className="text-sm file:text-sm file:font-medium file:bg-primary file:text-white 
-                                        file:py-2 file:px-4 file:rounded-md file:border-none
-                                        focus:outline-none focus:ring-0 focus:border-transparent 
-                                        bg-transparent w-full"
-                        />
-                            {selectedImages.map((image, index) => (
-                                <div key={index}>
-                                    <img
-                                    src={URL.createObjectURL(image)}
-                                    alt="preview"
-                                    width={100}
-                                    height={100}
-                                />
-                                <button type="button" onClick={() => removeImage(index)}>
-                                    Xóa
-                                </button>
-                            </div>
-                            ))}
-                    </div>                   
-                    {/* Hiển thị ảnh đã chọn */}
-                    <div className="grid grid-cols-3 gap-2 mt-4">
-                        {selectedImages.map((image, index) => (
-                            <div key={index} className="relative w-24 h-24">
-                                <Image
-                                    src={URL.createObjectURL(image)}
-                                    alt={`Selected ${index}`}
-                                    width={96}
-                                    height={96}
-                                    className="rounded-lg object-cover"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => removeImage(index)}
-                                    className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full px-2 py-1"
-                                >
-                                    X
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                    {/* Ngày nhận */}
-                    <FormField
-                        control={form.control}
-                        name="date"
-                        render={({ field }) => {
-                            const today = new Date().toISOString().split("T")[0]; 
-                            return (
-                            <FormItem className="space-y-2 flex flex-col">
-                                <FormLabel className="text-sm font-medium text-gray-700">Thời gian nhận hàng</FormLabel>
-                                <FormControl>
-                                <input
-                                    type="date"
-                                    {...field}
-                                    min={today}
-                                    className="w-[150px] h-10 px-3 py-2 text-sm rounded-md border border-primary 
-                                            focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent 
-                                            transition duration-200"
-                                />
-                                </FormControl>
-                                <FormMessage className="text-red-600 font-semibold mt-1 flex items-center gap-1" />
-                            </FormItem>
-                            );
-                        }}
-                    />
-                    {/* Địa điểm */}
-                    <FormField
-                        control={form.control}
-                        name="address"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Địa chỉ nhận hàng</FormLabel>
-                            <FormControl>
-                                <Textarea
-                                placeholder="Nhập địa chỉ nhận hàng"
-                                className="h-14 resize-none"
                                 {...field}
                                 />
                             </FormControl>

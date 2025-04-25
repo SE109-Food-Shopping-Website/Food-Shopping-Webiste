@@ -116,11 +116,6 @@ export default function PageCancelled() {
                   </div>
                   {/* Button */}
                   <div className="w-full flex flex-row items-center justify-end gap-3 text-background">
-                    <Button asChild variant="outline" className="bg-white border border-primary text-black shadow-none">
-                    <Link href={`/client/history/cancelled/cancel_detail/${order.id}`}>                        
-                      Xem chi tiết đơn hủy
-                      </Link>
-                    </Button>
                     <Button variant="default">
                       Mua lại
                     </Button>

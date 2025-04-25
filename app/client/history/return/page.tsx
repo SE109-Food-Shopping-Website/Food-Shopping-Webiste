@@ -53,12 +53,8 @@ export default function PageReturn() {
                     </Link>
                   </div>
                   {/* Status */}
-                  <div className="w-full flex flex-row items-center justify-start gap-3 text-secondary font-bold">
-                    {ret.isRefund ? (
-                      <span className="text-green-500">✅ ĐÃ HOÀN TIỀN</span>
-                    ) : (
-                      <span className="text-red-500">⛔ CHƯA HOÀN TIỀN</span>
-                    )}
+                  <div className="w-full flex flex-row items-center justify-end gap-3 text-base">
+                    <b className="font-medium italic text-foreground text-[14px]">Yêu cầu trả hàng đã được duyệt và hoàn tiền thành công</b>
                   </div>
                 </div>
               ))

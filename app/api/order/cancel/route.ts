@@ -1,37 +1,43 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma"; 
 
-export async function POST(req: Request) {
-  const { orderId, reason } = await req.json();
-  console.log("Hủy đơn:", orderId, "Lý do:", reason);
+export async function POST(req: NextRequest) {
+  try {
+    const { orderId, reason } = await req.json();
 
-  // Giả lập response
-  return NextResponse.json({ message: "Yêu cầu hủy đơn đã được ghi nhận" });
+    if (!orderId || !reason) {
+      return NextResponse.json({ message: "Thiếu orderId hoặc lý do" }, { status: 400 });
+    }
+
+    const existingOrder = await prisma.oRDER.findUnique({
+      where: { id: Number(orderId) },
+    });
+
+    if (!existingOrder) {
+      return NextResponse.json({ message: "Không tìm thấy đơn hàng" }, { status: 404 });
+    }
+
+    if (existingOrder.status === "CANCELLED") {
+      return NextResponse.json({ message: "Đơn hàng đã bị hủy trước đó" }, { status: 400 });
+    }
+
+    if (existingOrder.status !== "PENDING") {
+      return NextResponse.json({
+        message: "Chỉ có thể hủy đơn hàng đang chờ xử lý (PENDING)",
+      }, { status: 400 });
+    }
+    
+    await prisma.oRDER.update({
+      where: { id: Number(orderId) },
+      data: {
+        status: "CANCELLED",
+        reason: reason,
+      },
+    });
+
+    return NextResponse.json({ message: "Hủy đơn hàng thành công" });
+  } catch (error) {
+    console.error("Lỗi API hủy đơn:", error);
+    return NextResponse.json({ message: "Lỗi máy chủ khi hủy đơn" }, { status: 500 });
+  }
 }
-
-
-// import { NextResponse } from "next/server";
-// import { prisma } from "@/lib/prisma";
-
-// export async function POST(req: Request) {
-//   try {
-//     const { orderId, reason } = await req.json();
-
-//     // Kiểm tra đơn hàng, quyền người dùng... nếu cần
-
-//     await prisma.oRDER.update({
-//       where: { id: orderId },
-//       data: {
-//         status: "CANCELLED",
-//         cancelReason: reason,
-//         cancelledAt: new Date(),
-//       },
-//     });
-
-//     return NextResponse.json({ message: "Đã hủy đơn thành công" });
-//   } catch (err: any) {
-//     return NextResponse.json(
-//       { message: "Lỗi khi hủy đơn hàng", error: err.message },
-//       { status: 500 }
-//     );
-//   }
-// }

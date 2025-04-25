@@ -116,8 +116,10 @@ export default function PageCompleted() {
                   </div>
                   {/* Button */}
                   <div className="w-full flex flex-row items-center justify-end gap-3 text-background">
-                    <Button variant="outline" className="bg-white border border-primary text-black shadow-none">
-                      Góp ý
+                    <Button asChild variant="outline" className="bg-white border border-primary text-black shadow-none">
+                      <Link href={`/client/history/completed/order_feedback/${order.id}`}>
+                        Góp ý
+                      </Link>
                     </Button>
                     <Button asChild variant="outline" className="bg-white border border-primary text-black shadow-none">
                       <Link href={`/client/history/completed/order_return/${order.id}`}>

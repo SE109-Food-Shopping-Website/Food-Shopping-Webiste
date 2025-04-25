@@ -101,7 +101,7 @@ export default function PageOrderDetail() {
         </div>
       </div>
       {/* Mã đơn hàng và thời gian đặt hàng */}
-      <div className="rounded-[5px] bg-white px-[20px] py-[10px]">
+      <div className="rounded-[5px] bg-white px-[20px] py-[10px] gap-3 flex flex-col">
         <div className="flex justify-between">
           <span>Mã đơn hàng</span>
           <span>{order.id}</span>
@@ -110,6 +110,20 @@ export default function PageOrderDetail() {
           <span>Thời gian đặt hàng</span>
           <span>{new Date(order.created_at).toLocaleString("vi-VN")}</span>
         </div>
+        {/* Thời gian nhận hàng */}
+        {order.status === "COMPLETED" && order.paid_at && (
+          <div className="flex justify-between">
+            <span className="text-primary font-bold">Giao hàng thành công</span>
+            <span>{new Date(order.paid_at).toLocaleString("vi-VN")}</span>
+          </div>
+        )}
+        {/* Lý do hủy đơn */}
+        {order.status === "CANCELLED" && order.reason && (
+          <div className="flex justify-between">
+            <span className="text-red-500 font-bold">Đã hủy đơn hàng</span>
+            <span>{order.reason}</span>
+          </div>
+        )}
       </div>
     </div>
   );

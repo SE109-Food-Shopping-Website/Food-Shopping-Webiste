@@ -1,28 +1,23 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-} from "@/components/ui/dropdown-menu";
 import { useForm, FormProvider} from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-FormField,
+  FormField,
   FormItem,
   FormLabel,
   FormMessage,
+  FormControl
 } from "@/components/ui/form";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
-  reason: z.string().min(1, "Hãy chọn lý do"),
+  reason: z.string().min(1, "Hãy nhập lý do"),
 });
 
 async function cancelOrder(orderId: string, reason: string) {
@@ -48,27 +43,24 @@ export default function PageOrderCancel() {
     },
   });
 
-  const [selectedReason, setSelectedReason] = useState("Chọn lý do hủy đơn hàng");
   const { id } = useParams();
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  function handleSelectReason(reason: string) {
-    setSelectedReason(reason);
-    form.setValue("reason", reason);
-  }
-
   const formatPrice = (price?: number) => price?.toLocaleString() ?? "0";
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      toast.loading("Đang gửi yêu cầu hủy...");
+      toast.loading("Đang gửi yêu cầu hủy...", {duration: 5000});
       await cancelOrder(id as string, values.reason);
-      toast.success("Đã gửi yêu cầu hủy đơn thành công!");
+      toast.dismiss(); 
       setTimeout(() => {
-        router.push("/client/history/cancelled");
-      }, 1500);
+        toast.success("Đã gửi yêu cầu hủy đơn thành công!");
+        setTimeout(() => {
+          router.push("/client/history/cancelled");
+        }, 1500); 
+      }, 300);
     } catch (error: any) {
       console.error("Lỗi khi gửi yêu cầu hủy:", error);
       toast.error(error.message || "Đã xảy ra lỗi khi gửi yêu cầu");
@@ -159,25 +151,19 @@ export default function PageOrderCancel() {
           <FormField
             control={form.control}
             name="reason"
-            render={() => (
-              <FormItem>
-                <FormLabel>Lý do hủy đơn hàng</FormLabel>
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="w-full border border-gray-300 rounded px-4 py-2 flex justify-between items-center">
-                    <span>{selectedReason}</span>
-                    <ChevronDown className="w-4 h-4 text-gray-500" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-[1200px]">
-                    {["Không có nhu cầu mua nữa", "Ghi nhầm địa chỉ", "Đặt nhầm", "Lý do khác"].map((item) => (
-                      <DropdownMenuItem key={item} onClick={() => handleSelectReason(item)}>
-                        {item}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <FormMessage className="text-red-600 font-semibold mt-1 flex items-center gap-1" />
+            render={({ field }) => (
+              <FormItem>  
+                <FormLabel>Lý do hủy đơn hàng</FormLabel>                    
+                  <FormControl>
+                      <Textarea
+                      placeholder="Mô tả lý do hủy đơn hàng..."
+                      className="h-28 resize-none"
+                      {...field}
+                      />
+                  </FormControl>
+                  <FormMessage className="text-red-600 font-semibold mt-1 flex items-center gap-1" />
               </FormItem>
-            )}
+          )}
           />
         </form>
       </FormProvider>
