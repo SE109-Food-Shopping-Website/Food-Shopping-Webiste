@@ -28,20 +28,37 @@ model USER {
   birthday   DateTime?         @db.Date
   gender     USER_gender_enum?
   address    String?
+  loyalty_point  Int           @default(0)              
+  user_rank_id   Int?                          
   isActive   Boolean           @default(true)
   role_id    Int?
   created_at DateTime          @db.Date
   carts      CART[]
   feedback   FEEDBACK[]
   orders     ORDER[]
+  promotionUsers PROMOTION_USER[]
   role       ROLE?             @relation(fields: [role_id], references: [id])
+  user_rank      USER_RANK?        @relation(fields: [user_rank_id], references: [id])
 }
+
+model USER_RANK {
+  id              Int     @id @default(autoincrement())
+  name            String
+  min_point       Int
+  max_promotion   Float
+  discount_percent Float
+  max_discount    Float
+
+  users           USER[]
+}
+
 
 model PRODUCT_TYPE {
   id             Int       @id @default(autoincrement())
   name           String
   priceMarginPct Float     @default(0)
   products       PRODUCT[]
+  coupons        COUPON[]
 }
 
 model PROVIDER {
@@ -124,9 +141,11 @@ model ORDER {
   name           String?
   phone          String?
   reason         String?
+  form_submitted_at DateTime? 
   PROMOTION      PROMOTION?        @relation(fields: [promotion_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   user           USER?             @relation(fields: [user_id], references: [id])
   orderDetails   ORDER_DETAILS[]
+  feedbacks  FEEDBACK[] // Một đơn hàng có thể có nhiều feedback
 }
 
 model ORDER_DETAILS {
@@ -147,8 +166,10 @@ model FEEDBACK {
   images     String?
   rating     Int?
   created_at DateTime @default(now())
+  order_id    Int?
   product_id Int
   user_id    Int
+  order       ORDER?   @relation(fields: [order_id], references: [id])
   product    PRODUCT  @relation(fields: [product_id], references: [id])
   user       USER     @relation(fields: [user_id], references: [id])
 }
@@ -162,8 +183,31 @@ model PROMOTION {
   value        Float?    @db.Real
   order_min    Float?    @db.Real
   discount_max Float?    @db.Real
+  status       String?
   ORDER        ORDER[]
+  promotionUsers PROMOTION_USER[]
 }
+
+model COUPON {
+  id               Int           @id @default(autoincrement())
+  name             String
+  start_at         DateTime
+  end_at           DateTime
+  discount_percent Float
+  status           String?
+  product_type_id  Int?
+  productType      PRODUCT_TYPE? @relation(fields: [product_type_id], references: [id])
+}
+
+model PROMOTION_USER {
+  id           Int       @id @default(autoincrement())
+  promotion_id Int
+  user_id      Int
+  used_at      DateTime?
+  promotion    PROMOTION @relation(fields: [promotion_id], references: [id])
+  user         USER      @relation(fields: [user_id], references: [id])
+}
+
 
 enum USER_gender_enum {
   Male
