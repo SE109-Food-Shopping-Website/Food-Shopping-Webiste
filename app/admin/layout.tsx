@@ -307,17 +307,25 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   href="/admin/promotion"
                   className="block w-full py-2 px-2 text-black hover:bg-gray-200"
                 >
-                  Danh sách đơn
+                  Trên đơn
                 </Link>
               </AccordionContent>{" "}
-              {/* <AccordionContent className="w-full">
+              <AccordionContent className="w-full">
                 <Link
-                  href="/admin/promotion/point"
+                  href="/admin/coupon"
+                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                >
+                  Trên sản phẩm
+                </Link>
+              </AccordionContent>{" "}
+              <AccordionContent className="w-full">
+                <Link
+                  href="/admin/point"
                   className="block w-full py-2 px-2 text-black hover:bg-gray-200"
                 >
                   Tích điểm
                 </Link>
-              </AccordionContent>{" "} */}
+              </AccordionContent>{" "}
             </AccordionItem>
 
             {/* Góp ý */}
