@@ -64,33 +64,33 @@ export default function PageRequest() {
 
                             return (
                                 <Link
-                                key={detail.id}
-                                href={`/client/history/order_detail/${order.id}`}
-                                className="w-full rounded-[5px] flex flex-row items-center justify-between flex-wrap p-3 gap-y-4 hover:bg-gray-50"
+                                    key={detail.id}
+                                    href={`/client/history/order_detail/${order.id}`}
+                                    className="w-full rounded-[5px] flex flex-row items-center justify-between flex-wrap p-3 gap-y-4 hover:bg-gray-50"
                                 >
-                                <div className="flex flex-row items-center gap-5">
-                                    <img
-                                    className="w-[50px] h-[50px] rounded-full"
-                                    src={imageSrc}
-                                    alt={detail.product.name}
-                                    />
-                                    <div className="flex flex-col">
-                                    <b className="text-[18px] text-primary">
-                                        {detail.product.name}
-                                    </b>
-                                    <div className="text-[16px] text-foreground">
-                                        Đơn vị tính: {detail.product.unit}
+                                    <div className="flex flex-row items-center gap-5">
+                                        <img
+                                        className="w-[50px] h-[50px] rounded-full"
+                                        src={imageSrc}
+                                        alt={detail.product.name}
+                                        />
+                                        <div className="flex flex-col">
+                                        <b className="text-[18px] text-primary">
+                                            {detail.product.name}
+                                        </b>
+                                        <div className="text-[16px] text-foreground">
+                                            Đơn vị tính: {detail.product.unit}
+                                        </div>
+                                        <div className="text-base text-foreground">
+                                            x {detail.quantity}
+                                        </div>
+                                        </div>
                                     </div>
-                                    <div className="text-base text-foreground">
-                                        x {detail.quantity}
+                                    <div className="flex flex-col items-end text-base">
+                                        <b className="text-primary text-[18px]">
+                                        {detail.salePrice.toLocaleString()}đ
+                                        </b>
                                     </div>
-                                    </div>
-                                </div>
-                                <div className="flex flex-col items-end text-base">
-                                    <b className="text-primary text-[18px]">
-                                    {detail.salePrice.toLocaleString()}đ
-                                    </b>
-                                </div>
                                 </Link>
                             );
                             })}
@@ -100,13 +100,16 @@ export default function PageRequest() {
                             </div>
                             )}
                             <div className="w-full flex flex-row items-center justify-end gap-2 text-base px-3">
-                            <div className="font-medium text-foreground">
-                                Tổng số tiền:{" "}
-                                <b className="text-primary">
-                                {order.totalPrice.toLocaleString()}đ
-                                </b>
+                                <div className="font-medium text-foreground">
+                                    Tổng số tiền:{" "}
+                                    <b className="text-primary">
+                                    {order.totalPrice.toLocaleString()}đ
+                                    </b>
+                                </div>
                             </div>
-                            </div>
+                        </div>
+                        <div className="w-full flex flex-row items-center justify-end gap-3 text-base">
+                            <b className="font-medium italic text-foreground text-[14px]">Yêu cầu trả hàng đang được xét duyệt</b>
                         </div>
                         </div>
                     );

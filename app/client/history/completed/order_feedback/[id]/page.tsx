@@ -19,25 +19,12 @@ import { useParams, useRouter } from "next/navigation";
 import {Star} from "lucide-react";
 
 const formSchema = z.object({
-    comment: z.string().optional(),
-    images: z.string().array().optional(),
-    rating: z.number().min(1).max(5),
-});
-
-async function feedbackOrder(orderId: string, comment: string | undefined, images: string[], rating: number) {
-    const res = await fetch("/api/order/completed", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderId, comment, images, rating }),
+    comment: z.string(),
+    images: z.array(z.string()),
+    rating: z.number().refine(value => value >= 1 && value <= 5, {
+        message: "Vui lòng chọn số sao từ 1 đến 5.",
+      }),
     });
-  
-    if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.message || "Gửi đánh giá thất bại");
-    }
-  
-    return await res.json();
-}
 
 export default function PageOrderFeedback() {
     const form = useForm<z.infer<typeof formSchema>>({
@@ -55,6 +42,8 @@ export default function PageOrderFeedback() {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
+    const formatPrice = (price?: number) => price?.toLocaleString() ?? "0";
+
     const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
         if (!files) return;
@@ -63,11 +52,11 @@ export default function PageOrderFeedback() {
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             if (file.size > 5 * 1024 * 1024) {
-                alert(`File ${file.name} vượt quá 5MB!`);
+                toast.error(`File ${file.name} vượt quá 5MB!`);
                 continue;
             }
             if (newImages.length >= 5) {
-                alert("Chỉ được chọn tối đa 5 ảnh.");
+                toast.error("Chỉ được chọn tối đa 5 ảnh.");
                 break;
             }
             
@@ -81,18 +70,48 @@ export default function PageOrderFeedback() {
     };
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
+        if (!id) {
+          toast.error("Thiếu order id");
+          return;
+        }
+    
+        const formData = new FormData();
+        formData.append("orderId", id.toString());
+        formData.append("comment", values.comment || "");
+        formData.append("rating", values.rating.toString());
+    
+        selectedImages.forEach((image) => {
+          formData.append("images", image);
+        });
+    
         try {
-          toast.loading("Đang gửi đánh giá...");
-          await feedbackOrder(id as string, values.comment, values.images || [], values.rating);
-          toast.success("Đã gửi đánh giá thành công!");
-          setTimeout(() => {
-            router.push("/client/history/completed");
-          }, 1500);
-        } catch (error: any) {
-          console.error("Lỗi khi gửi yêu cầu trả hàng:", error);
-          toast.error(error.message || "Đã xảy ra lỗi khi gửi yêu cầu");
-        } finally {
-          toast.dismiss();
+            const res = await fetch("/api/order/feedback", {
+                method: "POST",
+                body: formData,
+            });
+    
+            if (!res.ok) {
+                throw new Error("Lỗi từ server: " + res.statusText);
+            }
+    
+            const data = await res.json();
+            if (data.error) {
+                toast.error("Lỗi: " + data.error);
+            } else {
+                const loadingToast = toast.loading("Đang gửi đánh giá...", {duration: 5000});
+            
+                setTimeout(() => {
+                    toast.dismiss(loadingToast);
+                    toast.success("Gửi đánh giá sản phẩm thành công!");
+                    form.reset();
+                    setSelectedImages([]);
+                    router.push("/client/history/completed");
+                }, 1500); 
+            }
+            
+        } catch (err) {
+            console.error("Lỗi:", err);
+            toast.error("Đã xảy ra lỗi: " + (err instanceof Error ? err.message : "Unknown error"));
         }
     }
 
@@ -118,17 +137,54 @@ export default function PageOrderFeedback() {
         return <div className="w-full text-center py-10 text-gray-500">Đang tải đơn hàng...</div>;
     }
 
+    if (!order) {
+        return <div className="w-full text-center py-10 text-red-500">Không tìm thấy đơn hàng!</div>;
+    }
+
     return (
         <div className="min-h-screen w-full flex text-black font-inter">
             <div className="w-[1240px] flex flex-col items-start gap-6">
                 <div className="w-full flex flex-col items-center gap-2.5">
                     <div className="text-[25px] font-bold">Đánh giá sản phẩm</div>
-                    <div className="justify-start text-primary text-[35px] font-bold">Cà rốt</div>
+                    <div className="self-stretch rounded-[5px] flex flex-col items-start justify-start px-[20px] gap-2.5">
+                        {order?.orderDetails?.map((detail: any) => {
+                            let imageSrc = "/ava.png";
+                            try {
+                                const parsedImages = JSON.parse(detail.product.images);
+                                if (Array.isArray(parsedImages) && parsedImages.length > 0) {
+                                imageSrc = parsedImages[0];
+                                }
+                            } catch (error) {
+                                console.error("Error parsing product images:", error);
+                            }
+                            return (
+                                <div key={detail.id} className="w-full flex flex-row items-center justify-between border-b rounded-md p-3 hover:bg-gray-50">
+                                <div className="flex flex-row items-center gap-5">
+                                    <img className="w-[50px] h-[50px] rounded-full" src={imageSrc} alt={detail.product.name} />
+                                    <div className="flex flex-col">
+                                    <b className="text-[18px] text-primary">{detail.product.name}</b>
+                                    <div className="text-[16px] text-foreground">Đơn vị tính: {detail.product.unit}</div>
+                                    <div className="text-base text-foreground">x {detail.quantity}</div>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col items-end text-base">
+                                    <b className="text-primary text-[18px]">{formatPrice(detail.salePrice)}đ</b>
+                                </div>
+                                </div>
+                            );
+                        })}
+                        <div className="self-stretch rounded-[5px] bg-white flex flex-col items-start justify-start py-[10px] gap-2.5">
+                            <div className="flex justify-between w-full text-[18px]">
+                                <b>Tổng cộng</b>
+                                <b className="text-primary">{formatPrice(order.totalPrice)}đ</b>
+                            </div>
+                        </div>
+                    </div>
                     <div className="self-stretch inline-flex justify-between items-start pl-4">
-                        <div className="w-48 justify-start text-black text-[18px] font-normal">Mã đơn hàng: A1223</div>
-                        <div className="w-56 h-6 justify-start text-black text-[18px] font-normal">Mua vào ngày: 1/1/2025</div>
+                        <div className="w-30 justify-start text-black text-[18px] font-normal">Mã đơn hàng: {order.id}</div>
+                        <div className="w-70 h-6 justify-start text-black text-[18px] font-normal">Mua vào ngày: {new Date(order.created_at).toLocaleString("vi-VN")}</div>
                         <div className="justify-start"><span className="text-black text-[18px] font-normal">Tên người mua:</span>
-                        <span className="text-black text-[18px] font-bold"> Nguyễn Văn A</span></div>
+                        <span className="text-black text-[18px] font-bold"> {order.name}</span></div>
                     </div>
                 </div>
                 <FormProvider {...form}>
@@ -159,7 +215,7 @@ export default function PageOrderFeedback() {
                                             </div>
                                             </div>
                                     </FormControl>
-                                    <FormMessage />
+                                    <FormMessage className="text-secondary font-bold"/>
                                     </FormItem>
                                 )}
                             />

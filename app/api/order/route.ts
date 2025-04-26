@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 
 // Lấy đơn hàng theo status (GET)
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
