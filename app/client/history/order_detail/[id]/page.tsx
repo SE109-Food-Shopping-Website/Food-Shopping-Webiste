@@ -124,6 +124,25 @@ export default function PageOrderDetail() {
             <span>{order.reason}</span>
           </div>
         )}
+        {order.status === "CANCELLED" && order.form_submitted_at && (
+          <div className="flex justify-between">
+            <span className="text-red-500 font-bold">Thời gian hủy đơn</span>
+            <span>{new Date(order.form_submitted_at).toLocaleString("vi-VN")}</span>
+          </div>
+        )}
+        {/* Lý do trả hàng */}
+        {order.status === "REQUEST" && order.form_submitted_at && (
+          <div className="flex justify-between">
+            <span className="text-red-500 font-bold">Đã gửi yêu cầu vào</span>
+            <span>{new Date(order.form_submitted_at).toLocaleString("vi-VN")}</span>
+          </div>
+        )}
+        {order.status === "REQUEST" && order.reason && (
+          <div className="flex justify-between">
+            <span className="text-red-500 font-bold">Lý do trả hàng</span>
+            <span>{order.reason}</span>
+          </div>
+        )}
       </div>
     </div>
   );

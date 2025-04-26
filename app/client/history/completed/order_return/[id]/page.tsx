@@ -52,12 +52,15 @@ export default function PageOrderReturn() {
     
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-          toast.loading("Đang gửi yêu cầu trả hàng...");
+          toast.loading("Đang gửi yêu cầu trả hàng...", {duration: 5000});
           await returnOrder(id as string, values.reason);
-          toast.success("Đã gửi yêu cầu trả hàng thành công!");
+          toast.dismiss();
           setTimeout(() => {
-            router.push("/client/history/request");
-          }, 1500);
+            toast.success("Đã gửi yêu cầu trả hàng thành công!");
+            setTimeout(() => {
+                router.push("/client/history/request");
+            }, 1500);
+          }, 300)
         } catch (error: any) {
           console.error("Lỗi khi gửi yêu cầu trả hàng:", error);
           toast.error(error.message || "Đã xảy ra lỗi khi gửi yêu cầu");
@@ -154,7 +157,7 @@ export default function PageOrderReturn() {
                             <FormLabel>Lý do trả hàng/hoàn tiền</FormLabel>
                             <FormControl>
                                 <Textarea
-                                placeholder="Nhập mô tả lý do hoàn trả..."
+                                placeholder="Nhập mô tả lý do hoàn trả (Ví dụ: sản phẩm bị lỗi, không đúng mô tả, v.v.)"
                                 className="h-28 resize-none"
                                 {...field}
                                 />

@@ -32,6 +32,7 @@ export async function POST(req: NextRequest) {
       data: {
         status: "CANCELLED",
         reason: reason,
+        form_submitted_at: new Date(),
       },
     });
 

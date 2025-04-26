@@ -156,7 +156,7 @@ export default function PageOrderCancel() {
                 <FormLabel>Lý do hủy đơn hàng</FormLabel>                    
                   <FormControl>
                       <Textarea
-                      placeholder="Mô tả lý do hủy đơn hàng..."
+                      placeholder="Mô tả lý do hủy đơn hàng (Ví dụ: Không có như cầu mua nữa, ghi nhầm địa chỉ, v.v.)"
                       className="h-28 resize-none"
                       {...field}
                       />
