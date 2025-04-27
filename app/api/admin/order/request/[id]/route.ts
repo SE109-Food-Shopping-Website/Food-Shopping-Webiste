@@ -12,6 +12,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     const order = await prisma.oRDER.findUnique({
       where: { id },
       include: {
+        user: true,
         orderDetails: {
           include: {
             product: true,
@@ -34,9 +35,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
     return NextResponse.json({
       user: {
-        name: order.name || "Không xác định",
-        phone: order.phone || "Không xác định",
-        address: order.address || "Không xác định",
+        name: order.user?.name || "Không xác định",
+        phone: order.user?.phone || "Không xác định",
+        address: order.user?.address || "Không xác định",
       },
       products,
       summary: {
@@ -60,7 +61,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       }
       const { status } = await req.json()
 
-      if (!["PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"].includes(status)) {
+      if (!["SHIPPING", "COMPLETED", "CANCELLED", "RETURN"].includes(status)) {
         return NextResponse.json({ error: "Trạng thái không hợp lệ." }, { status: 400 })
       }
 

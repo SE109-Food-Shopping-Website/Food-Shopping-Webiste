@@ -127,7 +127,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </div>
             </div>
             {/* Thống kê */}
-            {/* <AccordionItem value="thongke" className="w-full">
+            <AccordionItem value="thongke" className="w-full">
               <div className="w-full h-[30px] justify-between items-center inline-flex">
                 <AccordionTrigger>
                   <div data-svg-wrapper className="relative">
@@ -159,7 +159,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   Doanh thu
                 </Link>
               </AccordionContent>{" "}
-            </AccordionItem> */}
+            </AccordionItem>
             {/* Quản lý */}
             <AccordionItem value="quanly" className="w-full mb-[10px]">
               <div className="h-[30px] justify-between items-center inline-flex">

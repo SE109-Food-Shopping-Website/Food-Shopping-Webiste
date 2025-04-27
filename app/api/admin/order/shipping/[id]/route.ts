@@ -30,7 +30,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       id: detail.product.id,
       name: detail.product.name,
       quantity: detail.quantity,
-      total: detail.salePrice * detail.quantity,
+      total: (detail.salePrice ?? 0) * detail.quantity,
     }));
 
     return NextResponse.json({

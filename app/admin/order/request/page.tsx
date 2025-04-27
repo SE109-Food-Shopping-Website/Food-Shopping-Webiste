@@ -3,13 +3,13 @@ import React, { useEffect, useState } from "react";
 import { DataTable } from "./components/data-table";
 import { columns } from "./components/columns";
 
-export default function pageReturn() {
+export default function pageRequest() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    fetch("/api/admin/order/return")
+    fetch("/api/admin/order/request")
       .then((res) => res.json())
       .then((data) => {
         console.log("Dữ liệu từ API:", data); // Console log dữ liệu
@@ -25,7 +25,7 @@ export default function pageReturn() {
 
   return (
     <div className="relative justify-start text-black text-base font-normal font-['Inter']">
-      Đơn hàng / Danh sách đơn / Đơn trả hàng
+      Đơn hàng / Danh sách đơn / Yêu cầu trả
       <DataTable
         columns={columns}
         data={data}

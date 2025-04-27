@@ -44,7 +44,7 @@ export default function PageLogin() {
       const { role } = await res.json();
 
       if (role === 1) {
-        router.push("/admin/manage/provider"); // Nếu role là admin (1)
+        router.push("/admin/statics"); // Nếu role là admin (1)
       } else if (role === 2) {
         router.push("/client/collection/dashboard"); // Nếu role là client (2)
       }

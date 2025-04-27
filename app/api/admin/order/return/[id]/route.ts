@@ -12,6 +12,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     const order = await prisma.oRDER.findUnique({
       where: { id },
       include: {
+        user: true,
         orderDetails: {
           include: {
             product: true,
@@ -19,6 +20,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         },
       },
     });
+
+    console.log("Order trả ra nè:", order);
+
 
     if (!order) {
       return NextResponse.json({ error: "Không tìm thấy đơn hàng" }, { status: 404 });
@@ -34,9 +38,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
     return NextResponse.json({
       user: {
-        name: order.name || "Không xác định",
-        phone: order.phone || "Không xác định",
-        address: order.address || "Không xác định",
+        name: order.user?.name || "Không xác định",
+        phone: order.user?.phone || "Không xác định",
+        address: order.user?.address || "Không xác định",
       },
       products,
       summary: {
@@ -45,33 +49,14 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         discountAmount: order.discountAmount,
         totalPrice: order.totalPrice,
       },
+      detailOrder: {
+        reason: order.reason || "Không xác định",
+        paidAt: order.paid_at,
+      }
     });
+
   } catch (error) {
     console.error("Lỗi lấy đơn hàng:", error);
     return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
   }
 }
-
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
-    try {
-      const id = parseInt(params.id);
-      if (isNaN(id)) {
-        return NextResponse.json({ error: "ID không hợp lệ" }, { status: 400 });
-      }
-      const { status } = await req.json()
-
-      if (!["PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"].includes(status)) {
-        return NextResponse.json({ error: "Trạng thái không hợp lệ." }, { status: 400 })
-      }
-
-      const updatedOrder = await prisma.oRDER.update({
-        where: { id },
-        data: { status },
-      })
-
-      return NextResponse.json({ message: "Cập nhật trạng thái thành công", data: updatedOrder })
-    } catch (error) {
-      console.error("[ORDER_UPDATE_ERROR]", error)
-      return NextResponse.json({ error: "Lỗi khi cập nhật đơn hàng" }, { status: 500 })
-    }
-  }
