@@ -4,15 +4,15 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
-import { Eye, Pencil, Star, Trash } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Pencil, Star} from "lucide-react";
 
 export interface Comment {
-  id: string;
+  id: number;
   comment: string;
   rating: number;
-  product_id: string;
-  user_id: string;
+  created_at: string;
+  order_id: number;
+  user_id: number;
   action: "";
 }
 
@@ -48,7 +48,7 @@ export const columns: ColumnDef<Comment>[] = [
     cell: ({ row }) => <div>{row.getValue("user_id")}</div>,
   },
   {
-    accessorKey: "product_id",
+    accessorKey: "order_id",
     header: ({ column }) => {
       return (
         <Button
@@ -56,11 +56,11 @@ export const columns: ColumnDef<Comment>[] = [
           variant="ghost"
           style={{ backgroundColor: "transparent" }}
         >
-          product_id
+          order_id
         </Button>
       );
     },
-    cell: ({ row }) => <div>{row.getValue("product_id")}</div>,
+    cell: ({ row }) => <div>{row.getValue("order_id")}</div>,
   },
   {
     accessorKey: "comment",
@@ -106,6 +106,40 @@ export const columns: ColumnDef<Comment>[] = [
       );
     },
   },
+  {
+    accessorKey: "created_at",
+    header: ({ column }) => {
+      return (
+        <Button
+          className="pl-0"
+          variant="ghost"
+          style={{ backgroundColor: "transparent" }}
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Thời gian gửi
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const rawDate = row.getValue("created_at");
+      const date =
+        typeof rawDate === "string" || typeof rawDate === "number"
+          ? new Date(rawDate)
+          : null;
+  
+      return (
+        <div>
+          {date
+            ? `${date.toLocaleTimeString("vi-VN", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })} ${date.toLocaleDateString("vi-VN")}`
+            : ""}
+        </div>
+      );
+    },
+  },  
   {
     id: "action",
     header: "Action",

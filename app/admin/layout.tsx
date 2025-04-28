@@ -366,14 +366,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   Danh sách
                 </Link>
               </AccordionContent>{" "}
-              {/* <AccordionContent className="w-full">
+              <AccordionContent className="w-full">
                 <Link
                   href="/admin/customer/comment"
                   className="block w-full py-2 px-2 text-black hover:bg-gray-200"
                 >
                   Góp ý
                 </Link>
-              </AccordionContent>{" "} */}
+              </AccordionContent>{" "} 
             </AccordionItem>
           </Accordion>
         </div>
