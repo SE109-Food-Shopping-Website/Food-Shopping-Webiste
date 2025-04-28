@@ -20,45 +20,43 @@ model ROLE {
 }
 
 model USER {
-  id         Int               @id @default(autoincrement())
-  email      String            @unique
-  password   String
-  name       String
-  phone      String            @unique
-  birthday   DateTime?         @db.Date
-  gender     USER_gender_enum?
-  address    String?
-  loyalty_point  Int           @default(0)              
-  user_rank_id   Int?                          
-  isActive   Boolean           @default(true)
-  role_id    Int?
-  created_at DateTime          @db.Date
-  carts      CART[]
-  feedback   FEEDBACK[]
-  orders     ORDER[]
+  id             Int               @id @default(autoincrement())
+  email          String            @unique
+  password       String
+  name           String
+  phone          String            @unique
+  birthday       DateTime?         @db.Date
+  gender         USER_gender_enum?
+  address        String?
+  isActive       Boolean           @default(true)
+  role_id        Int?
+  created_at     DateTime          @db.Date
+  loyalty_point  Int               @default(0)
+  user_rank_id   Int?
+  carts          CART[]
+  feedback       FEEDBACK[]
+  orders         ORDER[]
   promotionUsers PROMOTION_USER[]
-  role       ROLE?             @relation(fields: [role_id], references: [id])
+  role           ROLE?             @relation(fields: [role_id], references: [id])
   user_rank      USER_RANK?        @relation(fields: [user_rank_id], references: [id])
 }
 
 model USER_RANK {
-  id              Int     @id @default(autoincrement())
-  name            String
-  min_point       Int
-  max_promotion   Float
+  id               Int    @id @default(autoincrement())
+  name             String
+  min_point        Int
+  max_promotion    Float
   discount_percent Float
-  max_discount    Float
-
-  users           USER[]
+  max_discount     Float
+  users            USER[]
 }
-
 
 model PRODUCT_TYPE {
   id             Int       @id @default(autoincrement())
   name           String
   priceMarginPct Float     @default(0)
-  products       PRODUCT[]
   coupons        COUPON[]
+  products       PRODUCT[]
 }
 
 model PROVIDER {
@@ -126,26 +124,26 @@ model CART_DETAILS {
 }
 
 model ORDER {
-  id             Int               @id @default(autoincrement())
-  status         ORDER_status_enum @default(PENDING)
-  note           String?
-  originalPrice  Float
-  discountAmount Float             @default(0)
-  totalPrice     Float
-  shippingFee    Float             @default(0)
-  created_at     DateTime          @default(now())
-  paid_at        DateTime?
-  user_id        Int?
-  promotion_id   Int?
-  address        String?
-  name           String?
-  phone          String?
-  reason         String?
-  form_submitted_at DateTime? 
-  PROMOTION      PROMOTION?        @relation(fields: [promotion_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  user           USER?             @relation(fields: [user_id], references: [id])
-  orderDetails   ORDER_DETAILS[]
-  feedbacks  FEEDBACK[] // Một đơn hàng có thể có nhiều feedback
+  id                Int               @id @default(autoincrement())
+  status            ORDER_status_enum @default(PENDING)
+  note              String?
+  originalPrice     Float
+  discountAmount    Float             @default(0)
+  totalPrice        Float
+  shippingFee       Float             @default(0)
+  created_at        DateTime          @default(now())
+  paid_at           DateTime?
+  user_id           Int?
+  promotion_id      Int?
+  address           String?
+  name              String?
+  phone             String?
+  reason            String?
+  form_submitted_at DateTime?
+  feedbacks         FEEDBACK[]
+  PROMOTION         PROMOTION?        @relation(fields: [promotion_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user              USER?             @relation(fields: [user_id], references: [id])
+  orderDetails      ORDER_DETAILS[]
 }
 
 model ORDER_DETAILS {
@@ -166,25 +164,26 @@ model FEEDBACK {
   images     String?
   rating     Int?
   created_at DateTime @default(now())
-  order_id    Int?
   product_id Int
   user_id    Int
-  order       ORDER?   @relation(fields: [order_id], references: [id])
+  order_id   Int?
+  reply      String?
+  order      ORDER?   @relation(fields: [order_id], references: [id])
   product    PRODUCT  @relation(fields: [product_id], references: [id])
   user       USER     @relation(fields: [user_id], references: [id])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model PROMOTION {
-  id           Int       @id @default(autoincrement())
-  name         String
-  day_start    DateTime? @db.Timestamptz(6)
-  day_end      DateTime? @db.Timestamptz(6)
-  value        Float?    @db.Real
-  order_min    Float?    @db.Real
-  discount_max Float?    @db.Real
-  status       String?
-  ORDER        ORDER[]
+  id             Int              @id @default(autoincrement())
+  name           String
+  day_start      DateTime?        @db.Timestamptz(6)
+  day_end        DateTime?        @db.Timestamptz(6)
+  value          Float?           @db.Real
+  order_min      Float?           @db.Real
+  discount_max   Float?           @db.Real
+  status         String?
+  ORDER          ORDER[]
   promotionUsers PROMOTION_USER[]
 }
 
@@ -207,7 +206,6 @@ model PROMOTION_USER {
   promotion    PROMOTION @relation(fields: [promotion_id], references: [id])
   user         USER      @relation(fields: [user_id], references: [id])
 }
-
 
 enum USER_gender_enum {
   Male
