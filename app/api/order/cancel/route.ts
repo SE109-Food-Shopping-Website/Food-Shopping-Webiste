@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
         status: "CANCELLED",
         reason: reason,
         form_submitted_at: new Date(),
+        paid_at: new Date(), // Cập nhật thời gian thanh toán
       },
     });
 

@@ -35,9 +35,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
     return NextResponse.json({
       user: {
-        name: order.user?.name || "Không xác định",
-        phone: order.user?.phone || "Không xác định",
-        address: order.user?.address || "Không xác định",
+        name: order.name || "Không xác định",
+        phone: order.phone || "Không xác định",
+        address: order.address || "Không xác định",
       },
       products,
       summary: {
@@ -65,6 +65,12 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         return NextResponse.json({ error: "Trạng thái không hợp lệ." }, { status: 400 })
       }
 
+      // Cập nhật status và paid_at (nếu status là SHIPPING)
+      const updateData: { status: string; paid_at?: Date } = { status };
+      if (status === "SHIPPING") {
+        updateData.paid_at = new Date(); // Cập nhật paid_at thành thời gian hiện tại
+      }
+      
       const updatedOrder = await prisma.oRDER.update({
         where: { id },
         data: { status },

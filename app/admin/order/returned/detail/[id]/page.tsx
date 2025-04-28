@@ -22,7 +22,7 @@ export default function detailProcessing() {
   useEffect(() => {
     async function fetchOrder() {
       try {
-        const res = await fetch(`/api/admin/order/request/${id}`);
+        const res = await fetch(`/api/admin/order/return/${id}`);
         const data = await res.json();
         console.log("Dữ liệu trả về từ API:", data);
 
@@ -32,7 +32,7 @@ export default function detailProcessing() {
           setSummary(data.summary);
           setDetail({
             reason: data.detailOrder?.reason,
-            paidAt: data.paid_at,
+            paidAt: data.detailOrder?.paid_at,
           });
           setLoading(false);
         } else {
@@ -47,7 +47,18 @@ export default function detailProcessing() {
   }, [id]);
 
   if (loading) return <p>Đang tải dữ liệu...</p>;
-
+  // Định dạng ngày giờ
+  const formatDateTime = (isoString: string | null) => {
+    if (!isoString) return "Không xác định";
+    const date = new Date(isoString);
+    return date.toLocaleString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
   return (
     <div>
       <div className="relative justify-start text-black text-base font-normal font-['Inter']">
@@ -114,7 +125,7 @@ export default function detailProcessing() {
           </div>
           <div className="flex justify-between">
             <span>Thời gian hủy:</span>
-            <span>{detail.paidAt}</span>
+            <span>{formatDateTime(detail.paidAt)}</span>
           </div>
         </div>
       )}
