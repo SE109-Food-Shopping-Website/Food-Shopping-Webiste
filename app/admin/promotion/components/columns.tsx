@@ -163,7 +163,7 @@ export const columns: ColumnDef<Category>[] = [
     cell: ({ row }) => (
       <div className="self-stretch self-stretch inline-flex justify-center items-center gap-2.5">
         <Trash color="red" />
-        <Link href={`/admin/manage/category/update/${row.getValue("id")}`}>
+        <Link href={`/admin/promotion/update/${row.getValue("id")}`}>
           <Pencil color="#5cb338" />
         </Link>
       </div>
