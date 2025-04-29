@@ -19,7 +19,7 @@ const badgeVariants = cva(
         processing: "bg-[#ECE852] border-none text-black",
         pending: "bg-[#FFC145] border-none text-black",
         cancelled: "bg-[#FB4141] border-none text-white",
-        returned: "bg-[#4A90E2] border-none text-white",
+        return: "bg-[#4A90E2] border-none text-white",
         request: "bg-[#9B51E0] border-none text-white",
         shipping: "bg-[#00B8A9] border-none text-white",
       },

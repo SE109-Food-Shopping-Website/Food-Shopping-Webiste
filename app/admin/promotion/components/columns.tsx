@@ -6,6 +6,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { Pencil, Trash } from "lucide-react";
 import { format, toZonedTime } from "date-fns-tz";
+import { Badge } from "@/components/ui/badge";
 
 export interface Category {
   id: string;
@@ -15,6 +16,7 @@ export interface Category {
   value: number;
   order_min: number;
   discount_max: number;
+  status: string;
   action: string;
 }
 
@@ -131,6 +133,29 @@ export const columns: ColumnDef<Category>[] = [
       );
     },
     cell: ({ row }) => <div>{row.getValue("discount_max")}</div>,
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => {
+      return (
+        <Button
+          className="pl-0"
+          variant="ghost"
+          style={{ backgroundColor: "transparent" }}
+        >
+          Hoạt động
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const status = row.getValue("status");
+
+      return (
+        <Badge status={status ? "active" : "inactive"}>
+          {status ? "Hoạt động" : "Không hoạt động"}
+        </Badge>
+      );
+    },
   },
   {
     id: "action",

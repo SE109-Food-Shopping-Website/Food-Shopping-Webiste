@@ -110,7 +110,7 @@ export const columns: ColumnDef<Category>[] = [
           shipping: "Đang giao",
           completed: "Hoàn tất",
           request: "Yêu cầu",
-          returned: "Trả hàng",
+          return: "Trả hàng",
           cancelled: "Đã huỷ",
         }[status] ?? rawStatus;
 
@@ -126,7 +126,7 @@ export const columns: ColumnDef<Category>[] = [
               | "processing"
               | "pending"
               | "cancelled"
-              | "returned"
+              | "return"
               | "request"
               | "shipping"
           }
