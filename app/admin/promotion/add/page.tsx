@@ -103,14 +103,13 @@ export default function addCategory() {
           onSubmit={form.handleSubmit(onSubmit)}
           encType="multipart/form-data"
         >
-          {/* Hàng 1: Tên + Giá trị */}
           <div className="w-full self-stretch inline-flex justify-between items-center mt-[10px]">
             <div className="w-[500px] inline-flex flex-col justify-start items-start gap-5">
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full flex flex-col">
                     <FormLabel className="font-normal">
                       Tên khuyến mãi
                     </FormLabel>
@@ -131,7 +130,7 @@ export default function addCategory() {
                 control={form.control}
                 name="value"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full flex flex-col">
                     <FormLabel className="font-normal">
                       Giá trị khuyến mãi
                     </FormLabel>
@@ -157,7 +156,7 @@ export default function addCategory() {
                 control={form.control}
                 name="day_start"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full flex flex-col">
                     <FormLabel className="font-normal">Ngày bắt đầu</FormLabel>
                     <FormControl>
                       <Input
@@ -178,7 +177,7 @@ export default function addCategory() {
                 control={form.control}
                 name="day_end"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full flex flex-col">
                     <FormLabel className="font-normal">Ngày kết thúc</FormLabel>
                     <FormControl>
                       <Input
@@ -194,14 +193,13 @@ export default function addCategory() {
             </div>
           </div>
 
-          {/* Hàng 3: Giá trị đơn hàng tối thiểu + Giảm tối đa */}
           <div className="w-full self-stretch inline-flex justify-between items-center mt-[10px]">
             <div className="w-[500px] inline-flex flex-col justify-start items-start gap-5">
               <FormField
                 control={form.control}
                 name="order_min"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full flex flex-col">
                     <FormLabel className="font-normal">
                       Giá trị đơn hàng tối thiểu
                     </FormLabel>
@@ -222,7 +220,7 @@ export default function addCategory() {
                 control={form.control}
                 name="discount_max"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full flex flex-col">
                     <FormLabel className="font-normal">Giảm tối đa</FormLabel>
                     <FormControl>
                       <Input

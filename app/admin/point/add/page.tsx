@@ -96,14 +96,13 @@ export default function AddCoupon() {
           onSubmit={form.handleSubmit(onSubmit)}
           encType="multipart/form-data"
         >
-          {/* Dòng 1: Tên và Giảm giá */}
           <div className="w-full self-stretch inline-flex justify-between items-center mt-[10px]">
             <div className="w-[500px] inline-flex flex-col justify-start items-start gap-5">
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full flex flex-col">
                     <FormLabel className="font-normal">Tên thứ hạng</FormLabel>
                     <FormControl>
                       <Input
@@ -122,7 +121,7 @@ export default function AddCoupon() {
                 control={form.control}
                 name="discount_percent"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full flex flex-col">
                     <FormLabel className="font-normal">Giảm giá (%)</FormLabel>
                     <FormControl>
                       <Input
@@ -138,14 +137,13 @@ export default function AddCoupon() {
             </div>
           </div>
 
-          {/* Dòng 2: Ngày bắt đầu và Ngày kết thúc */}
           <div className="w-full self-stretch inline-flex justify-between items-center mt-[10px]">
             <div className="w-[500px] inline-flex flex-col justify-start items-start gap-5">
               <FormField
                 control={form.control}
                 name="min_point"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full flex flex-col">
                     <FormLabel className="font-normal">
                       Điểm tối thiểu
                     </FormLabel>
@@ -166,9 +164,9 @@ export default function AddCoupon() {
                 control={form.control}
                 name="max_promotion"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full flex flex-col">
                     <FormLabel className="font-normal">
-                      Khuyến mãi tối đa
+                      Số mã tối đa được giảm
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -190,7 +188,7 @@ export default function AddCoupon() {
                 control={form.control}
                 name="max_discount"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full flex flex-col">
                     <FormLabel className="font-normal">
                       Giảm giá tối đa
                     </FormLabel>
