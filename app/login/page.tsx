@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,12 +9,12 @@ import {
   Form,
   FormField,
   FormItem,
-  FormLabel,
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import Link from "next/link";
 
 // Schema validate
@@ -25,6 +25,7 @@ const loginSchema = z.object({
 
 export default function PageLogin() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -35,6 +36,7 @@ export default function PageLogin() {
   });
 
   const onSubmit = async (data: any) => {
+    setIsLoading(true); // Khi submit thì bật loading
     const res = await fetch("/api/login", {
       method: "POST",
       body: JSON.stringify(data),
@@ -42,14 +44,20 @@ export default function PageLogin() {
 
     if (res.ok) {
       const { role } = await res.json();
+      toast.success("Đăng nhập thành công");
 
-      if (role === 1) {
-        router.push("/admin/statics"); // Nếu role là admin (1)
-      } else if (role === 2) {
-        router.push("/client/collection/dashboard"); // Nếu role là client (2)
-      }
+      setTimeout(() => {
+        if (role === 1) {
+          router.push("/admin/statics");
+        } else if (role === 2) {
+          router.push("/client/collection/dashboard");
+        }
+      }, 100);
     } else {
-      alert("Sai thông tin đăng nhập");
+      setIsLoading(false); // Tắt loading nếu lỗi
+      toast.error("Đăng nhập thất bại", {
+        className: "bg-red-500 text-white shadow-md",
+      });
     }
   };
 
@@ -128,10 +136,11 @@ export default function PageLogin() {
 
                 <Button
                   type="submit"
+                  disabled={isLoading} // Disable khi loading
                   className="w-[500px] h-[40px] p-2.5 bg-[#5cb338] rounded-[5px] inline-flex justify-center items-center gap-2.5 overflow-hidden"
                 >
                   <div className="relative justify-start text-white text-[20px] font-bold font-['Inter']">
-                    ĐĂNG NHẬP
+                    {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
                   </div>
                 </Button>
               </form>
