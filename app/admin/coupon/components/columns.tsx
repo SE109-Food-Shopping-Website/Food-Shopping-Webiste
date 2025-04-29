@@ -14,6 +14,7 @@ export interface Coupon {
   start_at: string;
   end_at: string;
   discount_percent: number;
+  status: string;
   action: string;
 }
 

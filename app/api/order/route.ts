@@ -25,6 +25,12 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
             product: true,
           },
         },
+        feedbacks: {
+          include: {
+            product: true,
+            user: true,
+          },
+        },
       },
       orderBy: {
         created_at: "desc",

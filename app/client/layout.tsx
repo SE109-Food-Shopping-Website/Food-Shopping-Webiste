@@ -11,7 +11,7 @@ import {
 import Link from "next/link";
 import {User, ShoppingCart, ChevronDown} from "lucide-react";  
 import { Toaster } from "@/components/ui/sonner";
-import { usePathname} from "next/navigation";
+import { useRouter, usePathname} from "next/navigation";
 import { CartProvider } from "./context/CartContext";
 import SearchBar from "@/components/ui/searchbar";
 
@@ -28,6 +28,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     const pathname = usePathname();
     const [categories, setCategories] = useState<ProductType[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string>("Danh mục sản phẩm");
+    const router = useRouter();
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -154,6 +155,28 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                 >
                     ĐIỂM TÍCH LŨY
                 </Link>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <div
+                        className={`flex items-center gap-1 px-3 py-1 rounded-md transition-colors cursor-pointer ${
+                            pathname.startsWith("/client/rating")
+                            ? "bg-primary text-white font-bold"
+                            : "text-white hover:text-accent"
+                        }`}
+                        >
+                        ĐÁNH GIÁ SẢN PHẨM
+                        <ChevronDown size={16} />
+                        </div>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-[200px]">
+                        <DropdownMenuItem className="cursor-pointer" onClick={() => router.push("/client/rating/my")}>
+                        Đánh giá của tôi
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="cursor-pointer" onClick={() => router.push("/client/rating/all")}>
+                        Tất cả đánh giá
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </nav>
             {/* Main Content */}
             <CartProvider>
