@@ -4,7 +4,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
-import { Pencil, Star} from "lucide-react";
+import { Pencil, Star, Eye} from "lucide-react";
 
 export interface Comment {
   id: number;
@@ -146,6 +146,9 @@ export const columns: ColumnDef<Comment>[] = [
     cell: ({ row }) => (
       <div className="self-stretch self-stretch inline-flex justify-center items-center gap-2.5">
         <Link href={`/admin/customer/comment/reply/${row.getValue("id")}`}>
+          <Eye color="#5cb338" />
+        </Link>
+        <Link href={`/admin/customer/comment/update/${row.getValue("id")}`}>
           <Pencil color="#5cb338" />
         </Link>
       </div>

@@ -25,8 +25,9 @@ export default function ReplyComment() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      reply: "",
+      reply: feedbackData?.reply ?? "",
     },
+    values: feedbackData ? { reply: feedbackData.reply ?? "" } : undefined,
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +36,7 @@ export default function ReplyComment() {
     const values = form.getValues();
     try {
       setIsLoading(true);
-      toast.loading("Đang gửi phản hồi khách hàng...", { duration: 5000 });
+      toast.loading("Đang gửi cập nhật phản hồi khách hàng...", { duration: 5000 });
 
       const res = await fetch(`/api/admin/comment/${id}`, {
         method: "PUT",
@@ -50,20 +51,20 @@ export default function ReplyComment() {
 
       toast.dismiss();
       setTimeout (() => {
-        toast.success("Phản hồi thành công!");
+        toast.success("Cập nhật phản hồi thành công!");
         setTimeout (() => {
           router.push("/admin/customer/comment");
         }, 1500);
       });
     } catch (err) {
-      console.error("Lỗi khi gửi phản hồi:", err);
-      toast.error((err as Error).message || "Đã xảy ra lỗi khi gửi phản hồi khách hàng");
+      console.error("Lỗi khi gửi cập nhật phản hồi:", err);
+      toast.error((err as Error).message || "Đã xảy ra lỗi khi gửi cập nhật phản hồi khách hàng");
     } finally {
       toast.dismiss();
       setIsLoading(false);
     }
-  }, [id, form, router]);  
-
+  }, [id, form, router]);
+    
   useEffect(() => {
     async function fetchFeedback() {
       try {
@@ -73,13 +74,15 @@ export default function ReplyComment() {
         if (res.ok) {
           setFeedbackData(data.feedback);
           console.log("Feedback data:", data.feedback);
-          form.setValue("reply", data.feedback.reply || "");
           setLoading(false);
         } else {
           console.error(data.message);
         }
       } catch (error) {
         console.error("Lỗi khi fetch feedback:", error);
+        toast.error("Không thể tải thông tin feedback");
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -90,37 +93,38 @@ export default function ReplyComment() {
 
   return (
     <div>
-      <div className="relative justify-start text-black text-base">
-        Góp ý / Chi tiết
-      </div>
-      <div className="relative justify-start text-primary text-base font-bold mt-[10px]">
-        Thông tin Feedback
-      </div>
-      <div className="bg-white p-4 rounded-md">
-        <div><b>Người gửi:</b> {feedbackData.user.name}</div>
-        <div><b>Sản phẩm:</b> {feedbackData.product.name}</div>
-        <div><b>Đánh giá:</b> {feedbackData.rating} ⭐</div>
-        <div><b>Bình luận:</b> {feedbackData.comment || "Không có bình luận"}</div>
-        <div>
-          <b>Hình ảnh:</b><br />
-          {feedbackData.images ? (
-            JSON.parse(feedbackData.images).length > 0 ? (
-              JSON.parse(feedbackData.images).map((image: string, index: number) => (
-                <img
-                  key={index}
-                  src={image}
-                  alt={`Hình ảnh feedback ${index + 1}`}
-                  className="w-40 h-auto mt-2 rounded-md"
-                />
-              ))
-            ) : (
-              <span>Không có hình ảnh</span>
-            )
-          ) : (
-            <span>Không có hình ảnh</span>
-          )}
+        <div className="relative justify-start text-black text-base">
+            Góp ý / Chi tiết
         </div>
-      </div>
+        <div className="relative justify-start text-primary text-base font-bold mt-[10px]">
+            Thông tin Feedback
+        </div>
+        <div className="bg-white p-4 rounded-md">
+            <div><b>Người gửi:</b> {feedbackData.user.name}</div>
+            <div><b>Sản phẩm:</b> {feedbackData.product.name}</div>
+            <div><b>Đánh giá:</b> {feedbackData.rating} ⭐</div>
+            <div><b>Bình luận:</b> {feedbackData.comment || "Không có bình luận"}</div>
+            <div>
+            <b>Hình ảnh:</b><br />
+            {feedbackData.images ? (
+                JSON.parse(feedbackData.images).length > 0 ? (
+                JSON.parse(feedbackData.images).map((image: string, index: number) => (
+                    <img
+                    key={index}
+                    src={image}
+                    alt={`Hình ảnh feedback ${index + 1}`}
+                    className="w-40 h-auto mt-2 rounded-md"
+                    />
+                ))
+                ) : (
+                <span>Không có hình ảnh</span>
+                )
+            ) : (
+                <span>Không có hình ảnh</span>
+            )}
+          </div>
+        </div>
+
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(handleReplySubmit)} className="w-full max-w-[1240px] mx-auto p-4 space-y-4 text-black">
           <FormField
@@ -152,25 +156,25 @@ export default function ReplyComment() {
                     </Button>{" "}
                   </div>
                   <div className="relative">
-                    <Button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleReplySubmit();
-                      }}
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Đang gửi...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="mr-2" />
-                          Gửi phản hồi
-                        </>
-                      )}
-                    </Button>
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleReplySubmit();
+                    }}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Đang gửi...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="mr-2" />
+                        Gửi phản hồi
+                      </>
+                    )}
+                  </Button>
                   </div>
                 </div>
               </div>
