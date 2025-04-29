@@ -78,7 +78,7 @@ export function DataTable<TData extends object, TValue>({
 
   return (
     <div>
-      <div className="w-full bg-white p-[10px] flex items-center justify-between border border-white rounded-[10px] mb-[20px] mt-[10px] h-[60px]">
+      <div className="w-full bg-white flex items-center justify-between border border-white rounded-[10px] mb-[20px] mt-[10px] h-[60px]">
         <div className="flex justify-end items-center h-full">
           <div className="relative h-full flex items-center">
             <TableFilter table={table} />
@@ -89,7 +89,7 @@ export function DataTable<TData extends object, TValue>({
         <div className="flex justify-start">
           <div className="relative">
             <PlusCircle className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white" />
-            <Button className="pl-12">
+            <Button className="pl-12 h-[40px]">
               <Link href="/admin/coupon/add">Thêm giảm giá sản phẩm</Link>
             </Button>{" "}
           </div>

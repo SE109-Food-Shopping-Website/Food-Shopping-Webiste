@@ -17,6 +17,7 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   name: z.string().min(1, "Tên loại sản phẩm không được để trống"),
@@ -78,7 +79,7 @@ export default function addCategory() {
         if (data.error) {
           alert("Lỗi: " + data.error);
         } else {
-          alert("Thêm thành công!");
+          toast.success("Thêm mới thành công");
           form.reset(); // Reset form về giá trị mặc định
           router.push("/admin/promotion");
         }

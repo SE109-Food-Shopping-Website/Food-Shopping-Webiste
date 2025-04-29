@@ -78,7 +78,7 @@ export function DataTable<TData extends object, TValue>({
 
   return (
     <div>
-      <div className="w-full bg-white p-[10px] flex items-center justify-between border border-white rounded-[10px] mb-[20px] mt-[10px] h-[60px]">
+      <div className="w-full bg-white flex items-center justify-between border border-white rounded-[10px] mb-[20px] mt-[10px] h-[60px]">
         <div className="flex justify-end items-center h-full">
           <div className="relative h-full flex items-center">
             <TableFilter table={table} />

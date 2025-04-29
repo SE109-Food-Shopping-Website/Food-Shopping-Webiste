@@ -71,7 +71,7 @@ export const columns: ColumnDef<Category>[] = [
           variant="ghost"
           style={{ backgroundColor: "transparent" }}
         >
-          Giảm giá tối đa
+          Số mã tối đa được giảm
         </Button>
       );
     },
