@@ -24,6 +24,7 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   name: z.string(),
@@ -84,7 +85,7 @@ export default function updateProvider() {
         if (data.error) {
           alert("Lỗi: " + data.error);
         } else {
-          alert("Cập nhật thành công!");
+          toast.success("Cập nhật nhà cung cấp thành công");
           router.push("/admin/manage/provider");
         }
       })
@@ -115,7 +116,7 @@ export default function updateProvider() {
                 control={form.control}
                 name="name"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full flex flex-col">
                     <FormLabel className="font-normal">
                       Tên nhà cung cấp
                     </FormLabel>
@@ -132,7 +133,7 @@ export default function updateProvider() {
                 control={form.control}
                 name="address"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full flex flex-col">
                     <FormLabel className="font-normal">
                       Địa chỉ nhà cung cấp
                     </FormLabel>
@@ -151,7 +152,7 @@ export default function updateProvider() {
                 control={form.control}
                 name="email"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="w-full flex flex-col">
                     <FormLabel className="font-normal">
                       Email nhà cung cấp
                     </FormLabel>

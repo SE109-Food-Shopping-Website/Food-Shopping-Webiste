@@ -17,6 +17,7 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useParams } from "next/navigation";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   name: z.string().min(1, "Tên loại sản phẩm không được để trống"),
@@ -34,7 +35,7 @@ export default function updateCategory() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      percent: 0,
+      percent: 1,
     },
   });
 
@@ -75,7 +76,7 @@ export default function updateCategory() {
         if (data.error) {
           alert("Lỗi: " + data.error);
         } else {
-          alert("Cập nhật thành công!");
+          toast.success("Cập nhật loại sản phẩm thành công");
           router.push("/admin/manage/category");
         }
       })
@@ -107,7 +108,7 @@ export default function updateCategory() {
                 control={form.control}
                 name="name"
                 render={({ field }) => (
-                  <FormItem className="w-[500px]">
+                  <FormItem className="w-full flex flex-col">
                     <FormLabel className="font-normal">
                       Tên loại sản phẩm
                     </FormLabel>
@@ -124,7 +125,7 @@ export default function updateCategory() {
                 control={form.control}
                 name="percent"
                 render={({ field }) => (
-                  <FormItem className="w-[500px]">
+                  <FormItem className="w-full flex flex-col">
                     <FormLabel className="font-normal">
                       Giá bán chênh lệch (%)
                     </FormLabel>

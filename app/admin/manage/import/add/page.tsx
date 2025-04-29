@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   provider_id: z.string().min(1, "Tên nhà cung cấp không được để trống"),
@@ -48,10 +49,12 @@ export default function AddImport() {
   const [products, setProducts] = useState<Product[]>([
     { id: Date.now(), product_id: 0, price: "", quantity: "" },
   ]);
-  const [providers, setProviders] = useState<{ id: number; name: string }[]>([]);
-  const [productList, setProductList] = useState<{ id: number; name: string }[]>(
+  const [providers, setProviders] = useState<{ id: number; name: string }[]>(
     []
   );
+  const [productList, setProductList] = useState<
+    { id: number; name: string }[]
+  >([]);
   const [providerId, setProviderId] = useState<string>("");
 
   useEffect(() => {
@@ -129,7 +132,7 @@ export default function AddImport() {
       const result = await res.json();
 
       if (res.ok) {
-        alert("Thêm đơn nhập hàng thành công!");
+        toast.success("Thêm đơn nhập hàng thành công!");
         router.push("/admin/manage/import");
       } else {
         alert("Lỗi: " + result.error || "Có lỗi xảy ra!");
@@ -149,7 +152,7 @@ export default function AddImport() {
         Thông tin nhập hàng
       </div>
       <Form {...form}>
-        <form 
+        <form
           onSubmit={form.handleSubmit(onSubmit)}
           encType="multipart/form-data"
         >
@@ -251,7 +254,11 @@ export default function AddImport() {
                     value={product.price}
                     onChange={(e) => {
                       const value = Number(e.target.value);
-                      updateProduct(index, "price", value > 0 ? value.toString() : "1");
+                      updateProduct(
+                        index,
+                        "price",
+                        value > 0 ? value.toString() : "1"
+                      );
                     }}
                     className="w-full min-w-0"
                   />
@@ -265,7 +272,11 @@ export default function AddImport() {
                     value={product.quantity}
                     onChange={(e) => {
                       const value = Number(e.target.value);
-                      updateProduct(index, "quantity", value > 0 ? value.toString() : "1");
+                      updateProduct(
+                        index,
+                        "quantity",
+                        value > 0 ? value.toString() : "1"
+                      );
                     }}
                     className="w-full min-w-0"
                   />

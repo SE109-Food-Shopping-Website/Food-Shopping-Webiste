@@ -38,7 +38,7 @@ export const columns: ColumnDef<Category>[] = [
           variant="ghost"
           style={{ backgroundColor: "transparent" }}
         >
-          Họ tên
+          Tên loại sản phẩm
         </Button>
       );
     },

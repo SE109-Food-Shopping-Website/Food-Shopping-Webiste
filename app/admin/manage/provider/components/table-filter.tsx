@@ -13,6 +13,7 @@ export function TableFilter<TData>({ table }: TableFilterProps<TData>) {
     <div>
       <Input
         placeholder="Tìm theo ID, Tên, Email hoặc Địa chỉ..."
+        className="w-[300px]"
         onChange={(e) => table.setGlobalFilter(e.target.value)}
       />
     </div>
