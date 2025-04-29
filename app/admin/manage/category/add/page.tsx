@@ -33,7 +33,7 @@ export default function addCategory() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      percent: 0,
+      percent: 1,
     },
   });
 
