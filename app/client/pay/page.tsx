@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -177,32 +178,32 @@ export default function PagePayment() {
             <p className="text-gray-500">Đang tải thông tin...</p>
           ) : (
             <>
-              <div>
-                <label className="font-semibold">Tên người nhận</label>
+              <div className="flex flex-col w-full">
+                <label className="font-semibold mb-1 text-[16px]">Tên người nhận</label>
                 <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="h-[60px] mt-1"
+                  className="h-[60px] w-full text-sm"
                   placeholder="Nhập tên người nhận"
                   disabled={loading}
                 />
               </div>
-              <div>
-                <label className="font-semibold">Số điện thoại người nhận</label>
+              <div className="flex flex-col w-full">
+                <label className="font-semibold mb-1 text-[16px]">Số điện thoại người nhận</label>
                 <Input
+                  className="w-full h-[60px] text-sm"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="h-[60px] mt-1"
-                  placeholder="Nhập số điện thoại"
+                  placeholder="Nhập số điện thoại người nhận"
                   disabled={loading}
                 />
               </div>
-              <div>
-                <label className="font-semibold">Địa chỉ giao hàng</label>
-                <Input
+              <div className="flex flex-col w-full">
+                <label className="font-semibold mb-1 text-[16px]">Địa chỉ giao hàng</label>
+                <Textarea
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="h-[60px] mt-1"
+                  className="w-full min-h-[80px] resize-none px-4"
                   placeholder="Nhập địa chỉ giao hàng"
                   disabled={loading}
                 />

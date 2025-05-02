@@ -22,6 +22,27 @@ type OrderDetail = {
 export default function PageMyRating() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+//   const [extraComments, setExtraComments] = useState<{ [feedbackId: number]: string[] }>({});
+//   const [showInput, setShowInput] = useState<{ [feedbackId: number]: boolean }>({});
+//   const [newComment, setNewComment] = useState<{ [feedbackId: number]: string }>({});
+
+//   const toggleInput = (id: number) => {
+//     setShowInput(prev => ({ ...prev, [id]: !prev[id] }));
+//   };
+  
+//   const handleNewCommentChange = (id: number, value: string) => {
+//     setNewComment(prev => ({ ...prev, [id]: value }));
+//   };
+  
+//   const handleAddComment = (id: number) => {
+//     if (!newComment[id]) return;
+//     setExtraComments(prev => ({
+//       ...prev,
+//       [id]: [...(prev[id] || []), newComment[id]],
+//     }));
+//     setNewComment(prev => ({ ...prev, [id]: "" }));
+//     setShowInput(prev => ({ ...prev, [id]: false }));
+//   };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -118,21 +139,55 @@ export default function PageMyRating() {
                                     <div>
                                         <b>Bình luận:</b> {fb.comment || "Không có nội dung"}
                                     </div>
-                                    {fb.images && (
-                                        <div className="flex gap-2 mt-2">
-                                        {JSON.parse(fb.images).map(
-                                            (img: string, i: number) => (
-                                            <img
-                                                key={i}
-                                                src={img}
-                                                className="w-[60px] h-[60px] object-cover rounded"
-                                                alt={`feedback-img-${i}`}
-                                            />
-                                            )
+                                        {fb.images && (
+                                            <div className="flex gap-2 mt-2">
+                                                {JSON.parse(fb.images).map(
+                                                    (img: string, i: number) => (
+                                                    <img
+                                                        key={i}
+                                                        src={img}
+                                                        className="w-[60px] h-[60px] object-cover rounded"
+                                                        alt={`feedback-img-${i}`}
+                                                    />
+                                                    )
+                                                )}
+                                            </div>
                                         )}
-                                        </div>
-                                    )}
+                                        {fb.reply && (
+                                            <p className="mt-2 border-l-4 border-primary pl-2 text-gray-700 italic">
+                                                <b>Phản hồi từ cửa hàng:</b> {fb.reply}
+                                            </p>
+                                        )}
+                                    {/* {extraComments[fb.id]?.map((cmt, i) => (
+                                    <p key={i} className="mt-2 text-gray-700 italic pl-2 border-l-2 border-gray-300">
+                                        <b>Bình luận thêm:</b> {cmt}
+                                    </p>
+                                    ))}
+
+                                    <button
+                                    onClick={() => toggleInput(fb.id)}
+                                    className="text-sm text-blue-500 underline mt-2"
+                                    >
+                                    Thêm bình luận
+                                    </button>
+                                    {showInput[fb.id] && (
+                                    <div className="mt-2 flex flex-col gap-2">
+                                        <textarea
+                                        rows={2}
+                                        className="w-full p-2 border rounded text-sm"
+                                        placeholder="Nhập bình luận..."
+                                        value={newComment[fb.id] || ""}
+                                        onChange={(e) => handleNewCommentChange(fb.id, e.target.value)}
+                                        />
+                                        <Button
+                                        onClick={() => handleAddComment(fb.id)}
+                                        className="self-end px-3 py-1 bg-blue-600 text-white rounded"
+                                        >
+                                        Gửi
+                                        </Button>
                                     </div>
+                                    )} */}
+                                    </div>                                  
                                 ))}
                                 </AccordionContent>
                             </AccordionItem>
