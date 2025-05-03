@@ -40,7 +40,6 @@ const formSchema = z.object({
 });
 
 export default function AddCoupon() {
-  // Viết hoa chữ cái đầu để đúng quy ước component React
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -89,7 +88,7 @@ export default function AddCoupon() {
         Đơn hàng / Thứ hạng / Thêm mới
       </div>
       <div className="relative justify-start text-[#5cb338] text-base font-bold font-['Inter'] mt-[10px]">
-        Thông tin giảm giá sản phẩm
+        Thông tin thứ hạng
       </div>
       <Form {...form}>
         <form
