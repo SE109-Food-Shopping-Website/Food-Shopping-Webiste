@@ -138,6 +138,9 @@ export default function PageMyRating() {
                                     </div>
                                     <div>
                                         <b>Bình luận:</b> {fb.comment || "Không có nội dung"}
+                                        <span className="text-sm text-gray-400 ml-1">
+                                            {new Date(fb.created_at).toLocaleString("vi-VN")}
+                                        </span>
                                     </div>
                                         {fb.images && (
                                             <div className="flex gap-2 mt-2">
@@ -197,7 +200,7 @@ export default function PageMyRating() {
                 ))}
             </Accordion>
         ) : (
-            <div className="text-gray-500 text-lg">Không có đơn hàng nào</div>
+            <div className="text-gray-500 text-lg">Chưa có đánh giá</div>
         )}
     </div>
   );

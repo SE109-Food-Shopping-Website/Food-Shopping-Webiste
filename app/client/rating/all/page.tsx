@@ -26,7 +26,13 @@ type Feedback = {
   images?: string;
   created_at: string;
   order: Order;
+  user: User;
 };
+
+type User = {
+  id: number;
+  name: string;
+}
 
 export default function PageAllRatings() {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
@@ -109,15 +115,18 @@ export default function PageAllRatings() {
             className="border p-4 mb-4 rounded bg-yellow-50 shadow-sm"
           >
             <div className="mb-2 text-sm text-gray-700">
-            <b>Đơn hàng:</b> #{String(fb.order.id).slice(0, 8)} 
+              <b>Đơn hàng:</b> #{String(fb.order.id).slice(0, 8)} 
+            </div>
+            <div className="mb-2 text-sm text-gray-700">
+              <b>Người đánh giá:</b> {fb.user.name}
             </div>
             <div className="text-yellow-600 mb-2">
               <b>Đánh giá:</b> {fb.rating}/5
             </div>
             <div className="mb-2">
-              <div className="flex items-center gap-1S">
+              <div className="flex items-center gap-1">
                 <b>Bình luận:</b>
-                <span className="text-gray-700">{fb.comment || "Không có nội dung"}</span>
+                <span className="text-gray-700 text-[16px]">{fb.comment || "Không có nội dung"}</span>
                 <span className="text-sm text-gray-400 ml-1">
                   {new Date(fb.created_at).toLocaleString("vi-VN")}
                 </span>

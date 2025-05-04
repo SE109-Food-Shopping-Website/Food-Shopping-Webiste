@@ -11,6 +11,7 @@ export async function GET() {
         },
       },
       include: {
+        user: true,
         order: {
           include: {
             orderDetails: {
