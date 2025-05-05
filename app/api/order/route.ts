@@ -52,16 +52,31 @@ export async function POST(req: NextRequest) {
     }
 
     const userId = session.id;
-    const { name, phone, address, cart, shippingFee, discount, totalPayment } = await req.json();
+    const { name, phone, address, cart, shippingFee, promotionId, promotionDiscount, totalPayment } = await req.json();
 
-    console.log("Body nhận được:", { name, phone, address, cart, shippingFee, discount, totalPayment });
+    console.log("Body nhận được:", { name, phone, address, cart, shippingFee, promotionId, promotionDiscount, totalPayment });
 
     // Kiểm tra dữ liệu đầu vào
     if (!name || !phone || !address || !cart || !Array.isArray(cart) || cart.length === 0) {
       return NextResponse.json({ message: "Dữ liệu không hợp lệ" }, { status: 400 });
     }
-    if (typeof shippingFee !== "number" || typeof discount !== "number" || typeof totalPayment !== "number") {
+    if (typeof shippingFee !== "number" || typeof promotionDiscount !== "number" || typeof totalPayment !== "number") {
       return NextResponse.json({ message: "Thông tin thanh toán không hợp lệ" }, { status: 400 });
+    }
+
+    // Kiểm tra quyền sử dụng khuyến mãi (nếu có)
+    if (promotionId) {
+      const promotionUser = await prisma.pROMOTION_USER.findFirst({
+        where: {
+          user_id: userId,
+          promotion_id: promotionId,
+          used_at: { not: null },
+        },
+      });
+
+      if (promotionUser) {
+        return NextResponse.json({ message: "Bạn đã sử dụng khuyến mãi này" }, { status: 400 });
+      }
     }
 
     // Kiểm tra số lượng hàng trong kho
@@ -82,16 +97,13 @@ export async function POST(req: NextRequest) {
           availableQuantity: product ? product.quantity : 0,
         };
       });
-      return NextResponse.json(
-        { message: "Không đủ hàng trong kho", details },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "Không đủ hàng trong kho", details }, { status: 400 });
     }
 
-    // Tính originalPrice (tổng giá gốc của các sản phẩm)
+    // Tính originalPrice
     const originalPrice = cart.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0);
 
-    // Tạo đơn hàng và xóa giỏ hàng trong một giao dịch
+    // Tạo đơn hàng và cập nhật PROMOTION_USER trong một giao dịch
     const order = await prisma.$transaction(async (tx) => {
       // Tạo đơn hàng
       const newOrder = await tx.oRDER.create({
@@ -100,19 +112,20 @@ export async function POST(req: NextRequest) {
           name,
           phone,
           address,
-          note: `Giao cho ${name}, Số điện thoại: ${phone}, Địa chỉ: ${address}`, // Thêm note
+          note: `Giao cho ${name}, Số điện thoại: ${phone}, Địa chỉ: ${address}`,
           status: "PENDING",
           originalPrice,
-          discountAmount: discount,
+          discountAmount: promotionDiscount,
           totalPrice: totalPayment,
           shippingFee,
+          promotion_id: promotionId || null, // Ghi nhận promotionId
           orderDetails: {
             create: cart.map((item: any) => ({
               product_id: item.id,
               quantity: item.quantity,
-              price: item.price,
-              originalPrice: item.price, // Giả định giá gốc
-              salePrice: item.price,     // Giả định giá bán
+              price: item.salePrice || item.price,
+              originalPrice: item.price,
+              salePrice: item.salePrice || item.price,
             })),
           },
         },
@@ -146,15 +159,40 @@ export async function POST(req: NextRequest) {
         where: { user_id: userId },
       });
 
+      // Cập nhật PROMOTION_USER nếu có promotionId
+      if (promotionId) {
+        // Kiểm tra xem đã có bản ghi PROMOTION_USER chưa
+        const existingPromotionUser = await tx.pROMOTION_USER.findFirst({
+          where: {
+            user_id: userId,
+            promotion_id: promotionId,
+          },
+        });
+
+        if (existingPromotionUser) {
+          // Cập nhật used_at nếu bản ghi tồn tại
+          await tx.pROMOTION_USER.update({
+            where: { id: existingPromotionUser.id },
+            data: { used_at: new Date() },
+          });
+        } else {
+          // Tạo bản ghi mới
+          await tx.pROMOTION_USER.create({
+            data: {
+              user_id: userId,
+              promotion_id: promotionId,
+              used_at: new Date(),
+            },
+          });
+        }
+      }
+
       return newOrder;
     });
 
     return NextResponse.json({ message: "Tạo đơn hàng thành công", order }, { status: 200 });
   } catch (error: any) {
     console.error("Lỗi khi tạo đơn hàng:", error);
-    return NextResponse.json(
-      { message: "Lỗi khi tạo đơn hàng", error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Lỗi khi tạo đơn hàng", error: error.message }, { status: 500 });
   }
 }

@@ -56,6 +56,7 @@ export default function PagePayment() {
   const [selectedPromotion, setSelectedPromotion] = useState<string | null>(null);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [discountedCart, setDiscountedCart] = useState<CartItem[]>([]);
+  const [promotionDiscount, setPromotionDiscount] = useState<number>(0);
 
   // Log giỏ hàng để debug
   useEffect(() => {
@@ -122,10 +123,11 @@ export default function PagePayment() {
         if (data && Array.isArray(data)) {
           setCoupons(data);
           const updatedCart = cart.map((item: CartItem) => {
-            const productCoupon = data.find((coupon: Coupon) =>
-              item.productTypeId === coupon.product_type_id &&
-              new Date(coupon.start_at) <= new Date() &&
-              new Date(coupon.end_at) >= new Date()
+            const productCoupon = data.find(
+              (coupon: Coupon) =>
+                item.productTypeId === coupon.product_type_id &&
+                new Date(coupon.start_at) <= new Date() &&
+                new Date(coupon.end_at) >= new Date()
             );
             if (productCoupon) {
               const salePrice = item.price * (1 - productCoupon.discount_percent / 100);
@@ -155,59 +157,157 @@ export default function PagePayment() {
     }
   }, [cart, fetchingSession, isCartSynced]);
 
-  // Tính toán giảm giá từ promotion
-  const calculatePromotionDiscount = () => {
+  // Hàm tính giảm giá khuyến mãi
+  const calculatePromotionDiscount = async (): Promise<number> => {
     if (!selectedPromotion) return 0;
-    const promotion = promotions.find((p) => p.id === parseInt(selectedPromotion));
-    if (!promotion) return 0;
 
-    const totalAmount = discountedCart.reduce((sum, product) => sum + (product.salePrice || product.price) * product.quantity, 0);
-    if (totalAmount < promotion.order_min) {
-      toast.warning(`Đơn hàng chưa đạt ${promotion.order_min.toLocaleString()}đ để áp dụng`);
+    try {
+      // Kiểm tra quyền sử dụng khuyến mãi
+      const res = await fetch(`/api/promotions/check?promotionId=${selectedPromotion}`);
+      const data = await res.json();
+
+      if (!res.ok || !data.canUse) {
+        toast.warning(data.message || "Bạn không thể sử dụng khuyến mãi này");
+        setSelectedPromotion(null);
+        return 0;
+      }
+
+      const promotion = promotions.find((p) => p.id === parseInt(selectedPromotion));
+      if (
+        !promotion ||
+        typeof promotion.value !== "number" ||
+        typeof promotion.discount_max !== "number" ||
+        typeof promotion.order_min !== "number"
+      ) {
+        toast.warning("Khuyến mãi không hợp lệ");
+        setSelectedPromotion(null);
+        return 0;
+      }
+
+      // Tính tổng giá trị đơn hàng sau giảm giá sản phẩm
+      const totalAmount = discountedCart.reduce(
+        (sum, product) => sum + (product.salePrice ?? product.price) * product.quantity,
+        0
+      );
+
+      // Kiểm tra đơn hàng có đạt giá trị tối thiểu không
+      if (totalAmount < promotion.order_min) {
+        toast.warning(`Đơn hàng chưa đạt ${promotion.order_min.toLocaleString()}đ để áp dụng khuyến mãi`);
+        setSelectedPromotion(null);
+        return 0;
+      }
+
+      // Tính giảm giá dựa trên phần trăm
+      const discount = (totalAmount * promotion.value) / 100;
+
+      // Đảm bảo giảm giá không vượt quá discount_max
+      return Math.min(discount, promotion.discount_max);
+    } catch (error) {
+      console.error("Lỗi khi kiểm tra khuyến mãi:", error);
+      toast.error("Không thể kiểm tra khuyến mãi");
       setSelectedPromotion(null);
       return 0;
     }
-
-    return Math.min(promotion.value, promotion.discount_max || promotion.value);
   };
 
-  const promotionDiscount = calculatePromotionDiscount();
-  const totalAmount = discountedCart.reduce((sum, product) => sum + product.price * product.quantity, 0);
-  const totalDiscountedAmount = discountedCart.reduce((sum, product) => sum + (product.salePrice || product.price) * product.quantity, 0);
-  const totalPayment = totalDiscountedAmount + shippingFee - promotionDiscount;
+  // Cập nhật promotionDiscount khi selectedPromotion hoặc discountedCart thay đổi
+  useEffect(() => {
+    const updatePromotionDiscount = async () => {
+      const discount = await calculatePromotionDiscount();
+      setPromotionDiscount(discount);
+    };
+    updatePromotionDiscount();
+  }, [selectedPromotion, discountedCart]);
 
-  const validateInputs = () => {
-    if (!name.trim()) return toast.error("Vui lòng nhập tên"), false;
-    if (!phone.match(/^[0-9]{10,11}$/)) return toast.error("Số điện thoại không hợp lệ"), false;
-    if (!address.trim()) return toast.error("Vui lòng nhập địa chỉ"), false;
-    if (!discountedCart.length) return toast.error("Giỏ hàng trống"), false;
-    if (shippingFee == null || totalPayment == null) return toast.error("Thông tin thanh toán không hợp lệ"), false;
+  // Hàm xác thực đầu vào
+  const validateInputs = (): boolean => {
+    if (!name.trim()) {
+      toast.error("Vui lòng nhập tên");
+      return false;
+    }
+    if (!phone.match(/^[0-9]{10,11}$/)) {
+      toast.error("Số điện thoại không hợp lệ");
+      return false;
+    }
+    if (!address.trim()) {
+      toast.error("Vui lòng nhập địa chỉ");
+      return false;
+    }
+    if (!discountedCart.length) {
+      toast.error("Giỏ hàng trống");
+      return false;
+    }
     return true;
   };
 
+  // Hàm xử lý đặt hàng
   const handlePlaceOrder = async () => {
     if (!validateInputs()) return;
 
+    // Kiểm tra discountedCart
+    if (!discountedCart || !Array.isArray(discountedCart) || discountedCart.length === 0) {
+      toast.error("Giỏ hàng trống hoặc không hợp lệ");
+      return;
+    }
+
+    // Tính promotionDiscount (đã có trong state)
+    const totalAmount = discountedCart.reduce((sum, product) => {
+      if (typeof product.price !== "number" || typeof product.quantity !== "number") {
+        throw new Error(`Dữ liệu sản phẩm không hợp lệ: ${JSON.stringify(product)}`);
+      }
+      return sum + product.price * product.quantity;
+    }, 0);
+
+    const totalDiscountedAmount = discountedCart.reduce((sum, product) => {
+      if (typeof product.price !== "number" || typeof product.quantity !== "number") {
+        throw new Error(`Dữ liệu sản phẩm không hợp lệ: ${JSON.stringify(product)}`);
+      }
+      return sum + (product.salePrice ?? product.price) * product.quantity;
+    }, 0);
+
+    // Đảm bảo shippingFee là number
+    const shippingFeeValue = typeof shippingFee === "number" ? shippingFee : 0;
+
+    // Tính totalPayment
+    const totalPayment = totalDiscountedAmount + shippingFeeValue - promotionDiscount;
+
+    // Kiểm tra promotionDiscount và totalPayment
+    if (isNaN(promotionDiscount) || isNaN(totalPayment)) {
+      toast.error("Thông tin thanh toán không hợp lệ, vui lòng kiểm tra lại khuyến mãi hoặc giỏ hàng");
+      return;
+    }
+
     try {
       setLoading(true);
+
+      // Tạo payload
       const payload = {
         name,
         phone,
         address,
-        cart: discountedCart.map((item) => ({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          salePrice: item.salePrice || item.price,
-          couponId: item.couponId,
-        })),
-        shippingFee,
+        cart: discountedCart.map((item) => {
+          if (!item.id || !item.name || typeof item.price !== "number" || typeof item.quantity !== "number") {
+            throw new Error(`Dữ liệu sản phẩm không hợp lệ: ${JSON.stringify(item)}`);
+          }
+          return {
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            salePrice: item.salePrice ?? item.price,
+            couponId: item.couponId ?? null,
+          };
+        }),
+        shippingFee: shippingFeeValue,
         promotionId: selectedPromotion ? parseInt(selectedPromotion) : null,
         promotionDiscount,
         totalPayment,
       };
 
+      // Log payload để debug
+      console.log("Payload gửi lên API:", JSON.stringify(payload, null, 2));
+
+      // Gửi yêu cầu tới API
       const res = await fetch("/api/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -219,15 +319,30 @@ export default function PagePayment() {
 
       await updateCart([]);
       toast.success("Đặt hàng thành công", {
-        action: { label: "Xem", onClick: () => router.push(`/client/view?orderId=${data.order.id}`) },
+        action: {
+          label: "Xem",
+          onClick: () => router.push(`/client/view?orderId=${data.order.id}`),
+        },
       });
       router.push(`/client/view?orderId=${data.order.id}`);
     } catch (err: any) {
+      console.error("Lỗi khi đặt hàng:", err);
       toast.error(err.message || "Không thể đặt hàng");
     } finally {
       setLoading(false);
     }
   };
+
+  // Tính toán giá trị hiển thị
+  const totalAmount = discountedCart.reduce(
+    (sum, product) => sum + product.price * product.quantity,
+    0
+  );
+  const totalDiscountedAmount = discountedCart.reduce(
+    (sum, product) => sum + (product.salePrice ?? product.price) * product.quantity,
+    0
+  );
+  const totalPayment = totalDiscountedAmount + (shippingFee ?? 0) - promotionDiscount;
 
   return (
     <div className="w-full min-h-screen flex flex-col bg-white">
@@ -240,15 +355,33 @@ export default function PagePayment() {
             <>
               <div>
                 <label className="font-semibold mb-1 text-[16px]">Tên</label>
-                <Input value={name} onChange={(e) => setName(e.target.value)} className="h-[60px] w-full" placeholder="Nhập tên" disabled={loading} />
+                <Input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="h-[60px] w-full"
+                  placeholder="Nhập tên"
+                  disabled={loading}
+                />
               </div>
               <div>
                 <label className="font-semibold mb-1 text-[16px]">SĐT</label>
-                <Input value={phone} onChange={(e) => setPhone(e.target.value)} className="h-[60px] w-full" placeholder="Nhập SĐT" disabled={loading} />
+                <Input
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="h-[60px] w-full"
+                  placeholder="Nhập SĐT"
+                  disabled={loading}
+                />
               </div>
               <div>
                 <label className="font-semibold mb-1 text-[16px]">Địa chỉ</label>
-                <Textarea value={address} onChange={(e) => setAddress(e.target.value)} className="w-full min-h-[80px] px-4" placeholder="Nhập địa chỉ" disabled={loading} />
+                <Textarea
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="w-full min-h-[80px] px-4"
+                  placeholder="Nhập địa chỉ"
+                  disabled={loading}
+                />
               </div>
             </>
           )}
@@ -272,8 +405,8 @@ export default function PagePayment() {
                     <td className="px-4 py-2">{product.name}</td>
                     <td className="px-4 py-2">{product.quantity}</td>
                     <td className="px-4 py-2">{product.price.toLocaleString()}đ</td>
-                    <td className="px-4 py-2">{(product.salePrice || product.price).toLocaleString()}đ</td>
-                    <td className="px-4 py-2">{((product.salePrice || product.price) * product.quantity).toLocaleString()}đ</td>
+                    <td className="px-4 py-2">{(product.salePrice ?? product.price).toLocaleString()}đ</td>
+                    <td className="px-4 py-2">{((product.salePrice ?? product.price) * product.quantity).toLocaleString()}đ</td>
                   </tr>
                 ))}
               </tbody>
@@ -283,32 +416,59 @@ export default function PagePayment() {
           )}
           <div className="px-5 flex flex-col gap-2.5">
             <label className="font-semibold text-[16px]">Chọn khuyến mãi</label>
-            <Select value={selectedPromotion || ""} onValueChange={setSelectedPromotion} disabled={loading || !promotions.length}>
+            <Select
+              value={selectedPromotion || ""}
+              onValueChange={setSelectedPromotion}
+              disabled={loading || !promotions.length}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Chọn khuyến mãi" />
               </SelectTrigger>
               <SelectContent>
                 {promotions.map((promo) => (
                   <SelectItem key={promo.id} value={promo.id.toString()}>
-                    {promo.name} - Giảm {promo.value.toLocaleString()}đ (Tối đa {promo.discount_max.toLocaleString()}đ)
+                    {promo.name} - Giảm {promo.value.toLocaleString()}% (Tối đa {promo.discount_max.toLocaleString()}đ)
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="px-5 flex flex-col gap-2.5">
-            <div className="flex justify-between"><span>Tạm tính</span><span>{totalAmount.toLocaleString()}đ</span></div>
-            <div className="flex justify-between"><span>Giảm giá sản phẩm</span><span>{(totalAmount - totalDiscountedAmount).toLocaleString()}đ</span></div>
-            <div className="flex justify-between"><span>Giảm giá khuyến mãi</span><span>{promotionDiscount.toLocaleString()}đ</span></div>
-            <div className="flex justify-between"><span>Phí vận chuyển</span><span>{shippingFee.toLocaleString()}đ</span></div>
-            <div className="flex justify-between text-[18px]"><span className="font-bold">Tổng cộng</span><span className="font-bold text-primary">{totalPayment.toLocaleString()}đ</span></div>
+            <div className="flex justify-between">
+              <span>Tạm tính</span>
+              <span>{totalAmount.toLocaleString()}đ</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Giảm giá sản phẩm</span>
+              <span>{(totalAmount - totalDiscountedAmount).toLocaleString()}đ</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Giảm giá khuyến mãi</span>
+              <span>{promotionDiscount.toLocaleString()}đ</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Phí vận chuyển</span>
+              <span>{(shippingFee ?? 0).toLocaleString()}đ</span>
+            </div>
+            <div className="flex justify-between text-[18px]">
+              <span className="font-bold">Tổng cộng</span>
+              <span className="font-bold text-primary">
+                {totalPayment.toLocaleString()}đ
+              </span>
+            </div>
           </div>
           <div className="px-5 flex justify-between items-center mt-4">
             <div className="flex items-center gap-2 hover:scale-105 transition-all">
               <ArrowLeft className="text-primary" />
-              <Link href="/client/cart" className="text-primary">Quay về giỏ hàng</Link>
+              <Link href="/client/cart" className="text-primary">
+                Quay về giỏ hàng
+              </Link>
             </div>
-            <Button onClick={handlePlaceOrder} disabled={loading || !discountedCart.length || fetchingSession} className="border-2 border-primary bg-primary text-white px-5 py-2.5 font-semibold hover:scale-105 transition-all disabled:opacity-50">
+            <Button
+              onClick={handlePlaceOrder}
+              disabled={loading || !discountedCart.length || fetchingSession}
+              className="border-2 border-primary bg-primary text-white px-5 py-2.5 font-semibold hover:scale-105 transition-all disabled:opacity-50"
+            >
               {loading ? "Đang xử lý..." : "ĐẶT HÀNG"}
             </Button>
           </div>

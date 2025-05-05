@@ -9,6 +9,9 @@ export async function GET(request: Request) {
       where: {
         day_start: { lte: currentDate },
         day_end: { gte: currentDate },
+        value: { not: null },
+        order_min: { not: null },
+        discount_max: { not: null },
       },
     });
 
