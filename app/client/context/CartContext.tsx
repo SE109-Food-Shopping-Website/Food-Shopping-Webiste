@@ -8,6 +8,9 @@ type CartItem = {
   name: string;
   price: number;
   quantity: number;
+  productTypeId?: number;
+  salePrice?: number;
+  couponId?: number | null;
 };
 
 type CartContextType = {
@@ -36,7 +39,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           statusText: res.statusText,
         });
 
-        // Kiểm tra trạng thái phản hồi
         if (!res.ok) {
           if (res.status === 401) {
             throw new Error("Chưa đăng nhập");
@@ -44,7 +46,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           throw new Error(`Lỗi HTTP: ${res.status} ${res.statusText}`);
         }
 
-        // Kiểm tra xem body có tồn tại không
         const text = await res.text();
         if (!text) {
           console.warn(`Phản hồi từ /api/cart rỗng (thử lần ${attempt})`);
@@ -53,7 +54,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        // Cố gắng parse JSON
         let data;
         try {
           data = JSON.parse(text);
@@ -67,7 +67,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         if (data.cart && Array.isArray(data.cart)) {
           setCart(data.cart);
           const totalAmount = data.cart.reduce(
-            (sum: number, item: CartItem) => sum + item.price * item.quantity,
+            (sum: number, item: CartItem) =>
+              sum + (item.salePrice ?? item.price) * item.quantity,
             0
           );
           setTotalPayment(totalAmount + shippingFee - discount);
@@ -84,7 +85,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           toast.error(error.message || "Không thể tải giỏ hàng, vui lòng thử lại sau");
         }
       }
-      // Đợi trước khi thử lại
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   };
@@ -119,23 +119,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         throw new Error("Phản hồi từ server không phải JSON hợp lệ");
       }
 
-      console.log("Data từ POST /api/cart:", data);
-
       if (data.cart && Array.isArray(data.cart)) {
         setCart(data.cart);
         const totalAmount = data.cart.reduce(
-          (sum: number, item: CartItem) => sum + item.price * item.quantity,
+          (sum: number, item: CartItem) =>
+            sum + (item.salePrice ?? item.price) * item.quantity,
           0
         );
         setTotalPayment(totalAmount + shippingFee - discount);
-        toast.success("Đã cập nhật giỏ hàng");
       } else {
         throw new Error("Dữ liệu giỏ hàng trả về không hợp lệ");
       }
     } catch (error: any) {
       console.error("Lỗi khi cập nhật giỏ hàng:", error);
       toast.error(error.message || "Không thể cập nhật giỏ hàng, vui lòng thử lại");
-      // Đồng bộ lại giỏ hàng nếu cập nhật thất bại
       await syncCartWithBackend();
     }
   };

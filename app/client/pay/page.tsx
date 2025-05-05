@@ -60,7 +60,7 @@ export default function PagePayment() {
 
   // Log giỏ hàng để debug
   useEffect(() => {
-    console.log("Cart in PagePayment:", cart);
+    console.log("Cart in PagePayment:", JSON.stringify(cart, null, 2));
     if (cart && Array.isArray(cart) && cart.length > 0) {
       setIsCartSynced(true);
     }
@@ -113,56 +113,31 @@ export default function PagePayment() {
 
   // Lấy danh sách phiếu giảm giá và áp dụng
   useEffect(() => {
-    const fetchCoupons = async () => {
-      try {
-        const res = await fetch("/api/coupons?status=ACTIVE");
-        if (!res.ok) {
-          throw new Error("Không tìm thấy API phiếu giảm giá");
-        }
-        const data = await res.json();
-        if (data && Array.isArray(data)) {
-          setCoupons(data);
-          const updatedCart = cart.map((item: CartItem) => {
-            const productCoupon = data.find(
-              (coupon: Coupon) =>
-                item.productTypeId === coupon.product_type_id &&
-                new Date(coupon.start_at) <= new Date() &&
-                new Date(coupon.end_at) >= new Date()
-            );
-            if (productCoupon) {
-              const salePrice = item.price * (1 - productCoupon.discount_percent / 100);
-              return { ...item, salePrice, couponId: productCoupon.id };
-            }
-            return { ...item, salePrice: item.price, couponId: null };
-          });
-          setDiscountedCart(updatedCart);
-        } else {
-          setDiscountedCart(cart.map((item: CartItem) => ({ ...item, salePrice: item.price, couponId: null })));
-        }
-      } catch (error) {
-        console.error("Lỗi khi lấy phiếu giảm giá:", error);
-        toast.error("Không thể tải danh sách phiếu giảm giá");
-        setDiscountedCart(cart.map((item: CartItem) => ({ ...item, salePrice: item.price, couponId: null })));
-      }
-    };
     if (cart && cart.length > 0) {
-      fetchCoupons();
+      const newDiscountedCart = cart.map((item: CartItem) => ({
+        ...item,
+        salePrice: item.salePrice ?? item.price,
+        couponId: item.couponId ?? null,
+      }));
+      setDiscountedCart(newDiscountedCart);
+      console.log("DiscountedCart:", JSON.stringify(newDiscountedCart, null, 2));
+    } else {
+      setDiscountedCart([]);
     }
   }, [cart]);
 
-  // Thông báo giỏ hàng trống
-  useEffect(() => {
-    if (!fetchingSession && isCartSynced && (!cart || cart.length === 0)) {
-      toast.warning("Giỏ hàng của bạn đang trống. Vui lòng thêm sản phẩm trước khi thanh toán.");
-    }
-  }, [cart, fetchingSession, isCartSynced]);
+  // // Thông báo giỏ hàng trống
+  // useEffect(() => {
+  //   if (!fetchingSession && isCartSynced && (!cart || cart.length === 0)) {
+  //     toast.warning("Giỏ hàng của bạn đang trống. Vui lòng thêm sản phẩm trước khi thanh toán.");
+  //   }
+  // }, [cart, fetchingSession, isCartSynced]);
 
   // Hàm tính giảm giá khuyến mãi
   const calculatePromotionDiscount = async (): Promise<number> => {
     if (!selectedPromotion) return 0;
 
     try {
-      // Kiểm tra quyền sử dụng khuyến mãi
       const res = await fetch(`/api/promotions/check?promotionId=${selectedPromotion}`);
       const data = await res.json();
 
@@ -184,23 +159,18 @@ export default function PagePayment() {
         return 0;
       }
 
-      // Tính tổng giá trị đơn hàng sau giảm giá sản phẩm
       const totalAmount = discountedCart.reduce(
         (sum, product) => sum + (product.salePrice ?? product.price) * product.quantity,
         0
       );
 
-      // Kiểm tra đơn hàng có đạt giá trị tối thiểu không
       if (totalAmount < promotion.order_min) {
         toast.warning(`Đơn hàng chưa đạt ${promotion.order_min.toLocaleString()}đ để áp dụng khuyến mãi`);
         setSelectedPromotion(null);
         return 0;
       }
 
-      // Tính giảm giá dựa trên phần trăm
       const discount = (totalAmount * promotion.value) / 100;
-
-      // Đảm bảo giảm giá không vượt quá discount_max
       return Math.min(discount, promotion.discount_max);
     } catch (error) {
       console.error("Lỗi khi kiểm tra khuyến mãi:", error);
@@ -210,7 +180,7 @@ export default function PagePayment() {
     }
   };
 
-  // Cập nhật promotionDiscount khi selectedPromotion hoặc discountedCart thay đổi
+  // Cập nhật promotionDiscount
   useEffect(() => {
     const updatePromotionDiscount = async () => {
       const discount = await calculatePromotionDiscount();
@@ -244,34 +214,28 @@ export default function PagePayment() {
   const handlePlaceOrder = async () => {
     if (!validateInputs()) return;
 
-    // Kiểm tra discountedCart
     if (!discountedCart || !Array.isArray(discountedCart) || discountedCart.length === 0) {
       toast.error("Giỏ hàng trống hoặc không hợp lệ");
       return;
     }
 
-    // Tính promotionDiscount (đã có trong state)
-    const totalAmount = discountedCart.reduce((sum, product) => {
+    const originalTotal = discountedCart.reduce((sum, product) => {
       if (typeof product.price !== "number" || typeof product.quantity !== "number") {
         throw new Error(`Dữ liệu sản phẩm không hợp lệ: ${JSON.stringify(product)}`);
       }
       return sum + product.price * product.quantity;
     }, 0);
 
-    const totalDiscountedAmount = discountedCart.reduce((sum, product) => {
-      if (typeof product.price !== "number" || typeof product.quantity !== "number") {
+    const discountedTotal = discountedCart.reduce((sum, product) => {
+      if (typeof product.salePrice !== "number" || typeof product.quantity !== "number") {
         throw new Error(`Dữ liệu sản phẩm không hợp lệ: ${JSON.stringify(product)}`);
       }
       return sum + (product.salePrice ?? product.price) * product.quantity;
     }, 0);
 
-    // Đảm bảo shippingFee là number
     const shippingFeeValue = typeof shippingFee === "number" ? shippingFee : 0;
+    const totalPayment = discountedTotal + shippingFeeValue - promotionDiscount;
 
-    // Tính totalPayment
-    const totalPayment = totalDiscountedAmount + shippingFeeValue - promotionDiscount;
-
-    // Kiểm tra promotionDiscount và totalPayment
     if (isNaN(promotionDiscount) || isNaN(totalPayment)) {
       toast.error("Thông tin thanh toán không hợp lệ, vui lòng kiểm tra lại khuyến mãi hoặc giỏ hàng");
       return;
@@ -280,34 +244,26 @@ export default function PagePayment() {
     try {
       setLoading(true);
 
-      // Tạo payload
       const payload = {
         name,
         phone,
         address,
-        cart: discountedCart.map((item) => {
-          if (!item.id || !item.name || typeof item.price !== "number" || typeof item.quantity !== "number") {
-            throw new Error(`Dữ liệu sản phẩm không hợp lệ: ${JSON.stringify(item)}`);
-          }
-          return {
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            salePrice: item.salePrice ?? item.price,
-            couponId: item.couponId ?? null,
-          };
-        }),
+        cart: discountedCart.map((item) => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          salePrice: item.salePrice ?? item.price,
+          couponId: item.couponId ?? null,
+        })),
         shippingFee: shippingFeeValue,
         promotionId: selectedPromotion ? parseInt(selectedPromotion) : null,
         promotionDiscount,
         totalPayment,
       };
 
-      // Log payload để debug
       console.log("Payload gửi lên API:", JSON.stringify(payload, null, 2));
 
-      // Gửi yêu cầu tới API
       const res = await fetch("/api/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -334,15 +290,21 @@ export default function PagePayment() {
   };
 
   // Tính toán giá trị hiển thị
-  const totalAmount = discountedCart.reduce(
+  const originalTotal = discountedCart.reduce(
     (sum, product) => sum + product.price * product.quantity,
     0
   );
-  const totalDiscountedAmount = discountedCart.reduce(
+  const discountedTotal = discountedCart.reduce(
     (sum, product) => sum + (product.salePrice ?? product.price) * product.quantity,
     0
   );
-  const totalPayment = totalDiscountedAmount + (shippingFee ?? 0) - promotionDiscount;
+  const totalPayment = discountedTotal + (shippingFee ?? 0) - promotionDiscount;
+
+  // Log để debug
+  console.log("OriginalTotal:", originalTotal);
+  console.log("DiscountedTotal:", discountedTotal);
+  console.log("PromotionDiscount:", promotionDiscount);
+  console.log("TotalPayment:", totalPayment);
 
   return (
     <div className="w-full min-h-screen flex flex-col bg-white">
@@ -353,35 +315,35 @@ export default function PagePayment() {
             <p>Đang tải...</p>
           ) : (
             <>
-              <div>
-                <label className="font-semibold mb-1 text-[16px]">Tên</label>
+              <div className="flex flex-col w-full">
+                <label className="font-semibold mb-1 text-[16px]">Tên người nhận</label>
                 <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="h-[60px] w-full"
-                  placeholder="Nhập tên"
+                  className="h-[60px] w-full text-sm"
+                  placeholder="Nhập tên người nhận"
                   disabled={loading}
                 />
-              </div>
-              <div>
-                <label className="font-semibold mb-1 text-[16px]">SĐT</label>
+              <div className="flex flex-col w-full">
+                <label className="font-semibold mb-1 text-[16px]">Số điện thoại người nhận</label>
                 <Input
+                  className="w-full h-[60px] text-sm"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="h-[60px] w-full"
-                  placeholder="Nhập SĐT"
+                  placeholder="Nhập số điện thoại người nhận"
                   disabled={loading}
                 />
               </div>
-              <div>
-                <label className="font-semibold mb-1 text-[16px]">Địa chỉ</label>
+              <div className="flex flex-col w-full">
+                <label className="font-semibold mb-1 text-[16px]">Địa chỉ giao hàng</label>
                 <Textarea
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full min-h-[80px] px-4"
-                  placeholder="Nhập địa chỉ"
+                  className="w-full min-h-[80px] resize-none px-4"
+                  placeholder="Nhập địa chỉ giao hàng"
                   disabled={loading}
                 />
+                </div>
               </div>
             </>
           )}
@@ -427,8 +389,8 @@ export default function PagePayment() {
               <SelectContent>
                 {promotions.map((promo) => (
                   <SelectItem key={promo.id} value={promo.id.toString()}>
-                    {promo.name} - Giảm {promo.value.toLocaleString()}% (Tối đa {promo.discount_max.toLocaleString()}đ)
-                  </SelectItem>
+                  {promo.name} - Giảm {promo.value.toLocaleString()}% (Giảm tối đa {promo.discount_max.toLocaleString()}đ, Đơn tối thiểu {promo.order_min.toLocaleString()}đ)
+                </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -436,11 +398,11 @@ export default function PagePayment() {
           <div className="px-5 flex flex-col gap-2.5">
             <div className="flex justify-between">
               <span>Tạm tính</span>
-              <span>{totalAmount.toLocaleString()}đ</span>
+              <span>{discountedTotal.toLocaleString()}đ</span>
             </div>
             <div className="flex justify-between">
               <span>Giảm giá sản phẩm</span>
-              <span>{(totalAmount - totalDiscountedAmount).toLocaleString()}đ</span>
+              <span>{(originalTotal - discountedTotal).toLocaleString()}đ</span>
             </div>
             <div className="flex justify-between">
               <span>Giảm giá khuyến mãi</span>
@@ -452,9 +414,7 @@ export default function PagePayment() {
             </div>
             <div className="flex justify-between text-[18px]">
               <span className="font-bold">Tổng cộng</span>
-              <span className="font-bold text-primary">
-                {totalPayment.toLocaleString()}đ
-              </span>
+              <span className="font-bold text-primary">{totalPayment.toLocaleString()}đ</span>
             </div>
           </div>
           <div className="px-5 flex justify-between items-center mt-4">

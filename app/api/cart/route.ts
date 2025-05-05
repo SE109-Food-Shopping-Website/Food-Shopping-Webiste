@@ -11,12 +11,18 @@ export async function GET(req: NextRequest) {
     }
 
     const userId = session.id;
+
+    // Lấy giỏ hàng
     const cart = await prisma.cART.findFirst({
       where: { user_id: userId },
       include: {
         cartDetails: {
           include: {
-            product: true,
+            product: {
+              include: {
+                productType: true,
+              },
+            },
           },
         },
       },
@@ -24,14 +30,42 @@ export async function GET(req: NextRequest) {
 
     console.log("Cart data from DB:", cart); // Debug
 
+    // Lấy danh sách phiếu giảm giá đang hoạt động
+    const currentDate = new Date();
+    const coupons = await prisma.cOUPON.findMany({
+      where: {
+        start_at: { lte: currentDate },
+        end_at: { gte: currentDate },
+      },
+    });
+
+    console.log("Coupons from DB:", coupons); // Debug
+
+    // Xử lý giỏ hàng và áp dụng phiếu giảm giá
     const cartItems = cart
-      ? cart.cartDetails.map((detail) => ({
-          id: detail.product.id,
-          name: detail.product.name,
-          price: detail.product.price,
-          quantity: detail.quantity,
-        }))
+      ? cart.cartDetails.map((detail) => {
+          const product = detail.product;
+          const applicableCoupon = coupons.find(
+            (coupon) => coupon.product_type_id === product.productType_id
+          );
+
+          const salePrice = applicableCoupon
+            ? Math.round(product.price * (1 - applicableCoupon.discount_percent / 100))
+            : product.price;
+
+          return {
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: detail.quantity,
+            productTypeId: product.productType_id,
+            salePrice,
+            couponId: applicableCoupon ? applicableCoupon.id : null,
+          };
+        })
       : [];
+
+    console.log("Cart items trả về:", cartItems); // Debug
 
     return NextResponse.json({ cart: cartItems }, { status: 200 });
   } catch (error: any) {
@@ -60,9 +94,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Dữ liệu giỏ hàng không hợp lệ" }, { status: 400 });
     }
 
+    // Lấy danh sách phiếu giảm giá đang hoạt động
+    const currentDate = new Date();
+    const coupons = await prisma.cOUPON.findMany({
+      where: {
+        start_at: { lte: currentDate },
+        end_at: { gte: currentDate },
+      },
+    });
+
+    console.log("Coupons from DB:", coupons); // Debug
+
     // Thực hiện giao dịch để xóa và tạo giỏ hàng mới
     const cart = await prisma.$transaction(async (tx) => {
-      // Xóa chi tiết giỏ hàng cũ
       await tx.cART_DETAILS.deleteMany({
         where: {
           cart: {
@@ -71,12 +115,10 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // Xóa giỏ hàng cũ
       await tx.cART.deleteMany({
         where: { user_id: userId },
       });
 
-      // Tạo giỏ hàng mới
       return await tx.cART.create({
         data: {
           user_id: userId,
@@ -90,19 +132,38 @@ export async function POST(req: NextRequest) {
         include: {
           cartDetails: {
             include: {
-              product: true,
+              product: {
+                include: {
+                  productType: true,
+                },
+              },
             },
           },
         },
       });
     });
 
-    const cartItems = cart.cartDetails.map((detail) => ({
-      id: detail.product.id,
-      name: detail.product.name,
-      price: detail.product.price,
-      quantity: detail.quantity,
-    }));
+    // Áp dụng phiếu giảm giá cho cartItems
+    const cartItems = cart.cartDetails.map((detail) => {
+      const product = detail.product;
+      const applicableCoupon = coupons.find(
+        (coupon) => coupon.product_type_id === product.productType_id
+      );
+
+      const salePrice = applicableCoupon
+        ? Math.round(product.price * (1 - applicableCoupon.discount_percent / 100))
+        : product.price;
+
+      return {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: detail.quantity,
+        productTypeId: product.productType_id,
+        salePrice,
+        couponId: applicableCoupon ? applicableCoupon.id : null,
+      };
+    });
 
     console.log("Cart items trả về:", cartItems); // Debug
 
