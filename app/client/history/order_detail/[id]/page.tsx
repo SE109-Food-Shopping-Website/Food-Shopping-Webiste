@@ -40,7 +40,6 @@ export default function PageOrderDetail() {
           </div>
         </div>
       </div>
-
       {/* Danh sách sản phẩm */}
       <div className="rounded-[5px] px-[20px] py-[10px] flex flex-col gap-5 bg-white">
         <b>Sản phẩm</b>
@@ -73,14 +72,19 @@ export default function PageOrderDetail() {
                 <p>Số lượng: x{detail.quantity}</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="line-through text-gray-500">{formatPrice(detail.originalPrice)}đ</p>
-              <p className="text-primary text-[18px] font-semibold">{formatPrice(detail.salePrice)}đ</p>
+            <div className="flex flex-col text-right">
+              <b className="relative text-[16px] text-primary">
+                {formatPrice(detail.price ?? detail.originalPrice)}đ
+              </b>
+              {detail.price && detail.price < detail.originalPrice && (
+                <span className="text-base text-gray-500 line-through text-[13px]">
+                  {formatPrice(detail.originalPrice)}đ
+                </span>
+              )}
             </div>
           </div>
         ))}
       </div>
-
       {/* Thông tin giá tiền */}
       <div className="rounded-[5px] px-[20px] py-[10px] flex flex-col gap-3 bg-white">
         <div className="flex justify-between">

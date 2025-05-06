@@ -78,7 +78,6 @@ export default function PageChangeInfo() {
   return (
     <div className="w-[1240px] flex flex-col gap-5 text-black font-inter">
       <h2 className="text-[25px] font-bold text-center">Thay đổi thông tin đơn hàng</h2>
-
       {/* Thông tin nhận hàng (có thể sửa) */}
       <div className="rounded-[5px] px-[20px] py-[10px] flex flex-col gap-4 bg-white">
         <b>Thông tin nhận hàng</b>
@@ -115,7 +114,6 @@ export default function PageChangeInfo() {
           </div>
         </div>
       </div>
-
       {/* Danh sách sản phẩm */}
       <div className="rounded-[5px] px-[20px] py-[10px] flex flex-col gap-5 bg-white">
         <b>Sản phẩm</b>
@@ -129,7 +127,6 @@ export default function PageChangeInfo() {
           } catch (err) {
             console.error("Lỗi parse ảnh:", err);
           }
-
           return (
             <div key={index} className="flex justify-between items-center border-b pb-4">
               <div className="flex items-center gap-4">
@@ -146,15 +143,20 @@ export default function PageChangeInfo() {
                   <p>Số lượng: x{detail.quantity}</p>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="line-through text-gray-500">{formatPrice(detail.originalPrice)}đ</p>
-                <p className="text-primary text-[18px] font-semibold">{formatPrice(detail.salePrice)}đ</p>
+              <div className="flex flex-col text-right">
+                <b className="relative text-[16px] text-primary">
+                  {formatPrice(detail.price ?? detail.originalPrice)}đ
+                </b>
+                {detail.price && detail.price < detail.originalPrice && (
+                  <span className="text-base text-gray-500 line-through text-[13px]">
+                    {formatPrice(detail.originalPrice)}đ
+                  </span>
+                )}
               </div>
             </div>
           );
         })}
       </div>
-
       {/* Thông tin giá tiền */}
       <div className="rounded-[5px] px-[20px] py-[10px] flex flex-col gap-3 bg-white">
         <div className="flex justify-between">
@@ -174,7 +176,6 @@ export default function PageChangeInfo() {
           <b className="text-primary">{formatPrice(order.totalPrice)}đ</b>
         </div>
       </div>
-
       {/* Mã đơn hàng và thời gian */}
       <div className="rounded-[5px] bg-white px-[20px] py-[10px]">
         <div className="flex justify-between">
