@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/app/client/context/CartContext";
 import { toast } from "sonner";
 
-// Định nghĩa kiểu dữ liệu
 type CartItem = {
   id: number;
   name: string;
@@ -33,16 +32,6 @@ type Promotion = {
   status: string;
 };
 
-type Coupon = {
-  id: number;
-  name: string;
-  discount_percent: number;
-  start_at: string;
-  end_at: string;
-  product_type_id: number;
-  status: string;
-};
-
 export default function PagePayment() {
   const { cart, shippingFee, updateCart } = useCart();
   const router = useRouter();
@@ -53,12 +42,12 @@ export default function PagePayment() {
   const [fetchingSession, setFetchingSession] = useState<boolean>(true);
   const [isCartSynced, setIsCartSynced] = useState<boolean>(false);
   const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [loyaltyPromotions, setLoyaltyPromotions] = useState<Promotion[]>([]);
   const [selectedPromotion, setSelectedPromotion] = useState<string | null>(null);
-  const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [discountedCart, setDiscountedCart] = useState<CartItem[]>([]);
   const [promotionDiscount, setPromotionDiscount] = useState<number>(0);
 
-  // Log giỏ hàng để debug
+  // Log giỏ hàng
   useEffect(() => {
     console.log("Cart in PagePayment:", JSON.stringify(cart, null, 2));
     if (cart && Array.isArray(cart) && cart.length > 0) {
@@ -79,7 +68,7 @@ export default function PagePayment() {
         }
       } catch (error) {
         console.error("Lỗi khi lấy thông tin session:", error);
-        toast.error("Không thể lấy thông tin người dùng, vui lòng nhập thủ công");
+        toast.error("Không thể lấy thông tin người dùng");
       } finally {
         setFetchingSession(false);
       }
@@ -87,21 +76,14 @@ export default function PagePayment() {
     fetchUserSession();
   }, []);
 
-  // Lấy danh sách khuyến mãi
+  // Lấy danh sách khuyến mãi thông thường
   useEffect(() => {
     const fetchPromotions = async () => {
       try {
-        const res = await fetch("/api/promotions?status=ACTIVE");
-        if (!res.ok) {
-          throw new Error("Không tìm thấy API khuyến mãi");
-        }
+        const res = await fetch("/api/promotions");
+        if (!res.ok) throw new Error("Không tìm thấy API khuyến mãi");
         const data = await res.json();
-        if (data && Array.isArray(data)) {
-          setPromotions(data);
-        } else {
-          setPromotions([]);
-          console.warn("Không có khuyến mãi hợp lệ:", data);
-        }
+        setPromotions(data);
       } catch (error) {
         console.error("Lỗi khi lấy khuyến mãi:", error);
         toast.error("Không thể tải danh sách khuyến mãi");
@@ -111,7 +93,35 @@ export default function PagePayment() {
     fetchPromotions();
   }, []);
 
-  // Lấy danh sách phiếu giảm giá và áp dụng
+  // Lấy và cấp khuyến mãi hạng
+  useEffect(() => {
+    const fetchAndAssignLoyaltyPromotions = async () => {
+      try {
+        // Cấp khuyến mãi tự động
+        const assignRes = await fetch("/api/loyalty-promotions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (!assignRes.ok) {
+          const errorData = await assignRes.json();
+          console.warn("Không cấp được khuyến mãi:", errorData.message);
+        }
+
+        // Lấy danh sách khuyến mãi
+        const fetchRes = await fetch("/api/loyalty-promotions");
+        if (!fetchRes.ok) throw new Error("Không tìm thấy API khuyến mãi hạng");
+        const data = await fetchRes.json();
+        setLoyaltyPromotions(data.loyaltyPromotions);
+      } catch (error) {
+        console.error("Lỗi khi xử lý khuyến mãi hạng:", error);
+        toast.error("Không thể tải danh sách khuyến mãi hạng");
+        setLoyaltyPromotions([]);
+      }
+    };
+    fetchAndAssignLoyaltyPromotions();
+  }, []);
+
+  // Áp dụng salePrice từ giỏ hàng
   useEffect(() => {
     if (cart && cart.length > 0) {
       const newDiscountedCart = cart.map((item: CartItem) => ({
@@ -126,58 +136,30 @@ export default function PagePayment() {
     }
   }, [cart]);
 
-  // // Thông báo giỏ hàng trống
-  // useEffect(() => {
-  //   if (!fetchingSession && isCartSynced && (!cart || cart.length === 0)) {
-  //     toast.warning("Giỏ hàng của bạn đang trống. Vui lòng thêm sản phẩm trước khi thanh toán.");
-  //   }
-  // }, [cart, fetchingSession, isCartSynced]);
-
-  // Hàm tính giảm giá khuyến mãi
+  // Tính giảm giá khuyến mãi
   const calculatePromotionDiscount = async (): Promise<number> => {
     if (!selectedPromotion) return 0;
 
-    try {
-      const res = await fetch(`/api/promotions/check?promotionId=${selectedPromotion}`);
-      const data = await res.json();
-
-      if (!res.ok || !data.canUse) {
-        toast.warning(data.message || "Bạn không thể sử dụng khuyến mãi này");
-        setSelectedPromotion(null);
-        return 0;
-      }
-
-      const promotion = promotions.find((p) => p.id === parseInt(selectedPromotion));
-      if (
-        !promotion ||
-        typeof promotion.value !== "number" ||
-        typeof promotion.discount_max !== "number" ||
-        typeof promotion.order_min !== "number"
-      ) {
-        toast.warning("Khuyến mãi không hợp lệ");
-        setSelectedPromotion(null);
-        return 0;
-      }
-
-      const totalAmount = discountedCart.reduce(
-        (sum, product) => sum + (product.salePrice ?? product.price) * product.quantity,
-        0
-      );
-
-      if (totalAmount < promotion.order_min) {
-        toast.warning(`Đơn hàng chưa đạt ${promotion.order_min.toLocaleString()}đ để áp dụng khuyến mãi`);
-        setSelectedPromotion(null);
-        return 0;
-      }
-
-      const discount = (totalAmount * promotion.value) / 100;
-      return Math.min(discount, promotion.discount_max);
-    } catch (error) {
-      console.error("Lỗi khi kiểm tra khuyến mãi:", error);
-      toast.error("Không thể kiểm tra khuyến mãi");
+    const promotion = [...promotions, ...loyaltyPromotions].find((p) => p.id === parseInt(selectedPromotion));
+    if (!promotion) {
+      toast.warning("Khuyến mãi không hợp lệ");
       setSelectedPromotion(null);
       return 0;
     }
+
+    const totalAmount = discountedCart.reduce(
+      (sum, product) => sum + (product.salePrice ?? product.price) * product.quantity,
+      0
+    );
+
+    if (totalAmount < promotion.order_min) {
+      toast.warning(`Đơn hàng chưa đạt ${promotion.order_min.toLocaleString()}đ`);
+      setSelectedPromotion(null);
+      return 0;
+    }
+
+    const discount = (totalAmount * promotion.value) / 100;
+    return Math.min(discount, promotion.discount_max);
   };
 
   // Cập nhật promotionDiscount
@@ -189,7 +171,7 @@ export default function PagePayment() {
     updatePromotionDiscount();
   }, [selectedPromotion, discountedCart]);
 
-  // Hàm xác thực đầu vào
+  // Xác thực đầu vào
   const validateInputs = (): boolean => {
     if (!name.trim()) {
       toast.error("Vui lòng nhập tên");
@@ -210,45 +192,23 @@ export default function PagePayment() {
     return true;
   };
 
-  // Hàm xử lý đặt hàng
+  // Xử lý đặt hàng
   const handlePlaceOrder = async () => {
     if (!validateInputs()) return;
 
-    if (!discountedCart || !Array.isArray(discountedCart) || discountedCart.length === 0) {
-      toast.error("Giỏ hàng trống hoặc không hợp lệ");
-      return;
-    }
-
-    const originalTotal = discountedCart.reduce((sum, product) => {
-      if (typeof product.price !== "number" || typeof product.quantity !== "number") {
-        throw new Error(`Dữ liệu sản phẩm không hợp lệ: ${JSON.stringify(product)}`);
-      }
-      return sum + product.price * product.quantity;
-    }, 0);
-
-    const discountedTotal = discountedCart.reduce((sum, product) => {
-      if (typeof product.salePrice !== "number" || typeof product.quantity !== "number") {
-        throw new Error(`Dữ liệu sản phẩm không hợp lệ: ${JSON.stringify(product)}`);
-      }
-      return sum + (product.salePrice ?? product.price) * product.quantity;
-    }, 0);
-
-    const shippingFeeValue = typeof shippingFee === "number" ? shippingFee : 0;
+    const originalTotal = discountedCart.reduce((sum, product) => sum + product.price * product.quantity, 0);
+    const discountedTotal = discountedCart.reduce(
+      (sum, product) => sum + (product.salePrice ?? product.price) * product.quantity,
+      0
+    );
+    const shippingFeeValue = typeof shippingFee === "number" ? shippingFee : 30000;
     const totalPayment = discountedTotal + shippingFeeValue - promotionDiscount;
-
-    if (isNaN(promotionDiscount) || isNaN(totalPayment)) {
-      toast.error("Thông tin thanh toán không hợp lệ, vui lòng kiểm tra lại khuyến mãi hoặc giỏ hàng");
-      return;
-    }
 
     try {
       setLoading(true);
 
       const payload = {
-        name,
-        phone,
-        address,
-        cart: discountedCart.map((item) => ({
+        cartItems: discountedCart.map((item) => ({
           id: item.id,
           name: item.name,
           price: item.price,
@@ -256,15 +216,15 @@ export default function PagePayment() {
           salePrice: item.salePrice ?? item.price,
           couponId: item.couponId ?? null,
         })),
-        shippingFee: shippingFeeValue,
         promotionId: selectedPromotion ? parseInt(selectedPromotion) : null,
-        promotionDiscount,
-        totalPayment,
+        address,
+        name,
+        phone,
       };
 
       console.log("Payload gửi lên API:", JSON.stringify(payload, null, 2));
 
-      const res = await fetch("/api/order", {
+      const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -300,7 +260,6 @@ export default function PagePayment() {
   );
   const totalPayment = discountedTotal + (shippingFee ?? 0) - promotionDiscount;
 
-  // Log để debug
   console.log("OriginalTotal:", originalTotal);
   console.log("DiscountedTotal:", discountedTotal);
   console.log("PromotionDiscount:", promotionDiscount);
@@ -324,6 +283,7 @@ export default function PagePayment() {
                   placeholder="Nhập tên người nhận"
                   disabled={loading}
                 />
+              </div>
               <div className="flex flex-col w-full">
                 <label className="font-semibold mb-1 text-[16px]">Số điện thoại người nhận</label>
                 <Input
@@ -343,7 +303,6 @@ export default function PagePayment() {
                   placeholder="Nhập địa chỉ giao hàng"
                   disabled={loading}
                 />
-                </div>
               </div>
             </>
           )}
@@ -381,17 +340,20 @@ export default function PagePayment() {
             <Select
               value={selectedPromotion || ""}
               onValueChange={setSelectedPromotion}
-              disabled={loading || !promotions.length}
+              disabled={loading || (!promotions.length && !loyaltyPromotions.length)}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Chọn khuyến mãi" />
               </SelectTrigger>
               <SelectContent>
-                {promotions.map((promo) => (
-                  <SelectItem key={promo.id} value={promo.id.toString()}>
-                  {promo.name} - Giảm {promo.value.toLocaleString()}% (Giảm tối đa {promo.discount_max.toLocaleString()}đ, Đơn tối thiểu {promo.order_min.toLocaleString()}đ)
-                </SelectItem>
-                ))}
+                {[...loyaltyPromotions, ...promotions]
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .filter((promo, index, self) => index === self.findIndex((p) => p.name === promo.name))
+                  .map((promo) => (
+                    <SelectItem key={promo.id} value={promo.id.toString()}>
+                      {promo.name} - Giảm {promo.value}% (Tối đa {promo.discount_max.toLocaleString()}đ, Đơn tối thiểu {promo.order_min.toLocaleString()}đ)
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
           </div>
