@@ -24,11 +24,26 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       0
     );
 
+    const now = new Date();
+    const coupon = await prisma.cOUPON.findFirst({
+      where: {
+        product_type_id: product.productType_id,
+        status: "Active",
+        start_at: { lte: now },
+        end_at: { gte: now },
+      },
+    });
+
+    const salePrice = coupon
+      ? Math.round(product.price * (1 - coupon.discount_percent / 100))
+      : product.price;
+
     const responseData = {
       ...product,
       images: product.images ? JSON.parse(product.images) : [],
       provider_name: product.provider?.name || null,
       productType_name: product.productType?.name || null,
+      salePrice,
       totalImportedQuantity,
     };
 
@@ -113,9 +128,24 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       },
     });
 
+    // const now = new Date();
+    // const coupon = await prisma.cOUPON.findFirst({
+    //   where: {
+    //     product_type_id: updatedProduct.productType_id,
+    //     status: "Active",
+    //     start_at: { lte: now },
+    //     end_at: { gte: now },
+    //   },
+    // });
+
+    // const salePrice = coupon
+    //   ? Math.round(updatedProduct.price * (1 - coupon.discount_percent / 100))
+    //   : updatedProduct.price;
+
     return NextResponse.json({
       ...updatedProduct,
       images: allImages,
+      // salePrice,
     });
   } catch (error) {
     console.error("Lỗi khi cập nhật dữ liệu:", error);

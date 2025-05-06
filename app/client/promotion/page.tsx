@@ -9,6 +9,7 @@ interface Product{
     price: number;
     images?: string[] | null;
     productType_id: number;
+    salePrice: number;
 }
 
 export default function PagePromotion() {
@@ -16,33 +17,32 @@ export default function PagePromotion() {
 
     useEffect(() => {
         const fetchProducts = async () => {
-            try {
-              const res = await fetch("/api/products");
-          
-              if (!res.ok) {
-                throw new Error(`HTTP error! Status: ${res.status}`);
-              }
-          
-              const text = await res.text();
-              if (!text) {
-                console.warn("Response từ /api/products rỗng");
-                return;
-              }
-          
-              const data = JSON.parse(text);
-          
-              const processed = data.map((item: any) => ({
-                ...item,
-                images: item.images ? JSON.parse(item.images) : null,
-              }));
-          
-              setProducts(processed);
-            } catch (error) {
-              console.error("Lỗi khi lấy sản phẩm:", error);
+          try {
+            const res = await fetch("/api/products/promotion");
+      
+            if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+      
+            const text = await res.text();
+            if (!text) {
+              console.warn("Response rỗng từ /api/products/promotion");
+              return;
             }
-        };  
+      
+            const data = JSON.parse(text);
+            const processed = data.map((item: any) => ({
+              ...item,
+              images: item.images ?? null,
+            }));
+      
+            setProducts(processed);
+          } catch (error) {
+            console.error("Lỗi khi lấy sản phẩm khuyến mãi:", error);
+          }
+        };
+      
         fetchProducts();
-    }, []);
+      }, []);
+      
     return (
         <div className="min-h-screen w-full flex items-start justify-center py-[30px] bg-gray-50 text-black font-inter">
             <div className="w-[1240px] flex flex-col items-start gap-6">
@@ -83,9 +83,16 @@ export default function PagePromotion() {
                                     <span className="font-semibold truncate whitespace-nowrap overflow-hidden">
                                     {product.name}
                                     </span>
-                                    <b className="text-base text-primary">
-                                    {product.price.toLocaleString()}đ
-                                    </b>
+                                    <div className="flex flex-row items-center gap-2.5">
+                                        <b className="relative text-[16px] text-primary">
+                                            {(product.salePrice ?? product.price).toLocaleString()}đ
+                                        </b>
+                                        {product.salePrice && product.salePrice < product.price && (
+                                            <span className="text-base text-gray-500 line-through text-[13px]">
+                                            {product.price.toLocaleString()}đ
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                                 </Link>
                             );

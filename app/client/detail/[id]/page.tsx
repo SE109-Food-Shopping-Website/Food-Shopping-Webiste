@@ -8,12 +8,12 @@ import { useCart } from "@/app/client/context/CartContext";
 import { Check, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 
-    interface Provider {
+interface Provider {
     id: number;
     name: string;
-    }
+}
 
-    interface Product {
+interface Product {
     id: number;
     name: string;
     price: number;
@@ -22,12 +22,13 @@ import { toast } from "sonner";
     unit?: string;
     quantity: number;
     sold: number;
+    salePrice: number;
     provider_id: number;
     productType_id: number;
     provider?: Provider;
-    }
+}
 
-    export default function PageProductDetail() {
+export default function PageProductDetail() {
     const [selectedQuantity, setSelectedQuantity] = useState(1);
     const router = useRouter();
     const { cart, updateCart } = useCart();
@@ -228,8 +229,13 @@ import { toast } from "sonner";
             {/* Giá sản phẩm */}
             <div className="flex flex-row items-center gap-2.5">
                 <b className="relative text-[25px] text-primary">
-                {product.price.toLocaleString()}đ
+                    {(product.salePrice ?? product.price).toLocaleString()}đ
                 </b>
+                {product.salePrice && product.salePrice < product.price && (
+                    <span className="text-base text-gray-500 line-through">
+                    {product.price.toLocaleString()}đ
+                    </span>
+                )}
             </div>
             {/* Đơn vị tính */}
             <div className="flex flex-row items-center gap-2.5">
@@ -285,4 +291,4 @@ import { toast } from "sonner";
         </div>
         </div>
     );
-    }
+}
