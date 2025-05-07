@@ -1,4 +1,3 @@
-// app/admin/layout.tsx
 "use client";
 import { ReactNode, useEffect, useState } from "react";
 import {
@@ -32,13 +31,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     setIsLoading(true);
 
     try {
-      // Gọi API logout
+      // API logout
       const res = await fetch("/api/logout", {
         method: "POST",
       });
 
       if (res.ok) {
-        // Nếu logout thành công, chuyển hướng người dùng về trang login
         router.push("/login");
       } else {
         alert("Đăng xuất thất bại");
@@ -57,7 +55,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         const res = await fetch("/api/admin");
         if (res.ok) {
           const data = await res.json();
-          setUserName(data.user.name); // Giả sử bạn cần hiển thị tên
+          setUserName(data.user.name);
         } else {
           console.error("Không thể lấy thông tin người dùng");
         }
@@ -373,7 +371,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 >
                   Góp ý
                 </Link>
-              </AccordionContent>{" "} 
+              </AccordionContent>{" "}
             </AccordionItem>
           </Accordion>
         </div>

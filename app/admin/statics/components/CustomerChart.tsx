@@ -1,4 +1,3 @@
-// File: components/CustomerChart.tsx
 import { useEffect, useState } from "react";
 import {
   ResponsiveContainer,

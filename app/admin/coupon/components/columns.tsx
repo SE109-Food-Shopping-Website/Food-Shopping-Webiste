@@ -57,7 +57,7 @@ export const columns: ColumnDef<Coupon>[] = [
         variant="ghost"
         style={{ backgroundColor: "transparent" }}
       >
-        Ngày nhập
+        Ngày bắt đầu
       </Button>
     ),
     cell: ({ row }) => {
@@ -76,7 +76,7 @@ export const columns: ColumnDef<Coupon>[] = [
         variant="ghost"
         style={{ backgroundColor: "transparent" }}
       >
-        Ngày nhập
+        Ngày kết thúc
       </Button>
     ),
     cell: ({ row }) => {
@@ -96,7 +96,7 @@ export const columns: ColumnDef<Coupon>[] = [
           variant="ghost"
           style={{ backgroundColor: "transparent" }}
         >
-          Percent
+          Phần trăm giảm
         </Button>
       );
     },
@@ -111,16 +111,22 @@ export const columns: ColumnDef<Coupon>[] = [
           variant="ghost"
           style={{ backgroundColor: "transparent" }}
         >
-          Hoạt động
+          Trạng thái
         </Button>
       );
     },
     cell: ({ row }) => {
-      const status = row.getValue("status");
+      const rawEndAt = row.getValue("end_at") as string;
+      const timeZone = "Asia/Ho_Chi_Minh";
+
+      const endDate = toZonedTime(new Date(rawEndAt), timeZone);
+      const now = toZonedTime(new Date(), timeZone);
+
+      const isActive = now <= endDate;
 
       return (
-        <Badge status={status ? "active" : "inactive"}>
-          {status ? "Hoạt động" : "Không hoạt động"}
+        <Badge status={isActive ? "active" : "inactive"}>
+          {isActive ? "Hoạt động" : "Hết hạn"}
         </Badge>
       );
     },

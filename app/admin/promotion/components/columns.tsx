@@ -143,16 +143,22 @@ export const columns: ColumnDef<Category>[] = [
           variant="ghost"
           style={{ backgroundColor: "transparent" }}
         >
-          Hoạt động
+          Trạng thái
         </Button>
       );
     },
     cell: ({ row }) => {
-      const status = row.getValue("status");
+      const rawEndAt = row.getValue("day_end") as string;
+      const timeZone = "Asia/Ho_Chi_Minh";
+
+      const endDate = toZonedTime(new Date(rawEndAt), timeZone);
+      const now = toZonedTime(new Date(), timeZone);
+
+      const isActive = now <= endDate;
 
       return (
-        <Badge status={status ? "active" : "inactive"}>
-          {status ? "Hoạt động" : "Không hoạt động"}
+        <Badge status={isActive ? "active" : "inactive"}>
+          {isActive ? "Hoạt động" : "Hết hạn"}
         </Badge>
       );
     },

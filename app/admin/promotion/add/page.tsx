@@ -57,7 +57,7 @@ export default function addCategory() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: values.name,
-        value: values.value, // Gửi giá trị phần trăm dưới dạng số
+        value: values.value,
         day_start: new Date(values.day_start).toISOString(),
         day_end: new Date(values.day_end).toISOString(),
         order_min: values.order_min,
@@ -65,22 +65,20 @@ export default function addCategory() {
       }),
     })
       .then((res) => {
-        // Kiểm tra mã trạng thái HTTP của phản hồi
         if (!res.ok) {
           throw new Error("Lỗi từ server: " + res.statusText);
         }
-        // Kiểm tra nếu phản hồi rỗng
         if (res.status === 204) {
           throw new Error("Server không trả về dữ liệu");
         }
-        return res.json(); // Chỉ gọi .json() khi có dữ liệu hợp lệ
+        return res.json();
       })
       .then((data) => {
         if (data.error) {
           alert("Lỗi: " + data.error);
         } else {
           toast.success("Thêm mới thành công");
-          form.reset(); // Reset form về giá trị mặc định
+          form.reset(); // Reset form
           router.push("/admin/promotion");
         }
       })
