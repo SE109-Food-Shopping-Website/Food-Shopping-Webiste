@@ -131,38 +131,47 @@ export default function AddCoupon() {
               <FormField
                 control={form.control}
                 name="start_at"
-                render={({ field }) => (
-                  <FormItem className="w-full flex flex-col">
-                    <FormLabel className="font-normal">Ngày bắt đầu</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="datetime-local"
-                        {...field}
-                        value={field.value ?? ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const endAt = form.watch("end_at");
+
+                  return (
+                    <FormItem className="w-full flex flex-col">
+                      <FormLabel className="font-normal">Ngày bắt đầu</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="datetime-local"
+                          max={endAt || undefined}
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
             </div>
             <div className="w-[500px] inline-flex flex-col justify-start items-start gap-5">
               <FormField
                 control={form.control}
                 name="end_at"
-                render={({ field }) => (
-                  <FormItem className="w-full flex flex-col">
-                    <FormLabel className="font-normal">Ngày kết thúc</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="datetime-local"
-                        {...field}
-                        value={field.value ?? ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const startAt = form.watch("start_at"); 
+                  return (
+                    <FormItem className="w-full flex flex-col">
+                      <FormLabel className="font-normal">Ngày kết thúc</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="datetime-local"
+                          min={startAt || undefined}
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
             </div>
           </div>
