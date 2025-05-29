@@ -14,6 +14,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { useRouter, usePathname} from "next/navigation";
 import { CartProvider } from "./context/CartContext";
 import SearchBar from "@/components/ui/searchbar";
+import ChatWidget from "@/components/ui/chatbot";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 
 interface ClientLayoutProps {
     children: ReactNode;
@@ -91,6 +93,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                 </div>
                 {/* Right */}
                 <div className="h-[50px] justify-end items-center inline-flex gap-5">
+                    <ChatWidget/>
                     <Link href="/client/profile">
                         <div title="Profile">
                             <User/>
