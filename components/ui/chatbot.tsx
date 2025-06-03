@@ -107,7 +107,7 @@ const ChatWidget = () => {
               <input
                 type="text"
                 placeholder="Nhập yêu cầu của bạn..."
-                className="flex-1 w-full !border-none pr-4 pl-4 pt-2 pb-2 mr-2 ml-2"
+                className="flex-1 w-full pr-4 pl-4 pt-2 pb-2 mr-2 ml-2 border-none focus:ring-0 focus:border-none outline-none"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
