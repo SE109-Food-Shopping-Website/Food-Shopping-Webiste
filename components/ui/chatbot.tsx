@@ -67,8 +67,13 @@ const ChatWidget = () => {
       {/* Khung chat */}
       {isOpen && (
         <div className="fixed bottom-20 right-4 w-[400px] h-[500px] bg-white border border-primary rounded-2xl shadow-xl flex flex-col">
+          <div className="bg-primary text-white px-4 py-3 flex items-center justify-between">
+            <div className="font-semibold text-lg flex items-center gap-2">
+              <img src="/bot_icon.png" className="w-8 h-8" alt="Bot" /> Go GREEN
+            </div>
+          </div>
           {/* Nội dung chat */}
-          <div className="flex-1 w-full overflow-y-auto px-4 py-2">
+          <div className="flex-1 w-full overflow-y-auto px-4 py-2 text-sm">
             {messages.map((msg, idx) => (
               <div
                 key={idx}
@@ -76,6 +81,13 @@ const ChatWidget = () => {
                   msg.sender === "user" ? "justify-end" : "justify-start"
                 } mb-2`}
               >
+                {msg.sender === "bot" && (
+                  <div className="flex mr-2 items-end">
+                    <div className="flex justify text-sm font-bold">
+                      <img src="/bot_icon.png" alt="Bot Icon" className="w-6 h-6 rounded-full self-end" />
+                    </div>
+                  </div>
+                )}
                 <div
                   className={`p-2 rounded-lg ${
                     msg.sender === "user"
@@ -107,7 +119,7 @@ const ChatWidget = () => {
               <input
                 type="text"
                 placeholder="Nhập yêu cầu của bạn..."
-                className="flex-1 w-full pr-4 pl-4 pt-2 pb-2 mr-2 ml-2 border-none focus:ring-0 focus:border-none outline-none"
+                className="flex-1 w-full pr-4 pl-4 pt-2 pb-2 mr-2 ml-2 border-none focus:ring-0 focus:border-none outline-none text-sm"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
