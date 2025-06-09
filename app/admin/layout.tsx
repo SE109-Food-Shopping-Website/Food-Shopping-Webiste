@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Receipt, Ticket } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Toaster } from "@/components/ui/sonner";
 
 interface AdminLayoutProps {
@@ -24,6 +24,7 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
+  const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(false);
   const [userName, setUserName] = useState<string>("");
   const router = useRouter();
@@ -152,7 +153,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <AccordionContent className="w-full">
                 <Link
                   href="/admin/statics"
-                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                  className={`block w-full py-2 px-2 text-black hover:bg-gray-200 ${
+                    pathname === "/admin/statics"
+                      ? "bg-primary text-white font-bold"
+                      : "text-black"
+                  }`}
                 >
                   Doanh thu
                 </Link>
@@ -186,7 +191,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <AccordionContent className="w-full">
                 <Link
                   href="/admin/manage/provider"
-                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                  className={`block w-full py-2 px-2 text-black hover:bg-gray-200 ${
+                    pathname === "/admin/manage/provider" || pathname === "/admin/manage/provider/add"
+                      ? "bg-primary text-white font-bold"
+                      : "text-black"
+                  }`}
                 >
                   Nhà cung cấp
                 </Link>
@@ -194,7 +203,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <AccordionContent className="w-full">
                 <Link
                   href="/admin/manage/category"
-                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                  className={`block w-full py-2 px-2 text-black hover:bg-gray-200 ${
+                    pathname === "/admin/manage/category" || pathname === "/admin/manage/category/add"
+                      ? "bg-primary text-white font-bold"
+                      : "text-black"
+                  }`}
                 >
                   Loại sản phẩm
                 </Link>
@@ -202,7 +215,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <AccordionContent className="w-full">
                 <Link
                   href="/admin/manage/product"
-                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                  className={`block w-full py-2 px-2 text-black hover:bg-gray-200 ${
+                    pathname === "/admin/manage/product" || pathname === "/admin/manage/product/add"
+                      ? "bg-primary text-white font-bold"
+                      : "text-black"
+                  }`}                
                 >
                   Sản phẩm
                 </Link>
@@ -210,7 +227,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <AccordionContent className="w-full">
                 <Link
                   href="/admin/manage/import"
-                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                  className={`block w-full py-2 px-2 text-black hover:bg-gray-200 ${
+                    pathname === "/admin/manage/import" || pathname === "/admin/manage/import/add"
+                      ? "bg-primary text-white font-bold"
+                      : "text-black"
+                  }`}
                 >
                   Nhập hàng
                 </Link>
@@ -235,7 +256,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <AccordionContent className="w-full">
                 <Link
                   href="/admin/order"
-                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                  className={`block w-full py-2 px-2 text-black hover:bg-gray-200 ${
+                    pathname === "/admin/order"
+                      ? "bg-primary text-white font-bold"
+                      : "text-black"
+                  }`}
                 >
                   Chưa soạn
                 </Link>
@@ -243,7 +268,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <AccordionContent className="w-full">
                 <Link
                   href="/admin/order/processing"
-                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                  className={`block w-full py-2 px-2 text-black hover:bg-gray-200 ${
+                    pathname === "/admin/order/processing"
+                      ? "bg-primary text-white font-bold"
+                      : "text-black"
+                  }`}
                 >
                   Đang soạn
                 </Link>
@@ -251,7 +280,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <AccordionContent className="w-full">
                 <Link
                   href="/admin/order/shipping"
-                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                  className={`block w-full py-2 px-2 text-black hover:bg-gray-200 ${
+                    pathname === "/admin/order/shipping"
+                      ? "bg-primary text-white font-bold"
+                      : "text-black"
+                  }`}
                 >
                   Đang giao
                 </Link>
@@ -259,7 +292,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <AccordionContent className="w-full">
                 <Link
                   href="/admin/order/completed"
-                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                  className={`block w-full py-2 px-2 text-black hover:bg-gray-200 ${
+                    pathname === "/admin/order/completed"
+                      ? "bg-primary text-white font-bold"
+                      : "text-black"
+                  }`}
                 >
                   Thành công
                 </Link>
@@ -267,7 +304,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <AccordionContent className="w-full">
                 <Link
                   href="/admin/order/request"
-                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                  className={`block w-full py-2 px-2 text-black hover:bg-gray-200 ${
+                    pathname === "/admin/order/request"
+                      ? "bg-primary text-white font-bold"
+                      : "text-black"
+                  }`}
                 >
                   Yêu cầu trả
                 </Link>
@@ -275,7 +316,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <AccordionContent className="w-full">
                 <Link
                   href="/admin/order/returned"
-                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                  className={`block w-full py-2 px-2 text-black hover:bg-gray-200 ${
+                    pathname === "/admin/order/returned"
+                      ? "bg-primary text-white font-bold"
+                      : "text-black"
+                  }`}
                 >
                   Bị trả hàng
                 </Link>
@@ -283,7 +328,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <AccordionContent className="w-full">
                 <Link
                   href="/admin/order/cancelled"
-                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                  className={`block w-full py-2 px-2 text-black hover:bg-gray-200 ${
+                    pathname === "/admin/order/cancelled"
+                      ? "bg-primary text-white font-bold"
+                      : "text-black"
+                  }`}
                 >
                   Bị hủy
                 </Link>
@@ -303,7 +352,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <AccordionContent className="w-full">
                 <Link
                   href="/admin/promotion"
-                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                  className={`block w-full py-2 px-2 text-black hover:bg-gray-200 ${
+                    pathname === "/admin/promotion" || pathname === "/admin/promotion/add"
+                      ? "bg-primary text-white font-bold"
+                      : "text-black"
+                  }`}
                 >
                   Trên đơn
                 </Link>
@@ -311,7 +364,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <AccordionContent className="w-full">
                 <Link
                   href="/admin/coupon"
-                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                  className={`block w-full py-2 px-2 text-black hover:bg-gray-200 ${
+                    pathname === "/admin/coupon" || pathname === "/admin/coupon/add"
+                      ? "bg-primary text-white font-bold"
+                      : "text-black"
+                  }`}
                 >
                   Trên sản phẩm
                 </Link>
@@ -319,7 +376,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <AccordionContent className="w-full">
                 <Link
                   href="/admin/point"
-                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                  className={`block w-full py-2 px-2 text-black hover:bg-gray-200 ${
+                    pathname === "/admin/point" || pathname === "/admin/point/add"
+                      ? "bg-primary text-white font-bold"
+                      : "text-black"
+                  }`}
                 >
                   Tích điểm
                 </Link>
@@ -359,7 +420,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <AccordionContent className="w-full">
                 <Link
                   href="/admin/customer"
-                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                  className={`block w-full py-2 px-2 text-black hover:bg-gray-200 ${
+                    pathname === "/admin/customer"
+                      ? "bg-primary text-white font-bold"
+                      : "text-black"
+                  }`}
                 >
                   Danh sách
                 </Link>
@@ -367,7 +432,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <AccordionContent className="w-full">
                 <Link
                   href="/admin/customer/comment"
-                  className="block w-full py-2 px-2 text-black hover:bg-gray-200"
+                  className={`block w-full py-2 px-2 text-black hover:bg-gray-200 ${
+                    pathname === "/admin/customer/comment"
+                      ? "bg-primary text-white font-bold"
+                      : "text-black"
+                  }`}
                 >
                   Góp ý
                 </Link>

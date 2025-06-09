@@ -114,12 +114,6 @@ export default function PageCancelled() {
                       </div>
                     </div>
                   </div>
-                  {/* Button */}
-                  <div className="w-full flex flex-row items-center justify-end gap-3 text-background">
-                    <Button variant="default">
-                      Mua lại
-                    </Button>
-                  </div>
                 </div>
               );
             })

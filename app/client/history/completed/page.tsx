@@ -126,9 +126,6 @@ export default function PageCompleted() {
                         Trả hàng/Hoàn tiền
                       </Link>
                     </Button>
-                    <Button variant="default">
-                      Mua lại
-                    </Button>
                   </div>
                 </div>
               );

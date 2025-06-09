@@ -128,7 +128,7 @@ export default function updateCategory() {
   return (
     <div>
       <div className="relative justify-start text-black text-base font-normal font-['Inter']">
-        Đơn hàng / Khuyến mãi / Danh sách
+        Đơn hàng / Khuyến mãi / Cập nhật
       </div>
       <div className="relative justify-start text-[#5cb338] text-base font-bold font-['Inter'] mt-[10px]">
         Thông tin khuyến mãi
@@ -182,19 +182,24 @@ export default function updateCategory() {
               <FormField
                 control={form.control}
                 name="day_start"
-                render={({ field }) => (
-                  <FormItem className="w-full flex flex-col">
-                    <FormLabel className="font-normal">Ngày bắt đầu</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="datetime-local"
-                        {...field}
-                        value={field.value ?? ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const endAt = form.watch("day_end");
+
+                  return (
+                    <FormItem className="w-full flex flex-col">
+                      <FormLabel className="font-normal">Ngày bắt đầu</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="datetime-local"
+                          max={endAt || undefined}
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
             </div>
 
@@ -203,19 +208,24 @@ export default function updateCategory() {
               <FormField
                 control={form.control}
                 name="day_end"
-                render={({ field }) => (
-                  <FormItem className="w-full flex flex-col">
-                    <FormLabel className="font-normal">Ngày kết thúc</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="datetime-local"
-                        {...field}
-                        value={field.value ?? ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const startAt = form.watch("day_start");
+
+                  return (
+                    <FormItem className="w-full flex flex-col">
+                      <FormLabel className="font-normal">Ngày kết thúc</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="datetime-local"
+                          min={startAt || undefined}
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
             </div>
           </div>

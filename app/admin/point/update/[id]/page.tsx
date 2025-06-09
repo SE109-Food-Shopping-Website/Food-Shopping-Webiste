@@ -20,7 +20,7 @@ import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 const formSchema = z.object({
-  name: z.string().min(1, "Tên loại sản phẩm không được để trống"),
+  name: z.string().min(1, "Tên khuyến mãi không được để trống"),
   min_point: z
     .string()
     .regex(/^\d+$/, "Giá trị phải là số")
@@ -120,7 +120,7 @@ export default function updatePoint() {
   return (
     <div>
       <div className="relative justify-start text-black text-base font-normal font-['Inter']">
-        Đơn hàng / Thứ hạng / Danh sách
+        Đơn hàng / Thứ hạng / Cập nhật
       </div>
       <div className="relative justify-start text-[#5cb338] text-base font-bold font-['Inter'] mt-[10px]">
         Thông tin thứ hạng
