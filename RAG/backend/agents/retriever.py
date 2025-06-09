@@ -2,7 +2,7 @@ import os
 import numpy as np
 from pymongo import MongoClient
 from pyvi import ViTokenizer
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from dotenv import load_dotenv
 from sklearn.metrics.pairwise import cosine_similarity
 from collections import defaultdict
