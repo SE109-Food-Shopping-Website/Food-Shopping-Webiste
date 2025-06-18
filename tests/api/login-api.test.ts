@@ -1,5 +1,6 @@
 import { POST } from "@/app/api/login/route";
 import { NextRequest } from "next/server";
+import { jest } from '@jest/globals';
 
 jest.mock("@/lib/session", () => ({
   setSession: jest.fn(),
