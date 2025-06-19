@@ -30,10 +30,10 @@ export async function POST(req: Request) {
         data: {
           name,
           start_at: new Date(start_at),
-            end_at: new Date(end_at),
+          end_at: new Date(end_at),
           discount_percent,
           status: "Active",
-          product_type_id: parseInt(product_type_id, 10),
+          product_type_id: Number(product_type_id),
         },
       });
 

@@ -72,6 +72,11 @@ export default function PagePromotion() {
                 <div className="w-full flex flex-col items-center gap-2.5">
                     <div className="text-[25px] font-bold">Chương trình khuyến mãi</div>
                 </div>
+                {Object.keys(groupedProducts).length === 0 && (
+                    <div className="w-full text-center text-gray-500 text-lg py-10">
+                        Hiện không có sản phẩm giảm giá nào.
+                    </div>
+                )}
                 {Object.values(groupedProducts).map(({ productType, coupon, products }) => (
                     <div
                         key={productType.id}

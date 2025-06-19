@@ -20,17 +20,20 @@ import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 const formSchema = z
-.object({
-  name: z.string().min(1, "Tên coupon không được để trống"),
-  start_at: z.string().min(1, "Ngày bắt đầu không được để trống"),
-  end_at: z.string().min(1, "Ngày kết thúc không được để trống"),
-  product_type_id: z.string(),
-  discount_percent: z
-    .string()
-    .regex(/^\d+$/, "Phần trăm giảm giá phải là số")
-    .transform((val) => parseFloat(val)),
-})
-    .refine((data) => {
+  .object({
+    name: z.string().min(1, "Tên coupon không được để trống"),
+    start_at: z.string().min(1, "Ngày bắt đầu không được để trống"),
+    end_at: z.string().min(1, "Ngày kết thúc không được để trống"),
+    product_type_id: z
+      .string()
+      .regex(/^\d+$/, "ID loại sản phẩm phải là số")
+      .transform((val) => parseInt(val, 10)),
+    discount_percent: z
+      .string()
+      .regex(/^\d+$/, "Phần trăm giảm giá phải là số")
+      .transform((val) => parseFloat(val)),
+  })
+  .refine((data) => {
     const start = new Date(data.start_at);
     const end = new Date(data.end_at);
     return end >= start;
@@ -50,7 +53,7 @@ export default function UpdateCoupon() {
       start_at: "",
       end_at: "",
       discount_percent: 0,
-      product_type_id: "",
+      product_type_id: 0,
     },
   });
 
@@ -95,7 +98,7 @@ export default function UpdateCoupon() {
             start_at: new Date(values.start_at).toISOString(),
             end_at: new Date(values.end_at).toISOString(),
             discount_percent: values.discount_percent,
-            product_type_id: parseInt(values.product_type_id, 10),
+            product_type_id: values.product_type_id,
       }),
     })
     .then((res) => {

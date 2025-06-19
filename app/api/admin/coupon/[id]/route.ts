@@ -32,11 +32,11 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       const updatedrankList = await prisma.cOUPON.update({
         where: { id: parsedId },
         data: {
-            name,
-            start_at,
-            end_at,
-            discount_percent,
-            product_type_id: parseInt(product_type_id, 10),
+          name,
+          start_at,
+          end_at,
+          discount_percent,
+          product_type_id: Number(product_type_id),
         },
       });
 

@@ -27,7 +27,10 @@ const formSchema = z.object({
     .transform((val) => parseFloat(val)),
   start_at: z.string().min(1, "Ngày bắt đầu không được để trống"),
   end_at: z.string().min(1, "Ngày kết thúc không được để trống"),
-  product_type_id: z.string(),
+  product_type_id: z
+    .string()
+    .regex(/^\d+$/, "ID loại sản phẩm phải là số")
+    .transform((val) => parseInt(val, 10)),
 });
 
 export default function AddCoupon() {
@@ -40,7 +43,7 @@ export default function AddCoupon() {
       discount_percent: 0,
       start_at: "",
       end_at: "",
-      product_type_id: "",
+      product_type_id: 0,
     },
   });
 

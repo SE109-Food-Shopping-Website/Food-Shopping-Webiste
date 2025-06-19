@@ -12,22 +12,22 @@ export async function GET() {
         },
     });
 
-    const productTypeIds = coupons.map((c) => c.product_type_id).filter(Boolean);
+    const productTypeIds = coupons.map((c) => Number(c.product_type_id)).filter(Boolean);
 
     const products = await prisma.pRODUCT.findMany({
         where: {
-        productType_id: {
-            in: productTypeIds as number[],
-        },
+            productType_id: {
+                in: productTypeIds,
+            },
         },
         include: {
-        productType: true,
+            productType: true,
         },
     });
 
     const productsWithSale = products.map((product) => {
         const matchedCoupon = coupons.find(
-          (c) => c.product_type_id === product.productType_id
+          (c) => Number(c.product_type_id) === product.productType_id
         );
       
         const salePrice = matchedCoupon
