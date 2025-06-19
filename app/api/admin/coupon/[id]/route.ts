@@ -20,7 +20,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     try {
       const { id } = params;
       const body = await req.json();
-      const { name, start_at, end_at, discount_percent } = body;
+      const { name, start_at, end_at, discount_percent, product_type_id } = body;
 
       const parsedId = Number(id);
 
@@ -36,6 +36,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
             start_at,
             end_at,
             discount_percent,
+            product_type_id: parseInt(product_type_id, 10),
         },
       });
 

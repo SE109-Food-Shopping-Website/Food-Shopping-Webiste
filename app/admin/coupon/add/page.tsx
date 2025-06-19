@@ -27,6 +27,7 @@ const formSchema = z.object({
     .transform((val) => parseFloat(val)),
   start_at: z.string().min(1, "Ngày bắt đầu không được để trống"),
   end_at: z.string().min(1, "Ngày kết thúc không được để trống"),
+  product_type_id: z.string(),
 });
 
 export default function AddCoupon() {
@@ -39,6 +40,7 @@ export default function AddCoupon() {
       discount_percent: 0,
       start_at: "",
       end_at: "",
+      product_type_id: "",
     },
   });
 
@@ -175,7 +177,27 @@ export default function AddCoupon() {
               />
             </div>
           </div>
-
+          <div className="w-full self-stretch inline-flex justify-between items-center mt-[10px]">
+            <div className="w-[500px] inline-flex flex-col justify-start items-start gap-5">
+              <FormField
+                control={form.control}
+                name="product_type_id"
+                render={({ field }) => (
+                  <FormItem className="w-full flex flex-col">
+                    <FormLabel className="font-normal">Loại sản phẩm</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Nhập ID loại sản phẩm"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
           {/* Button */}
           <div className="w-full self-stretch inline-flex flex-col justify-start items-end gap-5 overflow-hidden mt-[15px]">
             <div className="inline-flex justify-start items-start gap-[29px]">

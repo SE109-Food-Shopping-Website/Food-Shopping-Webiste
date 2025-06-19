@@ -15,10 +15,10 @@ export async function GET() {
 export async function POST(req: Request) {
     try {
       const body = await req.json();
-      const { name, start_at, end_at, discount_percent} = body;
+      const { name, start_at, end_at, discount_percent, product_type_id } = body;
 
       // Kiểm tra các trường dữ liệu không trống
-      if (!name || !start_at || !end_at || !discount_percent) {
+      if (!name || !start_at || !end_at || !discount_percent || !product_type_id) {
         return new Response(
           JSON.stringify({ error: "Thiếu dữ liệu" }),
           { status: 400 }
@@ -33,6 +33,7 @@ export async function POST(req: Request) {
             end_at: new Date(end_at),
           discount_percent,
           status: "Active",
+          product_type_id: parseInt(product_type_id, 10),
         },
       });
 

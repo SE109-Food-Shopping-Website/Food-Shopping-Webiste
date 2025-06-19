@@ -14,6 +14,7 @@ export interface Coupon {
   start_at: string;
   end_at: string;
   discount_percent: number;
+  product_type_id: string;
   status: string;
   action: string;
 }
@@ -101,6 +102,21 @@ export const columns: ColumnDef<Coupon>[] = [
       );
     },
     cell: ({ row }) => <div>{row.getValue("discount_percent")}</div>,
+  },
+  {
+    accessorKey: "product_type_id",
+    header: ({ column }) => {
+      return (
+        <Button
+          className="pl-0"
+          variant="ghost"
+          style={{ backgroundColor: "transparent" }}
+        >
+          Loại sản phẩm
+        </Button>
+      );
+    },
+    cell: ({ row }) => <div>{row.getValue("product_type_id")}</div>,
   },
   {
     accessorKey: "status",

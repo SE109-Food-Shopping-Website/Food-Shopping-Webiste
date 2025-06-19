@@ -24,6 +24,7 @@ const formSchema = z
   name: z.string().min(1, "Tên coupon không được để trống"),
   start_at: z.string().min(1, "Ngày bắt đầu không được để trống"),
   end_at: z.string().min(1, "Ngày kết thúc không được để trống"),
+  product_type_id: z.string(),
   discount_percent: z
     .string()
     .regex(/^\d+$/, "Phần trăm giảm giá phải là số")
@@ -49,6 +50,7 @@ export default function UpdateCoupon() {
       start_at: "",
       end_at: "",
       discount_percent: 0,
+      product_type_id: "",
     },
   });
 
@@ -73,6 +75,7 @@ export default function UpdateCoupon() {
             start_at: toDatetimeLocalString(data.start_at),
             end_at: toDatetimeLocalString(data.end_at),
             discount_percent: data.discount_percent.toString(),
+            product_type_id: data.product_type_id.toString(),
           });
         }
       })
@@ -92,6 +95,7 @@ export default function UpdateCoupon() {
             start_at: new Date(values.start_at).toISOString(),
             end_at: new Date(values.end_at).toISOString(),
             discount_percent: values.discount_percent,
+            product_type_id: parseInt(values.product_type_id, 10),
       }),
     })
     .then((res) => {
@@ -216,6 +220,28 @@ export default function UpdateCoupon() {
                   />
                 </div>
               </div>
+              <div className="w-full self-stretch inline-flex justify-between items-center mt-[10px]">
+                <div className="w-[500px] inline-flex flex-col justify-start items-start gap-5">
+                  <FormField
+                    control={form.control}
+                    name="product_type_id"
+                    render={({ field }) => (
+                      <FormItem className="w-full flex flex-col">
+                        <FormLabel className="font-normal">Loại sản phẩm</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            placeholder="Nhập ID loại sản phẩm"
+                            {...field}
+                            value={field.value ?? ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  </div>
+                </div>
               <div className="w-full self-stretch self-stretch inline-flex flex-col justify-start items-end gap-5 overflow-hidden mt-[15px]">
             <div className="inline-flex justify-start items-start gap-[29px]">
               <div className="relative">
